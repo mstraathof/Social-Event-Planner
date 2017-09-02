@@ -83,4 +83,45 @@ public class DataStore {
         }
         return data;
     }
+    /** 
+        Update the title and content of a row in the DataStore
+        @param id : The id of the row being updated
+        @param title: The new title for the row
+        @param content: The new content for the row
+        @return : A copy of the data in the row, if it exists, or null
+    */
+    public synchronized DataRow updateOne(int id,String title, String content){
+        if(title == null || content == null)
+            return null;
+
+        if (id >= mRows.size())
+            return null;
+        
+        DataRow data = mRows.get(id);
+        if(data == null)
+            return null;
+
+        data.mTitle = title;
+        data.mContent = content;
+        return new DataRow(data);
+    }
+
+    /** 
+        Deletes a row from the Datastore
+
+        @param id : The id of the row to delete
+        @return : True if the row was deleted, false otherwise
+    */
+
+    public synchronized boolean deleteOne(int id)
+    {
+        if(id >= mRows.size())
+            return false;
+        if(mRows.get(id) == null)
+            return false;
+        //Replaces the element at the given ID with Null
+        mRows.set(id,null);
+        return true;
+    }
+
 }
