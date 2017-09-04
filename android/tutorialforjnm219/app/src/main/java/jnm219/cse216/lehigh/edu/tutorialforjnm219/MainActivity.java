@@ -24,8 +24,14 @@ import org.json.JSONException;
 
 import java.util.ArrayList;
 
+
+
 public class MainActivity extends AppCompatActivity {
 
+    /**
+     * mData holds the data we get from Volley
+     */
+    ArrayList<Datum> mData = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d("jnm219", "Debug Message from onCreate");
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url = "http://www.cse.lehigh.edu/~spear/courses.json";
+        String url = "http://www.cse.lehigh.edu/~spear/5k.json";
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -56,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
                                 android.R.layout.simple_list_item_1,
                                 myList);
                         mListView.setAdapter(adapter);
+                        populateListFromVolley(response);
+
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -66,8 +74,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
-
-
 
     }
 
@@ -92,5 +98,26 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+    private void populateListFromVolley(String response){
+        try {
+            JSONArray json= new JSONArray(response);
+            for (int i = 0; i < json.length(); ++i) {
+                int num = json.getJSONObject(i).getInt("num");
+                String str = json.getJSONObject(i).getString("str");
+                mData.add(new Datum(num, str));
+            }
+        } catch (final JSONException e) {
+            Log.d("jnm219", "Error parsing JSON file: " + e.getMessage());
+            return;
+        }
+        Log.d("jnm219", "Successfully parsed JSON file.");
+        ListView mListView = (ListView) findViewById(R.id.datum_list_view);
+        ItemListAdapter adapter = new ItemListAdapter(this, mData);
+        mListView.setAdapter(adapter);
+    }
+
+
+
+
 
 }
