@@ -4,13 +4,15 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.util.Log;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
+
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -23,6 +25,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.util.ArrayList;
+
 
 
 
@@ -55,13 +58,14 @@ public class MainActivity extends AppCompatActivity {
                                 myList.add(jStringArray.getString(i));
                             }
                         } catch (final JSONException e) {
-                            Log.d("mfs409", "Error parsing JSON file..." + e.getMessage());
+                            Log.d("jnm219", "Error parsing JSON file..." + e.getMessage());
                         }
-                        ListView mListView = (ListView) findViewById(R.id.datum_list_view);
-                        ArrayAdapter adapter = new ArrayAdapter<>(MainActivity.this,
-                                android.R.layout.simple_list_item_1,
-                                myList);
-                        mListView.setAdapter(adapter);
+                        RecyclerView rv = (RecyclerView) findViewById(R.id.datum_list_view);
+                        //ArrayAdapter adapter = new ArrayAdapter<>(MainActivity.this,
+                        //        android.R.layout.simple_list_item_1,
+                        //        myList);
+                        RecyclerView.Adapter adapter = new DatumRecyclerViewAdapter(mData);
+                        rv.setAdapter(adapter);
                         populateListFromVolley(response);
 
                     }
@@ -111,9 +115,10 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         Log.d("jnm219", "Successfully parsed JSON file.");
-        ListView mListView = (ListView) findViewById(R.id.datum_list_view);
+        RecyclerView rv = (RecyclerView) findViewById(R.id.datum_list_view);
+        rv.setLayoutManager(new LinearLayoutManager(this));
         ItemListAdapter adapter = new ItemListAdapter(this, mData);
-        mListView.setAdapter(adapter);
+        rv.setAdapter(adapter);
     }
 
 

@@ -1,15 +1,26 @@
 package jnm219.cse216.lehigh.edu.tutorialforjnm219;
 
 import android.content.Context;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
-class ItemListAdapter extends BaseAdapter {
+class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ViewHolder> {
+
+    class ViewHolder extends RecyclerView.ViewHolder {
+        TextView mIndex;
+        TextView mText;
+
+        ViewHolder(View itemView) {
+            super(itemView);
+            this.mIndex = (TextView) itemView.findViewById(R.id.listItemIndex);
+            this.mText = (TextView) itemView.findViewById(R.id.listItemText);
+        }
+    }
 
     private ArrayList<Datum> mData;
     private LayoutInflater mLayoutInflater;
@@ -20,29 +31,20 @@ class ItemListAdapter extends BaseAdapter {
     }
 
     @Override
-    public int getCount() {
+    public int getItemCount() {
         return mData.size();
     }
 
     @Override
-    public Object getItem(int i) {
-        return mData.get(i);
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = mLayoutInflater.inflate(R.layout.list_item, null);
+        return new ViewHolder(view);
     }
 
     @Override
-    public long getItemId(int i) {
-        return i;
-    }
-
-    @Override
-    public View getView(int i, View view, ViewGroup viewGroup) {
-        View rowView = mLayoutInflater.inflate(R.layout.list_item, viewGroup, false);
-        TextView tv = (TextView) rowView.findViewById(R.id.listItemIndex);
-        // NB: must pre-cast to string, or we'll dispatch to the wrong setText()
-        String index = "" + mData.get(i).mIndex;
-        tv.setText(index);
-        tv = (TextView) rowView.findViewById(R.id.listItemText);
-        tv.setText(mData.get(i).mText);
-        return rowView;
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        Datum d = mData.get(position);
+        holder.mIndex.setText(Integer.toString(d.mIndex));
+        holder.mText.setText(d.mText);
     }
 }
