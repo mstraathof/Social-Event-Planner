@@ -12,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.util.Log;
 import android.widget.ArrayAdapter;
+import android.widget.Toast;
 
 
 import com.android.volley.Request;
@@ -119,6 +120,13 @@ public class MainActivity extends AppCompatActivity {
         rv.setLayoutManager(new LinearLayoutManager(this));
         ItemListAdapter adapter = new ItemListAdapter(this, mData);
         rv.setAdapter(adapter);
+
+        adapter.setClickListener(new ItemListAdapter.ClickListener() {
+            @Override
+            public void onClick(Datum d) {
+                Toast.makeText(MainActivity.this, d.mIndex + " --> " + d.mText, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
 

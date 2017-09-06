@@ -43,8 +43,24 @@ class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Datum d = mData.get(position);
+        final Datum d = mData.get(position);
         holder.mIndex.setText(Integer.toString(d.mIndex));
         holder.mText.setText(d.mText);
+        // Attach a click listener to the view we are configuring
+        final View.OnClickListener listener = new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                mClickListener.onClick(d);
+            }
+        };
+        holder.mIndex.setOnClickListener(listener);
+        holder.mText.setOnClickListener(listener);
     }
+
+    interface ClickListener{
+        void onClick(Datum d);
+    }
+    private ClickListener mClickListener;
+    ClickListener getClickListener() {return mClickListener;}
+    void setClickListener(ClickListener c) { mClickListener = c;}
 }
