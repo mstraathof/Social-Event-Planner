@@ -7,3 +7,11 @@
 /build
 /captures
 .externalNativeBuild
+../../.gitignore
+../../.admin
+../../.admin/
+.idea
+*/*/admin/
+*/*/backend/
+*/*/web/
+*/*/web
