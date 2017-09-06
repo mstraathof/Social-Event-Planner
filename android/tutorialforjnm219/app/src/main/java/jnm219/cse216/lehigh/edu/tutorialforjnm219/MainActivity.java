@@ -1,5 +1,6 @@
 package jnm219.cse216.lehigh.edu.tutorialforjnm219;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -100,6 +101,12 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             return true;
         }
+        if (id == R.id.action_settings) {
+            Intent i = new Intent(getApplicationContext(), SecondActivity.class);
+            i.putExtra("label_contents", "CSE216 is the best");
+            startActivityForResult(i, 789); // 789 is the number that will come back to us
+            return true;
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -129,7 +136,17 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        if (requestCode == 789) {
+            // Make sure the request was successful
+            if (resultCode == RESULT_OK) {
+                // Get the "extra" string of data
+                Toast.makeText(MainActivity.this, data.getStringExtra("result"), Toast.LENGTH_LONG).show();
+            }
+        }
+    }
 
 
 
