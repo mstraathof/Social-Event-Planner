@@ -30,3 +30,11 @@ node_modules/typescript/bin/tsc app.ts --strict --outFile $TARGETFOLDER/$WEBFOLD
 
 # step 5: copy css files
 cp app.css $TARGETFOLDER/$WEBFOLDERNAME
+
+# set up Jasmine
+node_modules/typescript/bin/tsc apptest.ts --strict --outFile $TARGETFOLDER/$WEBFOLDERNAME/apptest.js
+cp spec_runner.html $TARGETFOLDER/$WEBFOLDERNAME
+cp node_modules/jasmine-core/lib/jasmine-core/jasmine.css $TARGETFOLDER/$WEBFOLDERNAME
+cp node_modules/jasmine-core/lib/jasmine-core/jasmine.js $TARGETFOLDER/$WEBFOLDERNAME
+cp node_modules/jasmine-core/lib/jasmine-core/boot.js $TARGETFOLDER/$WEBFOLDERNAME
+cp node_modules/jasmine-core/lib/jasmine-core/jasmine-html.js $TARGETFOLDER/$WEBFOLDERNAME
