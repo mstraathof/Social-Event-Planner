@@ -3,10 +3,12 @@ package jnm219.cse216.lehigh.edu.tutorialforjnm219;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Debug;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -22,7 +24,8 @@ public class SecondActivity extends AppCompatActivity {
         // Get the parameter from the calling activity, and put it in the TextView
         Intent input = getIntent();
         String label_contents = input.getStringExtra("label_contents");
-        TextView tv = (TextView) findViewById(R.id.specialMessage);
+        final TextView tv = (TextView) findViewById(R.id.specialMessage);
+
         tv.setText(label_contents);
 
         // The OK button gets the text from the input box and returns it to the calling activity
