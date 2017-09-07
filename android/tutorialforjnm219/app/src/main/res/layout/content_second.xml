@@ -6,11 +6,10 @@
     <TextView
         android:id="@+id/specialMessage"
         android:layout_width="383dp"
-        android:layout_height="54dp"
-        android:text=""
+        android:layout_height="100dp"
+
         tools:layout_editor_absoluteY="8dp"
         tools:layout_editor_absoluteX="0dp" />
-
     <EditText
         android:id="@+id/editText"
         android:layout_width="384dp"

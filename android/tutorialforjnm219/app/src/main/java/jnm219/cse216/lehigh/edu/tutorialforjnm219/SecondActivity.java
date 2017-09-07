@@ -22,7 +22,8 @@ public class SecondActivity extends AppCompatActivity {
         // Get the parameter from the calling activity, and put it in the TextView
         Intent input = getIntent();
         String label_contents = input.getStringExtra("label_contents");
-        TextView tv = (TextView) findViewById(R.id.specialMessage);
+        final TextView tv = (TextView) findViewById(R.id.specialMessage);
+
         tv.setText(label_contents);
 
         // The OK button gets the text from the input box and returns it to the calling activity
