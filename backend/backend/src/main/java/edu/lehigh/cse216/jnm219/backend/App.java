@@ -7,6 +7,19 @@ import spark.Spark;
 // Import Google's JSON library
 import com.google.gson.*;
 
+//Importing the ability to access the database from Postgres
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.Map;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.IOException;
+
+import java.util.ArrayList;
+import java.util.Map;
+
 /**
  * For now, our app creates an HTTP server that can only get and add data.
  */
@@ -28,8 +41,21 @@ public class App {
         // NB: every time we shut down the server, we will lose all data, and 
         //     every time we start the server, we'll have an empty dataStore,
         //     with IDs starting over from 0.
-        final DataStore dataStore = new DataStore();
+        //Changing the retrivl from a DataStore to a Database
+        //final DataStore dataStore = new DataStore();
 
+        // get the Postgres configuration from the environment
+        Map<String, String> env = System.getenv();
+        String ip = env.get("POSTGRES_IP");
+        String port = env.get("POSTGRES_PORT");
+        String user = env.get("POSTGRES_USER");
+        String pass = env.get("POSTGRES_PASS");
+
+        // Get a fully-configured connection to the database, or exit 
+        // immediately
+        Database db = Database.getDatabase(ip, port, user, pass);
+    
+        
         // Set up the location for serving static files.  If the STATIC_LOCATION
         // environment variable is set, we will serve from it.  Otherwise, serve
         // from "/web"
@@ -56,7 +82,7 @@ public class App {
             // ensure status 200 OK, with a MIME type of JSON
             response.status(200);
             response.type("application/json");
-            return gson.toJson(new StructuredResponse("ok", null, dataStore.readAll()));
+            return gson.toJson(new StructuredResponse("ok", null, db.selectAll()));
         });
 
         // GET route that returns everything for a single row in the DataStore.
@@ -70,7 +96,7 @@ public class App {
             // ensure status 200 OK, with a MIME type of JSON
             response.status(200);
             response.type("application/json");
-            DataRow data = dataStore.readOne(idx);
+            RowData data = db.selectOne(idx);
             if (data == null) {
                 return gson.toJson(new StructuredResponse("error", idx + " not found", null));
             } else {
@@ -92,7 +118,7 @@ public class App {
             response.status(200);
             response.type("application/json");
             // NB: createEntry checks for null title and message
-            int newId = dataStore.createEntry(req.mTitle, req.mMessage);
+            int newId = db.insertRow(req.mSubject, req.mMessage);
             if (newId == -1) {
                 return gson.toJson(new StructuredResponse("error", "error performing insertion", null));
             } else {
@@ -109,7 +135,7 @@ public class App {
             // ensure status 200 OK, with a MIME type of JSON
             response.status(200);
             response.type("application/json");
-            DataRow result = dataStore.updateOne(idx, req.mTitle, req.mMessage);
+            RowData result = db.updateOne(idx, req.mSubject,req.mMessage);
             if (result == null) {
                 return gson.toJson(new StructuredResponse("error", "unable to update row " + idx, null));
             } else {
@@ -126,12 +152,13 @@ public class App {
             response.type("application/json");
             // NB: we won't concern ourselves too much with the quality of the 
             //     message sent on a successful delete
-            boolean result = dataStore.deleteOne(idx);
-            if (!result) {
+            int result = db.deleteRow(idx);
+            if (result != -1) {
                 return gson.toJson(new StructuredResponse("error", "unable to delete row " + idx, null));
             } else {
                 return gson.toJson(new StructuredResponse("ok", null, null));
             }
         });
+        
     }
 }

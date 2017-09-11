@@ -52,7 +52,7 @@ class NewEntryForm {
             type: "POST",
             url: "/messages",
             dataType: "json",
-            data: JSON.stringify({ mTitle: title, mMessage: msg }),
+            data: JSON.stringify({ mSubject: title, mMessage: msg }),
             success: newEntryForm.onSubmitResponse
         });
     }
@@ -78,6 +78,7 @@ class NewEntryForm {
         }
     }
 } // end class NewEntryForm
+
 
 // a global for the main ElementList of the program.  See newEntryForm for 
 // explanation
@@ -106,7 +107,7 @@ class ElementList {
     private update(data: any) {
         $("#messageList").html("<table>");
         for (let i = 0; i < data.mData.length; ++i) {
-            $("#messageList").append("<tr><td>" + data.mData[i].mTitle +
+            $("#messageList").append("<tr><td>" + data.mData[i].mSubject +
                 "</td>" + mainList.buttons(data.mData[i].mId) + "</tr>");
         }
         $("#messageList").append("</table>");
@@ -161,26 +162,6 @@ class ElementList {
 
 } // end class ElementList
 
-// Run some configuration code when the web page loads
-$(document).ready(function () {
-    // Create the object that controls the "New Entry" form
-    newEntryForm = new NewEntryForm();
-    // Create the object for the main data list, and populate it with data from
-    // the server
-    mainList = new ElementList();
-    mainList.refresh();
-    // Create the object that controls the "Edit Entry" form
-    editEntryForm = new EditEntryForm();
-    // set up initial UI state
-    $("#editElement").hide();
-    $("#addElement").hide();
-    $("#showElements").show();
-    // set up the "Add Message" button
-    $("#showFormButton").click(function () {
-        $("#addElement").show();
-        $("#showElements").hide();
-    });
-});
 
 // a global for the EditEntryForm of the program.  See newEntryForm for 
 // explanation
@@ -190,6 +171,7 @@ var editEntryForm: EditEntryForm;
  * EditEntryForm encapsulates all of the code for the form for editing an entry
  */
 class EditEntryForm {
+    
     /**
      * To initialize the object, we say what method of EditEntryForm should be
      * run in response to each of the form's buttons being clicked.
@@ -206,9 +188,13 @@ class EditEntryForm {
     init(data: any) {
         if (data.mStatus === "ok") {
             $("#editTitle").val(data.mData.mTitle);
-            $("#editMessage").val(data.mData.mContent);
+            $("#editMessage").val(data.mData.mMessage);
             $("#editId").val(data.mData.mId);
             $("#editCreated").text(data.mData.mCreated);
+            // show the edit form
+            $("#addElement").hide();
+            $("#editElement").show();
+            $("#showElements").hide();
         }
         else if (data.mStatus === "error") {
             window.alert("Error: " + data.mMessage);
@@ -216,10 +202,6 @@ class EditEntryForm {
         else {
             window.alert("An unspecified error occurred");
         }
-        // show the edit form
-        $("#addElement").hide();
-        $("#editElement").show();
-        $("#showElements").hide();
     }
 
     /**
@@ -230,6 +212,7 @@ class EditEntryForm {
         $("#editMessage").val("");
         $("#editId").val("");
         $("#editCreated").text("");
+
         // reset the UI
         $("#addElement").hide();
         $("#editElement").hide();
@@ -244,6 +227,7 @@ class EditEntryForm {
         // that neither is empty
         let title = "" + $("#editTitle").val();
         let msg = "" + $("#editMessage").val();
+        alert(title);
         // NB: we assume that the user didn't modify the value of #editId
         let id = "" + $("#editId").val();
         if (title === "" || msg === "") {
@@ -256,7 +240,7 @@ class EditEntryForm {
             type: "PUT",
             url: "/messages/" + id,
             dataType: "json",
-            data: JSON.stringify({ mTitle: title, mMessage: msg }),
+            data: JSON.stringify({ mSubject: title, mMessage: msg }),
             success: editEntryForm.onSubmitResponse
         });
     }
@@ -284,3 +268,27 @@ class EditEntryForm {
         }
     }
 } // end class EditEntryForm
+
+// Run some configuration code when the web page loads
+$(document).ready(function () {
+    // Create the object that controls the "New Entry" form
+    newEntryForm = new NewEntryForm();
+    // Create the object for the main data list, and populate it with data from
+    // the server
+    mainList = new ElementList();
+
+    // Create the object that controls the "Edit Entry" form
+    editEntryForm = new EditEntryForm();
+
+    mainList.refresh();
+    
+    // set up initial UI state
+    $("#editElement").hide();
+    $("#addElement").hide();
+    $("#showElements").show();
+    // set up the "Add Message" button
+    $("#showFormButton").click(function () {
+        $("#addElement").show();
+        $("#showElements").hide();
+    });
+});
