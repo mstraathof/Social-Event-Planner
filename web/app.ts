@@ -52,7 +52,7 @@ class NewEntryForm {
             type: "POST",
             url: "/messages",
             dataType: "json",
-            data: JSON.stringify({ mSubject: title, mMessage: msg }),
+            data: JSON.stringify({ mTitle: title, mMessage: msg }),
             success: newEntryForm.onSubmitResponse
         });
     }
@@ -67,6 +67,7 @@ class NewEntryForm {
         // If we get an "ok" message, clear the form
         if (data.mStatus === "ok") {
             newEntryForm.clearForm();
+            mainList.refresh();
         }
         // Handle explicit errors with a detailed popup message
         else if (data.mStatus === "error") {
@@ -76,6 +77,7 @@ class NewEntryForm {
         else {
             window.alert("Unspecified error");
         }
+        mainList.refresh();
     }
 } // end class NewEntryForm
 
@@ -106,8 +108,15 @@ class ElementList {
      */
     private update(data: any) {
         $("#messageList").html("<table>");
+        /*
         for (let i = 0; i < data.mData.length; ++i) {
             $("#messageList").append("<tr><td>" + data.mData[i].mSubject +
+                "</td>" + mainList.buttons(data.mData[i].mId) + "</tr>");
+        }
+        */
+        for (let i = 0; i < data.mData.length; ++i) {
+        	console.log(data.mData);
+            $("#messageList").append("<tr id=" + data.mData[i].mId + "><td>" + data.mData[i].mSubject +
                 "</td>" + mainList.buttons(data.mData[i].mId) + "</tr>");
         }
         $("#messageList").append("</table>");
@@ -187,7 +196,7 @@ class EditEntryForm {
      */
     init(data: any) {
         if (data.mStatus === "ok") {
-            $("#editTitle").val(data.mData.mTitle);
+            $("#editTitle").val(data.mData.mSubject);
             $("#editMessage").val(data.mData.mMessage);
             $("#editId").val(data.mData.mId);
             $("#editCreated").text(data.mData.mCreated);
@@ -217,6 +226,7 @@ class EditEntryForm {
         $("#addElement").hide();
         $("#editElement").hide();
         $("#showElements").show();
+ 
     }
 
     /**
@@ -227,7 +237,7 @@ class EditEntryForm {
         // that neither is empty
         let title = "" + $("#editTitle").val();
         let msg = "" + $("#editMessage").val();
-        alert(title);
+        //alert(title);
         // NB: we assume that the user didn't modify the value of #editId
         let id = "" + $("#editId").val();
         if (title === "" || msg === "") {
@@ -240,7 +250,7 @@ class EditEntryForm {
             type: "PUT",
             url: "/messages/" + id,
             dataType: "json",
-            data: JSON.stringify({ mSubject: title, mMessage: msg }),
+            data: JSON.stringify({ mTitle: title, mMessage: msg }),
             success: editEntryForm.onSubmitResponse
         });
     }
@@ -266,6 +276,7 @@ class EditEntryForm {
         else {
             window.alert("Unspecified error");
         }
+        mainList.refresh();
     }
 } // end class EditEntryForm
 

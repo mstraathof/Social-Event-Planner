@@ -223,23 +223,18 @@ public class Database {
 
     /**
      * Update the message for a row in the database
-     * 
+     * @param subject The new subject contents
      * @param id The id of the row to update
      * @param message The new message contents
-     * 
      * @return The number of rows that were updated.  -1 indicates an error.
      */
-    RowData updateOne(int id,String subject, String message) {
-        RowData res = null;
+    int updateOne(int id,String subject, String message) {
+        int res = -1;
         try {
-            
             mUpdateOne.setString(1, subject);
             mUpdateOne.setString(2, message);
             mUpdateOne.setInt(3, id);
-            ResultSet rs = mUpdateOne.executeQuery();
-            if (rs.next()) {
-                res = new RowData(rs.getInt("id"), rs.getString("subject"), rs.getString("message"));
-            }
+            res = mUpdateOne.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }

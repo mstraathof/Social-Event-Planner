@@ -118,7 +118,7 @@ public class App {
             response.status(200);
             response.type("application/json");
             // NB: createEntry checks for null title and message
-            int newId = db.insertRow(req.mSubject, req.mMessage);
+            int newId = db.insertRow(req.mTitle, req.mMessage);
             if (newId == -1) {
                 return gson.toJson(new StructuredResponse("error", "error performing insertion", null));
             } else {
@@ -135,8 +135,8 @@ public class App {
             // ensure status 200 OK, with a MIME type of JSON
             response.status(200);
             response.type("application/json");
-            RowData result = db.updateOne(idx, req.mSubject,req.mMessage);
-            if (result == null) {
+            int result = db.updateOne(idx, req.mTitle,req.mMessage);
+            if (result == -1) {
                 return gson.toJson(new StructuredResponse("error", "unable to update row " + idx, null));
             } else {
                 return gson.toJson(new StructuredResponse("ok", null, result));

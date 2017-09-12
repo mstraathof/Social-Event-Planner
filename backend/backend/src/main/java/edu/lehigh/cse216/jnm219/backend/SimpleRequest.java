@@ -11,7 +11,7 @@ public class SimpleRequest {
     /**
      * The title being provided by the client.
      */
-    public String mSubject;
+    public String mTitle;
 
     /**
      * The message being provided by the client.
