@@ -1,10 +1,7 @@
-# CSE 216
-This is an individual student repository.  It is intended for use during phase 0.
+# Team liger
 
-## Details
-- Semester: Fall 2017
-- Student ID: jnm219
-- Bitbucket Repository: https://mspear@bitbucket.org/mspear/cse216_jnm219.git
-
-## Contributors
-1. John McBryan
+*  tcg219
+*  jnm219
+*  coo219
+*  jos219
+*  mts219
