@@ -24,6 +24,23 @@ import java.util.Map;
  * For now, our app creates an HTTP server that can only get and add data.
  */
 public class App {
+    /**
+ * Get an integer environment varible if it exists, and otherwise return the
+ * default value.
+ * 
+ * @envar      The name of the environment variable to get.
+ * @defaultVal The integer value to use as the default if envar isn't found
+ * 
+ * @returns The best answer we could come up with for a value for envar
+ */
+static int getIntFromEnv(String envar, int defaultVal) {
+    ProcessBuilder processBuilder = new ProcessBuilder();
+    if (processBuilder.environment().get(envar) != null) {
+        return Integer.parseInt(processBuilder.environment().get(envar));
+    }
+    return defaultVal;
+}
+
     public static void main(String[] args) {
 
         // gson provides us with a way to turn JSON into objects, and objects
@@ -34,7 +51,7 @@ public class App {
         // NB: Gson is thread-safe.  See 
         // https://stackoverflow.com/questions/10380835/is-it-ok-to-use-gson-instance-as-a-static-field-in-a-model-bean-reuse
         final Gson gson = new Gson();
-
+        Spark.port(getIntFromEnv("PORT", 4567));
         // dataStore holds all of the data that has been provided via HTTP 
         // requests
         //
