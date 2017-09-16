@@ -3,6 +3,7 @@
 // methods, without the compiler producing an error.
 var $: any;
 
+
 // The 'this' keyword does not behave in JavaScript/TypeScript like it does in
 // Java.  Since there is only one NewEntryForm, we will save it to a global, so
 // that we can reference it from methods of the NewEntryForm in situations where
