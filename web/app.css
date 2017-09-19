@@ -5,44 +5,12 @@ body {
     background-color: #EBF5FB;
 }
 
-/* font, color, and alignment for the titles of the three displayable regions */
-h3 {
-    
-    font-size: 24pt;
-    font-weight: bold;
-    height: 42px;
-    text-align: center;
-    background-color: #3498DB;
-}
-
 /* Make the button for adding a message hover in the top right */
 #showFormButton {
     position: absolute;
     top: 5px;
     right: 5px;
 }
-
-/* The main screen table should have some space to the left */
-#messageList {
-    margin-left: 15px;
-}
-
-/* The table should be wider than it absolutely needs to be */
-table {
-    width: 500px;
-}
-
-/* alternate color of table rows */
-tr:nth-child(even) {background: #AED6F1}
-tr:nth-child(odd) {background: #D6EAF8}
-
-/* make table row height a bit bigger than necessary */
-tr {
-    height: 15px;
-}
-
-/* make the first column of the table wide */
-td:first-child {width: 75%;}
 
 /* make the form elements wide, and force a line break after each */
 input, label, textarea {
