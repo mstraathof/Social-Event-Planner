@@ -119,7 +119,7 @@ static int getIntFromEnv(String envar, int defaultVal) {
             response.status(200);
             response.type("application/json");
             // NB: createEntry checks for null title and message
-            int newId = db.insertRow(req.mTitle, req.mMessage);
+            int newId = db.insertRow(req.mTitle, req.mMessage, req.mVotes, req.mCreateTime, req.mModifyTime);
             if (newId == -1) {
                 return gson.toJson(new StructuredResponse("error", "error performing insertion", null));
             } else {
