@@ -1,6 +1,9 @@
 package edu.lehigh.cse216.jnm219.backend;
-    
-    /**
+
+import java.security.Timestamp;
+import java.util.Date;
+
+/**
      * RowData is like a struct in C: we use it to hold data, and we allow 
      * direct access to its fields.  In the context of this Database, RowData 
      * represents the data we'd see in a row.
@@ -23,6 +26,18 @@ package edu.lehigh.cse216.jnm219.backend;
          * The message stored in this row
          */
         String mMessage;
+        /**
+         * The number of votes for this row
+         */
+        int mVotes;
+        /**
+         * The time of row creation
+         */
+        String mCreateTime;
+        /**
+         * The most recent time of row modification
+         */
+        String mModifyTime;
 
         /**
          * Construct a RowData object by providing values for its fields
@@ -31,5 +46,8 @@ package edu.lehigh.cse216.jnm219.backend;
             mId = id;
             mSubject = subject;
             mMessage = message;
+            mVotes = 0;
+            mCreateTime = "" + new java.sql.Timestamp(System.currentTimeMillis());
+            mModifyTime = mCreateTime;
         }
     }

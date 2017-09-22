@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.net.URISyntaxException;
 
 import java.util.ArrayList;
 
@@ -58,6 +59,15 @@ public class Database {
     }
 
     /**
+     * Give the Database object a connection, fail if we cannot get one
+     * Must be logged into heroku on a local computer to be able to use mvn heroku:deploy
+     */
+    private static Connection getConnection() throws URISyntaxException, SQLException {
+        String dbUrl = System.getenv("JDBC_DATABASE_URL"); // Url for heroku database connection
+        return DriverManager.getConnection(dbUrl);
+    }
+
+    /**
      * Get a fully-configured connection to the database
      * 
      * @param ip   The IP address of the database server
@@ -68,13 +78,13 @@ public class Database {
      * 
      * @return A Database object, or null if we cannot connect properly
      */
-    static Database getDatabase(String ip, String port, String user, String pass) {
+    static Database getDatabase() {
         // Create an un-configured Database object
         Database db = new Database();
 
         // Give the Database object a connection, fail if we cannot get one
         try {
-            Connection conn = DriverManager.getConnection("jdbc:postgresql://" + ip + ":" + port + "/", user, pass);
+            Connection conn = getConnection();
             if (conn == null) {
                 System.err.println("Error: DriverManager.getConnection() returned a null object");
                 return null;
@@ -82,6 +92,10 @@ public class Database {
             db.mConnection = conn;
         } catch (SQLException e) {
             System.err.println("Error: DriverManager.getConnection() threw a SQLException");
+            e.printStackTrace();
+            return null;
+        } catch (URISyntaxException e) {
+            System.err.println("Error: DriverManager.getConnection() threw a URISyntaxException");
             e.printStackTrace();
             return null;
         }

@@ -52,27 +52,11 @@ static int getIntFromEnv(String envar, int defaultVal) {
         // https://stackoverflow.com/questions/10380835/is-it-ok-to-use-gson-instance-as-a-static-field-in-a-model-bean-reuse
         final Gson gson = new Gson();
         Spark.port(getIntFromEnv("PORT", 4567));
-        // dataStore holds all of the data that has been provided via HTTP 
-        // requests
-        //
-        // NB: every time we shut down the server, we will lose all data, and 
-        //     every time we start the server, we'll have an empty dataStore,
-        //     with IDs starting over from 0.
-        //Changing the retrivl from a DataStore to a Database
-        //final DataStore dataStore = new DataStore();
-
-        // get the Postgres configuration from the environment
-        Map<String, String> env = System.getenv();
-        String ip = env.get("POSTGRES_IP");
-        String port = env.get("POSTGRES_PORT");
-        String user = env.get("POSTGRES_USER");
-        String pass = env.get("POSTGRES_PASS");
 
         // Get a fully-configured connection to the database, or exit 
         // immediately
-        Database db = Database.getDatabase(ip, port, user, pass);
-    
-        
+        Database db = Database.getDatabase();
+
         // Set up the location for serving static files.  If the STATIC_LOCATION
         // environment variable is set, we will serve from it.  Otherwise, serve
         // from "/web"
@@ -142,6 +126,9 @@ static int getIntFromEnv(String envar, int defaultVal) {
                 return gson.toJson(new StructuredResponse("ok", "" + newId, null));
             }
         });
+
+        // Edit and Delete functionality commented out for the time being
+        /**
         // PUT route for updating a row in the DataStore.  This is almost 
         // exactly the same as POST
         Spark.put("/messages/:id", (request, response) -> {
@@ -152,7 +139,7 @@ static int getIntFromEnv(String envar, int defaultVal) {
             // ensure status 200 OK, with a MIME type of JSON
             response.status(200);
             response.type("application/json");
-            int result = db.updateOne(idx, req.mTitle,req.mMessage);
+            int result = db.updateOne(idx, req.mTitle, req.mMessage);
             if (result == -1) {
                 return gson.toJson(new StructuredResponse("error", "unable to update row " + idx, null));
             } else {
@@ -176,6 +163,7 @@ static int getIntFromEnv(String envar, int defaultVal) {
                 return gson.toJson(new StructuredResponse("ok", null, null));
             }
         });
+        */
         
     }
 }
