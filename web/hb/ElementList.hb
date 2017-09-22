@@ -1,14 +1,15 @@
 <div class="panel panel-default" id="ElementList">
-    <div class="panel-heading">
-        <h3 class="panel-title">All Data</h3>
-    </div>
     <table class="table">
         <tbody>
             {{#each mData}}
-            <tr>
+            <tr class="ElementList-editbtn" data-value="{{this.mId}}"data-message="{{this.mMessage}}"data-subject="{{this.mSubject}}">
                 <td>{{this.mSubject}}</td>
-                <td><button class="ElementList-editbtn" data-value="{{this.mId}}">Edit</button></td>
+                <td>Date Submitted: </td>
+                <td>Votes: </td>
+                <!-- Data For both Edit and Delete Buttons on each Entry
+                <td><button class="ElementList-editbtn" data-value="{{this.mId}}"data-message="{{this.mMessage}}"data-subject="{{this.mSubject}}">Edit</button></td>
                 <td><button class="ElementList-delbtn" data-value="{{this.mId}}">Delete</button></td>
+                -->
             </tr>
             {{/each}}
         </tbody>

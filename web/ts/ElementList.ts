@@ -81,16 +81,12 @@ class ElementList {
     }
 
     /**
-    * clickEdit is the code we run in response to a click of a delete button
+    * clickEdit is the code we run in response to a click of an edit button
     */
+    //Still Need to figure this out
     private static clickEdit() {
         // as in clickDelete, we need the ID of the row
-        let id = $(this).data("value");
-        $.ajax({
-            type: "GET",
-            url: "/messages/" + id,
-            dataType: "json",
-            success: editEntryForm.init
-        });
+        //let id = $(this).data("value");
+        $("."+ElementList.NAME+"-editbtn").click(EditEntryForm.init);
     }
 }
