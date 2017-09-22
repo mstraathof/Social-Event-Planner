@@ -127,10 +127,10 @@ static int getIntFromEnv(String envar, int defaultVal) {
             }
         });
 
-        // Edit and Delete functionality commented out for the time being
         /**
         // PUT route for updating a row in the DataStore.  This is almost 
         // exactly the same as POST
+        */
         Spark.put("/messages/:id", (request, response) -> {
             // If we can't get an ID or can't parse the JSON, Spark will send
             // a status 500
@@ -139,7 +139,19 @@ static int getIntFromEnv(String envar, int defaultVal) {
             // ensure status 200 OK, with a MIME type of JSON
             response.status(200);
             response.type("application/json");
-            int result = db.updateOne(idx, req.mTitle, req.mMessage);
+            int result = -1;
+            // Upvote if mChangeVote equals 1
+            if(req.mChangeVote == 1)
+            {
+                result = db.upVote(req.mId, req.mVotes+1);
+                return gson.toJson(new StructuredResponse("ok", null, result));
+            }
+            // Downvote if mChangevote equals -1
+            else if(req.mChangeVote == -1)
+            {
+                result = db.downVote(req.mId, req.mVotes-1);
+                return gson.toJson(new StructuredResponse("ok", null, result));
+            }
             if (result == -1) {
                 return gson.toJson(new StructuredResponse("error", "unable to update row " + idx, null));
             } else {
@@ -147,6 +159,7 @@ static int getIntFromEnv(String envar, int defaultVal) {
             }
         });
 
+        /**
         // DELETE route for removing a row from the DataStore
         Spark.delete("/messages/:id", (request, response) -> {
             // If we can't get an ID, Spark will send a status 500

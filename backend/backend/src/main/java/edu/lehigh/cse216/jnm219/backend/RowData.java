@@ -1,6 +1,8 @@
 package edu.lehigh.cse216.jnm219.backend;
 
 import java.security.Timestamp;
+import java.sql.Time;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -33,11 +35,11 @@ import java.util.Date;
         /**
          * The time of row creation
          */
-        String mCreateTime;
+        Time mCreateTime;
         /**
          * The most recent time of row modification
          */
-        String mModifyTime;
+        Time modifyTime;
 
         /**
          * Construct a RowData object by providing values for its fields
@@ -47,7 +49,7 @@ import java.util.Date;
             mSubject = subject;
             mMessage = message;
             mVotes = 0;
-            mCreateTime = "" + new java.sql.Timestamp(System.currentTimeMillis());
+            mCreateTime = new Time(LocalDateTime.now());
             mModifyTime = mCreateTime;
         }
     }
