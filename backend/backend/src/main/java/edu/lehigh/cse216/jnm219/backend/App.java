@@ -119,7 +119,7 @@ static int getIntFromEnv(String envar, int defaultVal) {
             response.status(200);
             response.type("application/json");
             // NB: createEntry checks for null title and message
-            int newId = db.insertRow(req.mTitle, req.mMessage, req.mVotes, req.mCreateTime, req.mModifyTime);
+            int newId = db.insertRow(req.mTitle, req.mMessage);
             if (newId == -1) {
                 return gson.toJson(new StructuredResponse("error", "error performing insertion", null));
             } else {
@@ -143,13 +143,13 @@ static int getIntFromEnv(String envar, int defaultVal) {
             // Upvote if mChangeVote equals 1
             if(req.mChangeVote == 1)
             {
-                result = db.upVote(req.mId, req.mVotes+1);
+                result = db.upVote(idx, req.mChangeVote+1);
                 return gson.toJson(new StructuredResponse("ok", null, result));
             }
             // Downvote if mChangevote equals -1
             else if(req.mChangeVote == -1)
             {
-                result = db.downVote(req.mId, req.mVotes-1);
+                result = db.downVote(idx, req.mChangeVote-1);
                 return gson.toJson(new StructuredResponse("ok", null, result));
             }
             if (result == -1) {

@@ -4,6 +4,8 @@ import java.security.Timestamp;
 import java.sql.Time;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.Calendar;
+import java.text.SimpleDateFormat;
 
 /**
      * RowData is like a struct in C: we use it to hold data, and we allow 
@@ -35,21 +37,21 @@ import java.util.Date;
         /**
          * The time of row creation
          */
-        Time mCreateTime;
+        String mCreateTime;
         /**
          * The most recent time of row modification
          */
-        Time modifyTime;
+        String mModifyTime;
 
         /**
          * Construct a RowData object by providing values for its fields
          */
-        public RowData(int id, String subject, String message) {
+        public RowData(int id, String subject, String message, int votes, String createTime, String modifyTime) {
             mId = id;
             mSubject = subject;
             mMessage = message;
-            mVotes = 0;
-            mCreateTime = new Time(LocalDateTime.now());
-            mModifyTime = mCreateTime;
+            mVotes = votes;
+            mCreateTime = createTime;
+            mModifyTime = modifyTime;
         }
     }

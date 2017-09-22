@@ -6,6 +6,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.net.URISyntaxException;
+// Imports for time functionality
+import java.security.Timestamp;
+import java.sql.Time;
+import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.Calendar;
+import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
 
@@ -40,6 +47,10 @@ public class Database {
      * A prepared statement for updating a single row in the database
      */
     private PreparedStatement mUpdateOne;
+    /**
+     * 
+     */
+    private PreparedStatement mUpdateVote;
 
     /**
      * The Database constructor is private: we only create Database objects 
@@ -147,14 +158,14 @@ public class Database {
      * 
      * @return The number of rows that were inserted
      */
-    int insertRow(String subject, String message, int votes, Time createTime, Time modifyTime) {
+    int insertRow(String subject, String message) {
         int count = 0;
         try {
             mInsertOne.setString(1, subject);
             mInsertOne.setString(2, message);
-            mInsertOne.setInt(3, votes);
-            mInsertOnce.setTime(4, createTime);
-            mInsertOnce.setTime(5, modifyTime);
+            mInsertOne.setInt(3, 0);
+            mInsertOne.setString(4, new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
+            mInsertOne.setString(5, new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
             count += mInsertOne.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -173,7 +184,7 @@ public class Database {
             ResultSet rs = mSelectAll.executeQuery();
             while (rs.next()) {
 
-                res.add(new RowData(rs.getInt("id"), rs.getString("subject"), rs.getString("message"), rs.getInt("votes"), rs.getTime("createTime"), rs.getTime("modifyTime")));
+                res.add(new RowData(rs.getInt("id"), rs.getString("subject"), rs.getString("message"), rs.getInt("votes"), rs.getString("createTime"), rs.getString("modifyTime")));
             }
             rs.close();
             return res;
@@ -196,7 +207,7 @@ public class Database {
             mSelectOne.setInt(1, id);
             ResultSet rs = mSelectOne.executeQuery();
             if (rs.next()) {
-                res = new RowData(rs.getInt("id"), rs.getString("subject"), rs.getString("message"), rs.getInt("votes"), rs.getTime("createTime"), rs.getTime("modifyTime"));
+                res = new RowData(rs.getInt("id"), rs.getString("subject"), rs.getString("message"), rs.getInt("votes"), rs.getString("createTime"), rs.getString("modifyTime"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -207,8 +218,8 @@ public class Database {
     int upVote(int id, int mVotes) {
         int res = -1;
         try {
-            mUpdateVote.setString(1, mVote);
-            mUpdateVote.setString(2, id);
+            mUpdateVote.setInt(1, mVotes);
+            mUpdateVote.setInt(2, id);
             res = mUpdateVote.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -219,8 +230,8 @@ public class Database {
     int downVote(int id, int mVotes) {
         int res = -1;
         try {
-            mUpdateVote.setString(1, mVote);
-            mUpdateVote.setString(2, id);
+            mUpdateVote.setInt(1, mVotes);
+            mUpdateVote.setInt(2, id);
             res = mUpdateVote.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
