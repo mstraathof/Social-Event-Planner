@@ -42,9 +42,9 @@ public class MainActivity extends AppCompatActivity {
      */
     ArrayList<Datum> mData = new ArrayList<>();
     //ItemListAdapter adapter;
+    RecyclerView.Adapter adapter;
 
     String url = "https://quiet-taiga-79213.herokuapp.com/messages";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
         RecyclerView rv = (RecyclerView) findViewById(R.id.datum_list_view);
         rv.setLayoutManager(new LinearLayoutManager(this));
         //ItemListAdapter adapter = new ItemListAdapter(this, mData);
-        RecyclerView.Adapter adapter = new DatumRecyclerViewAdapter(mData);
+        adapter = new DatumRecyclerViewAdapter(mData);
         rv.setAdapter(adapter);
     }
 
@@ -182,15 +182,19 @@ public class MainActivity extends AppCompatActivity {
                 // Get the "extra" string of data
                 //Toast.makeText(MainActivity.this, data.getStringExtra("result"), Toast.LENGTH_LONG).show();
 
+
                 // POST to backend server. Modified version:
                 // https://www.itsalif.info/content/android-volley-tutorial-http-get-post-put
-  /*
+
                 Map<String, String> jsonParams = new HashMap<String, String>();
                 //jsonParams.put("mTitle", "Hello");
                 //jsonParams.put("mMessage", "World");
-                final String resultTitle = data.getStringExtra("result");
+                //final String resultTitle = data.getStringExtra("result");
+                final String resultTitle = data.getStringExtra("resultTitle");
+                final String resultMessage = data.getStringExtra("resultMessage");
+
                 jsonParams.put("mTitle", resultTitle);
-                jsonParams.put("mMessage", "");     // todo: get new nMessage if we keep two fields
+                jsonParams.put("mMessage", resultMessage);
                 JsonObjectRequest postRequest = new JsonObjectRequest( Request.Method.POST, url,
                         new JSONObject(jsonParams),
                         new Response.Listener<JSONObject>() {
@@ -198,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
                             public void onResponse(JSONObject response) {
                                 Log.e("jnm219", "got response");
                                 // add also to local list view.
-                                mData.add(new Datum(0, resultTitle));   // todo: parse id from response
+                                mData.add(new Datum(0, resultTitle, resultMessage));   // todo: parse id from response
                                 adapter.notifyDataSetChanged();
                             }
                         },
@@ -216,7 +220,9 @@ public class MainActivity extends AppCompatActivity {
                             return headers;
                         }
                     };
-    */
+
+                VolleySingleton.getInstance(this).addToRequestQueue(postRequest);
+
                     //queue.add(postRequest);
 
                 // how to split up data into a Datum?
@@ -242,8 +248,12 @@ public class MainActivity extends AppCompatActivity {
                                 Log.e("jnm219", "JsonObjectRequest() failed: " + error.getMessage());
                             }
                         });
-                        //VolleySingleton.getInstance(this).addToRequestQueue(postRequest);
-                VolleySingleton.getInstance(this).addToRequestQueue(jsObjRequest);*/
+
+                VolleySingleton.getInstance(this).addToRequestQueue(jsObjRequest);
+            */
+
+                //Toast.makeText(MainActivity.this, data.getStringExtra("resultTitle"), Toast.LENGTH_LONG).show();
+
             }
         }
     }

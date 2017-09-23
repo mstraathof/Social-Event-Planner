@@ -3,12 +3,7 @@ package jnm219.cse216.lehigh.edu.tutorialforjnm219;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Debug;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -29,14 +24,25 @@ public class SecondActivity extends AppCompatActivity {
         tv.setText(label_contents);
 
         // The OK button gets the text from the input box and returns it to the calling activity
-        final EditText et = (EditText) findViewById(R.id.editText);
+        //final EditText et = (EditText) findViewById(R.id.editText);
+        final EditText et = (EditText) findViewById(R.id.enterTitle);
+        final EditText em = (EditText) findViewById(R.id.enterMessage);
+
         Button bOk = (Button) findViewById(R.id.buttonOk);
         bOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!et.getText().toString().equals("")) {
+     /*           if (!et.getText().toString().equals("")) {
                     Intent i = new Intent();
                     i.putExtra("result", et.getText().toString());
+                    setResult(Activity.RESULT_OK, i);
+                    finish();
+                }
+     */
+                if (!et.getText().toString().equals("") && !em.getText().toString().equals("")) {
+                    Intent i = new Intent();
+                    i.putExtra("resultTitle", et.getText().toString());
+                    i.putExtra("resultMessage", em.getText().toString());
                     setResult(Activity.RESULT_OK, i);
                     finish();
                 }
@@ -53,6 +59,4 @@ public class SecondActivity extends AppCompatActivity {
             }
         });
     }
-
-
 }
