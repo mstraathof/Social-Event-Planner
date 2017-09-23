@@ -12,13 +12,19 @@ import java.util.ArrayList;
 class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ViewHolder> {
 
     class ViewHolder extends RecyclerView.ViewHolder {
-        TextView mIndex;
-        TextView mText;
+        //TextView mIndex;
+        //TextView mText;
+        //TextView mId;
+        TextView mTitle;
+        TextView mMessage;
+        //TextView mVote;
 
         ViewHolder(View itemView) {
             super(itemView);
-            this.mIndex = (TextView) itemView.findViewById(R.id.listItemIndex);
-            this.mText = (TextView) itemView.findViewById(R.id.listItemText);
+            //this.mIndex = (TextView) itemView.findViewById(R.id.listItemIndex);
+            //this.mText = (TextView) itemView.findViewById(R.id.listItemText);
+            this.mTitle = (TextView) itemView.findViewById(R.id.listItemTitle);
+            this.mMessage = (TextView) itemView.findViewById(R.id.listItemMessage);
         }
     }
 
@@ -44,17 +50,25 @@ class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         final Datum d = mData.get(position);
-        holder.mIndex.setText(Integer.toString(d.mIndex));
-        holder.mText.setText(d.mText);
+        //holder.mIndex.setText(Integer.toString(d.mIndex));
+        // don't want to display the id, for now. Thinking is user does not need to know and screen would get too busy
+
+        holder.mTitle.setText(d.mTitle);
+        holder.mMessage.setText(d.mMessage);
+        //holder.mVotes.setText(Integer.toString(d.mVotes))
+
         // Attach a click listener to the view we are configuring
         final View.OnClickListener listener = new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                mClickListener.onClick(d);
+                mClickListener.onClick(d);      // d = mData.get(position)
             }
         };
-        holder.mIndex.setOnClickListener(listener);
-        holder.mText.setOnClickListener(listener);
+        //holder.mIndex.setOnClickListener(listener);
+        //holder.mText.setOnClickListener(listener);
+        holder.mTitle.setOnClickListener(listener);
+        holder.mMessage.setOnClickListener(listener);
+        //holder.mVotes.setOnClickListener(listener);
     }
 
     interface ClickListener{
