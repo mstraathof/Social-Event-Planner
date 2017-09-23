@@ -24,7 +24,7 @@ import java.util.Map;
  * For now, our app creates an HTTP server that can only get and add data.
  */
 public class App {
-    /**
+/**
  * Get an integer environment varible if it exists, and otherwise return the
  * default value.
  * 
@@ -128,9 +128,9 @@ static int getIntFromEnv(String envar, int defaultVal) {
         });
 
         /**
-        // PUT route for updating a row in the DataStore.  This is almost 
-        // exactly the same as POST
-        */
+         * PUT route for updating a row in the DataStore.  This is almost 
+         * exactly the same as POST
+         */
         Spark.put("/messages/:id", (request, response) -> {
             // If we can't get an ID or can't parse the JSON, Spark will send
             // a status 500
@@ -143,19 +143,19 @@ static int getIntFromEnv(String envar, int defaultVal) {
             // Upvote if mChangeVote equals 1
             if(req.mChangeVote == 1)
             {
-                result = db.upVote(idx, req.mChangeVote+1);
-                return gson.toJson(new StructuredResponse("ok", null, result));
+                result = db.upVote(idx, 1);
+                return gson.toJson(new StructuredResponse("upVote", null, result));
             }
             // Downvote if mChangevote equals -1
             else if(req.mChangeVote == -1)
             {
-                result = db.downVote(idx, req.mChangeVote-1);
-                return gson.toJson(new StructuredResponse("ok", null, result));
+                result = db.downVote(idx, -1);
+                return gson.toJson(new StructuredResponse("downVote", null, result));
             }
             if (result == -1) {
                 return gson.toJson(new StructuredResponse("error", "unable to update row " + idx, null));
             } else {
-                return gson.toJson(new StructuredResponse("ok", null, result));
+                return gson.toJson(new StructuredResponse("error", "invalid mChangeVote value. Must be 1 or -1.", null));
             }
         });
 

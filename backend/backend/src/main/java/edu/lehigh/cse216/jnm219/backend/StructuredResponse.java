@@ -24,18 +24,6 @@ public class StructuredResponse {
      * rich reply to the client
      */
     public Object mData;
-    /**
-    * The number of votes for this row
-    */
-    int mVotes;
-    /**
-    * The time of row creation
-    */
-    String mCreateTime;
-    /**
-    * The most recent time of row modification
-    */
-    String mModifyTime;
 
     /**
      * Construct a StructuredResponse by providing a status, message, and data.
@@ -49,6 +37,5 @@ public class StructuredResponse {
         mStatus = (status != null) ? status : "invalid";
         mMessage = message;
         mData = data;
-
     }
 }

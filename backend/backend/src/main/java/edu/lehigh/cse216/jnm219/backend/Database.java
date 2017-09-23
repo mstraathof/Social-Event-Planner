@@ -115,7 +115,7 @@ public class Database {
             db.mSelectAll = db.mConnection.prepareStatement("SELECT * FROM tblData");
             db.mSelectOne = db.mConnection.prepareStatement("SELECT * from tblData WHERE id=?");
             db.mUpdateOne = db.mConnection.prepareStatement("UPDATE tblData SET subject = ?, message = ? WHERE id = ?");
-            db.mUpdateVote = db.mConnection.prepareStatement("UPDATE tblData SET votes = ? WHERE id = ?");
+            db.mUpdateVote = db.mConnection.prepareStatement("UPDATE tblData SET votes = votes + ? WHERE id = ?");
         } catch (SQLException e) {
             System.err.println("Error creating prepared statement");
             e.printStackTrace();
@@ -164,8 +164,8 @@ public class Database {
             mInsertOne.setString(1, subject);
             mInsertOne.setString(2, message);
             mInsertOne.setInt(3, 0);
-            mInsertOne.setString(4, new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
-            mInsertOne.setString(5, new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
+            mInsertOne.setString(4, new SimpleDateFormat("MM/dd/yyyy hh:mm").format(new Date()));
+            mInsertOne.setString(5, new SimpleDateFormat("MM/dd/yyyy hh:mm").format(new Date()));
             count += mInsertOne.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -214,11 +214,18 @@ public class Database {
         }
         return res;
     }
-    // Upvote
-    int upVote(int id, int mVotes) {
+
+    /**
+     * Increases the number of votes for a given post by one
+     * 
+     * @param id The id of the row being altered
+     * 
+     * @return The data of the newly altered row, or null if the ID was invalid
+     */
+    int upVote(int id, int voteChange) {
         int res = -1;
         try {
-            mUpdateVote.setInt(1, mVotes);
+            mUpdateVote.setInt(1, voteChange);
             mUpdateVote.setInt(2, id);
             res = mUpdateVote.executeUpdate();
         } catch (SQLException e) {
@@ -226,11 +233,18 @@ public class Database {
         }
         return res;
     }
-    // DownVote
-    int downVote(int id, int mVotes) {
+
+    /**
+     * Decreases the number of votes for a given post by one
+     * 
+     * @param id The id of the row being altered
+     * 
+     * @return The data of the newly altered row, or null if the ID was invalid
+     */
+    int downVote(int id, int voteChange) {
         int res = -1;
         try {
-            mUpdateVote.setInt(1, mVotes);
+            mUpdateVote.setInt(1, voteChange);
             mUpdateVote.setInt(2, id);
             res = mUpdateVote.executeUpdate();
         } catch (SQLException e) {
