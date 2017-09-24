@@ -4,11 +4,34 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.List;
 
 public class DatumRecyclerViewAdapter extends RecyclerView.Adapter<DatumRecyclerViewAdapter.DatumViewHolder>{
+
+    public class DatumViewHolder extends RecyclerView.ViewHolder {
+
+        //private TextView indexTextView;
+        //private TextView textTextView;
+        private TextView titleTextView;
+        private TextView messageTextView;
+        //private TextView votesTextView;
+        private Button likeButton;
+
+        public DatumViewHolder(View itemView) {
+            super(itemView);
+
+            //indexTextView = (TextView) itemView.findViewById(R.id.listItemIndex);
+            //textTextView = (TextView) itemView.findViewById(R.id.listItemText);
+            titleTextView = (TextView) itemView.findViewById(R.id.listItemTitle);
+            messageTextView = (TextView) itemView.findViewById(R.id.listItemMessage);
+            //votesTextView = (TextView) itemView.findViewById(R.id.listItemVotes);
+            likeButton = (Button) itemView.findViewById(R.id.listLikeButton);
+        }
+
+    }
 
     private final List<Datum> datumList;
 
@@ -32,29 +55,12 @@ public class DatumRecyclerViewAdapter extends RecyclerView.Adapter<DatumRecycler
         //holder.textTextView.setText(datum.mText);
         holder.titleTextView.setText(datum.mTitle);
         holder.messageTextView.setText(datum.mMessage);
+        //holder.votesTextView.setText(datum.mVotes);
     }
 
     @Override
     public int getItemCount() {
         return datumList.size();
-    }
-
-    public class DatumViewHolder extends RecyclerView.ViewHolder {
-
-        //private TextView indexTextView;
-        //private TextView textTextView;
-        private TextView titleTextView;
-        private TextView messageTextView;
-
-        public DatumViewHolder(View itemView) {
-            super(itemView);
-
-            //indexTextView = (TextView) itemView.findViewById(R.id.listItemIndex);
-            //textTextView = (TextView) itemView.findViewById(R.id.listItemText);
-            titleTextView = (TextView) itemView.findViewById(R.id.listItemTitle);
-            messageTextView = (TextView) itemView.findViewById(R.id.listItemMessage);
-        }
-
     }
 
 }

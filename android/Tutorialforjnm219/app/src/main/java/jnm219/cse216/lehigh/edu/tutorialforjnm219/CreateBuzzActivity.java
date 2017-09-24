@@ -9,7 +9,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class SecondActivity extends AppCompatActivity {
+public class CreateBuzzActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,10 +18,10 @@ public class SecondActivity extends AppCompatActivity {
 
         // Get the parameter from the calling activity, and put it in the TextView
         Intent input = getIntent();
-        String label_contents = input.getStringExtra("label_contents");
-        final TextView tv = (TextView) findViewById(R.id.specialMessage);
+        String topLabel = input.getStringExtra("topLabel");
+        final TextView tv = (TextView) findViewById(R.id.topLabel);
 
-        tv.setText(label_contents);
+        tv.setText(topLabel);
 
         // The OK button gets the text from the input box and returns it to the calling activity
         //final EditText et = (EditText) findViewById(R.id.editText);

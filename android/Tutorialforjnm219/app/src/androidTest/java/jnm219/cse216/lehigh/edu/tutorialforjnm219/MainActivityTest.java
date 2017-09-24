@@ -43,7 +43,7 @@ public class MainActivityTest {
         appCompatTextView.perform(click());
 
         ViewInteraction textView = onView(
-                allOf(withId(R.id.specialMessage), withText("CSE216 is the best"),
+                allOf(withId(R.id.topLabel), withText("CSE216 is the best"),
                         childAtPosition(
                                 childAtPosition(
                                         IsInstanceOf.<View>instanceOf(android.view.ViewGroup.class),

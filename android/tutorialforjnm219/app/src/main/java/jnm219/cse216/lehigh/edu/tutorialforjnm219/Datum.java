@@ -19,7 +19,7 @@ class Datum {
     /**
      * The integer mVote contains the sum or all the votes for the data
      */
-    //int mVotes;
+    int mVotes;
 
 
     /**
@@ -28,13 +28,13 @@ class Datum {
      * @param id The index of this piece of data
      * @param title The string contents for this piece of data
      * @param message The string contains the message for the piece of data
-     * @param //mVotes The integer total number of votes for the piece of data
+     * @param votes The integer total number of votes for the piece of data
      */
-    Datum(int id, String title, String message) {
-        //Datum(int id, String title, String message, int votes) {
+
+    Datum(int id, String title, String message, int votes) {
         mId = id;
         mTitle = title;
         mMessage = message;
-        // mVote = votes;
+        mVotes = votes;
     }
 }
