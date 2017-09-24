@@ -139,7 +139,8 @@ public class App {
                 db.createTable();
             } else if (action == 'D') {
                 db.dropTable();
-            } /*
+            }
+            /*
             else if (action == '1') {
                 int id = getInt(in, "Enter the row ID");
                 if (id == -1)
@@ -149,7 +150,9 @@ public class App {
                     System.out.println("  [" + res.mId + "] " + res.mSubject);
                     System.out.println("  --> " + res.mMessage);
                 }
-            } else if (action == '*') {
+                */
+                /*
+             else if (action == '*') {
                 ArrayList<Database.RowData> res = db.selectAll();
                 if (res == null)
                     continue;
@@ -157,7 +160,8 @@ public class App {
                 System.out.println("  -------------------------");
                 for (Database.RowData rd : res) {
                     System.out.println("  [" + rd.mId + "] " + rd.mSubject);
-                }
+                }*/
+                /*
             } else if (action == '-') {
                 int id = getInt(in, "Enter the row ID");
                 if (id == -1)
