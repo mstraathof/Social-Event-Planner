@@ -13,8 +13,6 @@ public class DatumRecyclerViewAdapter extends RecyclerView.Adapter<DatumRecycler
 
     public class DatumViewHolder extends RecyclerView.ViewHolder {
 
-        //private TextView indexTextView;
-        //private TextView textTextView;
         private TextView subjectTextView;
         private TextView messageTextView;
         private TextView votesTextView;
@@ -22,15 +20,11 @@ public class DatumRecyclerViewAdapter extends RecyclerView.Adapter<DatumRecycler
 
         public DatumViewHolder(View itemView) {
             super(itemView);
-
-            //indexTextView = (TextView) itemView.findViewById(R.id.listItemIndex);
-            //textTextView = (TextView) itemView.findViewById(R.id.listItemText);
             subjectTextView = (TextView) itemView.findViewById(R.id.listItemSubject);
             messageTextView = (TextView) itemView.findViewById(R.id.listItemMessage);
             votesTextView = (TextView) itemView.findViewById(R.id.listItemVotes);
             likeButton = (Button) itemView.findViewById(R.id.listLikeButton);
         }
-
     }
 
     private final List<Datum> datumList;
@@ -48,11 +42,8 @@ public class DatumRecyclerViewAdapter extends RecyclerView.Adapter<DatumRecycler
 
     @Override
     public void onBindViewHolder(DatumViewHolder holder, int position) {
-        //Datum datum = datumList.get(position);
         final Datum datum = datumList.get(position);
 
-        //holder.indexTextView.setText(datum.mIndex);
-        //holder.textTextView.setText(datum.mText);
         holder.subjectTextView.setText("Subject: " + datum.mSubject);
         holder.messageTextView.setText("Message: " + datum.mMessage);
         holder.votesTextView.setText("Votes: " + datum.mVotes);        // setText needs a string
@@ -64,50 +55,3 @@ public class DatumRecyclerViewAdapter extends RecyclerView.Adapter<DatumRecycler
     }
 
 }
-
-/**
- * Created by Jack on 9/5/2017.
-public class DatumRecyclerViewAdapter extends RecyclerView.Adapter<DatumRecyclerViewAdapter.DatumViewHolder>{
-
-    private final List<Datum> datumList;
-
-    public DatumRecyclerViewAdapter(List<Datum> datumList) {
-        this.datumList = datumList;
-    }
-
-
-
-    @Override
-    public DatumViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        View itemView = layoutInflater.inflate(R.layout.list_item, parent, false);
-        return new DatumViewHolder(itemView);
-    }
-
-    @Override
-    public void onBindViewHolder(DatumViewHolder holder, int position) {
-        Datum datum = datumList.get(position);
-        holder.indexTextView.setText(datum.mIndex);
-        holder.textTextView.setText(datum.mText);
-    }
-
-    @Override
-    public int getItemCount() {
-        return datumList.size();
-    }
-
-    public class DatumViewHolder extends RecyclerView.ViewHolder {
-
-        private TextView indexTextView;
-        private TextView textTextView;
-
-        public DatumViewHolder(View itemView) {
-            super(itemView);
-
-            indexTextView = (TextView) itemView.findViewById(R.id.listItemIndex);
-            textTextView = (TextView) itemView.findViewById(R.id.listItemText);
-        }
-
-    }
-}
-*/

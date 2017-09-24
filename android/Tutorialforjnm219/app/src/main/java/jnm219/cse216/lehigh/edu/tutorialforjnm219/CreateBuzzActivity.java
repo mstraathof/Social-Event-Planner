@@ -16,29 +16,21 @@ public class CreateBuzzActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_second);
 
-        // Get the parameter from the calling activity, and put it in the TextView
+        // Get top label from the calling activity, and put it in TextView
         Intent input = getIntent();
         String topLabel = input.getStringExtra("topLabel");
         final TextView tv = (TextView) findViewById(R.id.topLabel);
-
         tv.setText(topLabel);
 
-        // The OK button gets the text from the input box and returns it to the calling activity
-        //final EditText et = (EditText) findViewById(R.id.editText);
         final EditText et = (EditText) findViewById(R.id.enterSubject);
         final EditText em = (EditText) findViewById(R.id.enterMessage);
 
+        // The OK button gets the text from the input box and returns it to the calling activity
         Button bOk = (Button) findViewById(R.id.buttonOk);
         bOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-     /*           if (!et.getText().toString().equals("")) {
-                    Intent i = new Intent();
-                    i.putExtra("result", et.getText().toString());
-                    setResult(Activity.RESULT_OK, i);
-                    finish();
-                }
-     */
+                // Create an intent only when the user entered text in both fields
                 if (!et.getText().toString().equals("") && !em.getText().toString().equals("")) {
                     Intent i = new Intent();
                     i.putExtra("resultSubject", et.getText().toString());
@@ -49,7 +41,7 @@ public class CreateBuzzActivity extends AppCompatActivity {
             }
         });
 
-        // The Cancel button returns to the caller without sending any data
+        // The Cancel button returns to the caller without sending it any data
         Button bCancel = (Button) findViewById(R.id.buttonCancel);
         bCancel.setOnClickListener(new View.OnClickListener() {
             @Override

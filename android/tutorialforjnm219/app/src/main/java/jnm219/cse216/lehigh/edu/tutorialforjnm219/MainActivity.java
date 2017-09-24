@@ -37,11 +37,9 @@ public class MainActivity extends AppCompatActivity {
      * mData holds the data we get from Volley
      */
     ArrayList<Datum> mData = new ArrayList<>();
-    //ItemListAdapter adapter;
     RecyclerView.Adapter adapter;
 
     String url = "https://quiet-taiga-79213.herokuapp.com/messages";
-    //String url = "https://forums.wholetomato.com/mira216.html";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,24 +48,11 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        Log.d("jnm219", "Debug Message from onCreate");
-
-        // Instantiate the RequestQueue.
-        //RequestQueue queue = Volley.newRequestQueue(this);
-        RequestQueue queue = VolleySingleton.getInstance(this.getApplicationContext()).getRequestQueue();
-        //String url = "http://www.cse.lehigh.edu/~spear/5k.json";
-
-        // Request a string response from the provided URL.
+        // get from the backend server a list of all entries.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        //RecyclerView rv = (RecyclerView) findViewById(R.id.datum_list_view);
-                            //ArrayAdapter adapter = new ArrayAdapter<>(MainActivity.this,
-                            //        android.R.layout.simple_list_item_1,
-                            //        myList);
-                        //RecyclerView.Adapter adapter = new DatumRecyclerViewAdapter(mData);
-                        //rv.setAdapter(adapter);
                         populateListFromVolley(response);
                     }
                 }, new Response.ErrorListener() {
@@ -80,13 +65,10 @@ public class MainActivity extends AppCompatActivity {
         RecyclerView rv = (RecyclerView) findViewById(R.id.datum_list_view);
         rv.setLayoutManager(new LinearLayoutManager(this));
         rv.addItemDecoration(new SimpleDividerItemDecoration(this));
-        //ItemListAdapter adapter = new ItemListAdapter(this, mData);
         adapter = new DatumRecyclerViewAdapter(mData);
         rv.setAdapter(adapter);
 
-        // Add the request to the RequestQueue.
-        //queue.add(stringRequest);
-        VolleySingleton.getInstance(this).addToRequestQueue(stringRequest);
+        VolleySingleton.getInstance(this).addToRequestQueue(stringRequest); // add request to queue.
     }
 
     @Override
@@ -113,47 +95,9 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
     private void populateListFromVolley(String response){
-        /*try {
-            JSONArray json= new JSONArray(response);
-            //JSONObject jsonObject = new JSONObject(response);
-            //JSONArray json= new JSONArray(jsonObject.getString("mData"));
-            //JSONArray json= new JSONArray(jsonObject.getString("mMessage"));
-
-            for (int i = 0; i < json.length(); ++i) {
-                //int num = json.getJSONObject(i).getInt("num");
-                int mId = json.getJSONObject(i).getInt("mId");
-                //String str = json.getJSONObject(i).getString("str");
-                String mSubject = json.getJSONObject(i).getString("mSubject");
-                String mMessage = json.getJSONObject(i).getString("mMessage");
-                //int mVotes = json.getJSONObject(i).getInt("mVotes");
-                mData.add(new Datum(mId, mSubject, mMessage));
-                //mData.add(new Datum(mId, mSubject, mMessage, mVotes));
-            }
-        } catch (final JSONException e) {
-            Log.d("jnm219", "Error parsing JSON file: " + e.getMessage());
-            return;
-        }
-        Log.d("jnm219", "Successfully parsed JSON file.");
-        RecyclerView rv = (RecyclerView) findViewById(R.id.datum_list_view);
-        rv.setLayoutManager(new LinearLayoutManager(this));
-        ItemListAdapter adapter = new ItemListAdapter(this, mData);
-        //adapter = new ItemListAdapter(this, mData);
-        rv.setAdapter(adapter);
-
-        adapter.setClickListener(new ItemListAdapter.ClickListener() {
-            @Override
-            public void onClick(Datum d) {
-                Toast.makeText(MainActivity.this, d.mSubject + " --> " + d.mMessage, Toast.LENGTH_LONG).show();
-            }
-        });
-        */
         try {
             JSONObject jsonObject = new JSONObject(response);
             JSONArray json= new JSONArray(jsonObject.getString("mData"));
-
-            //JSONArray json= new JSONArray(response);
-            //String jsonString = "[ { \"mId\":0, \"mSubject\":\"Movie\", \"mMessage\":\"Atomic Blonde\" }, { \"mId\":1, \"mSubject\":\"Game\", \"mMessage\":\"Monopoly\" } ]";
-            //JSONArray json= new JSONArray(jsonString);
 
             for (int i = 0; i < json.length(); ++i) {
                 int mId = json.getJSONObject(i).getInt("mId");
@@ -177,18 +121,10 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == 789) {
             // Make sure the request was successful
             if (resultCode == RESULT_OK) {
-                // Get the "extra" string of intent
-                //Toast.makeText(MainActivity.this, intent.getStringExtra("result"), Toast.LENGTH_LONG).show();
-
-                String toastString = intent.getStringExtra("resultSubject") + " " + intent.getStringExtra("resultMessage");
-                Toast.makeText(MainActivity.this, toastString, Toast.LENGTH_LONG).show();
 
                 // POST to backend server. Modified version of:
                 // https://www.itsalif.info/content/android-volley-tutorial-http-get-post-put
                 Map<String, String> jsonParams = new HashMap<String, String>();
-                //jsonParams.put("mSubject", "Hello");
-                //jsonParams.put("mMessage", "World");
-                //final String resultSubject = intent.getStringExtra("result");
                 final String resultSubject = intent.getStringExtra("resultSubject");
                 final String resultMessage = intent.getStringExtra("resultMessage");
 
@@ -222,9 +158,6 @@ public class MainActivity extends AppCompatActivity {
                     };
 
                 VolleySingleton.getInstance(this).addToRequestQueue(postRequest);
-
-                    //queue.add(postRequest);
-
             }
         }
     }
