@@ -5,10 +5,12 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.net.URISyntaxException;
 
 import java.util.ArrayList;
 
 public class Database {
+ 
     /**
      * The connection to the database.  When there is no connection, it should
      * be null.  Otherwise, there is a valid open connection
@@ -90,6 +92,10 @@ public class Database {
      */
     private Database() {
     }
+    private static Connection getConnection() throws URISyntaxException, SQLException {
+    //String dbUrl = App.getDBURLFromEnv();
+    return DriverManager.getConnection("jdbc:postgresql://ec2-107-21-109-15.compute-1.amazonaws.com:5432/dfjhqhen0vfnm?user=wmptnnamvihvzv&password=021c55db34a371a345a4e8279d144dde484f6e1455b10b217525f6885e363433&sslmode=require");
+}
 
     /**
      * Get a fully-configured connection to the database
@@ -102,13 +108,13 @@ public class Database {
      * 
      * @return A Database object, or null if we cannot connect properly
      */
-    static Database getDatabase(String ip, String port, String user, String pass) {
+    static Database getDatabase()  {
         // Create an un-configured Database object
         Database db = new Database();
-
+  
         // Give the Database object a connection, fail if we cannot get one
         try {
-            Connection conn = DriverManager.getConnection("jdbc:postgresql://" + ip + ":" + port + "/", user, pass);
+            Connection conn = getConnection();
             if (conn == null) {
                 System.err.println("Error: DriverManager.getConnection() returned a null object");
                 return null;
@@ -119,7 +125,11 @@ public class Database {
             e.printStackTrace();
             return null;
         }
-
+        catch (URISyntaxException e) {
+            System.err.println("Error: DriverManager.getConnection() threw a SQLException");
+            e.printStackTrace();
+            return null;
+        }
         // Attempt to create all of our prepared statements.  If any of these 
         // fail, the whole getDatabase() call should fail
         try {
@@ -132,13 +142,14 @@ public class Database {
             // creation/deletion, so multiple executions will cause an exception
             db.mCreateTable = db.mConnection.prepareStatement(
                     "CREATE TABLE tblData (id SERIAL PRIMARY KEY, subject VARCHAR(50) "
-                    + "NOT NULL, message VARCHAR(500) NOT NULL)");
+                    + "NOT NULL, message VARCHAR(500) NOT NULL, votes INT NOT NULL, "
+                     +"createTime VARCHAR(50) not null, modifyTime VARCHAR(50) not null)");
             db.mDropTable = db.mConnection.prepareStatement("DROP TABLE tblData");
 
             // Standard CRUD operations
             db.mDeleteOne = db.mConnection.prepareStatement("DELETE FROM tblData WHERE id = ?");
             db.mInsertOne = db.mConnection.prepareStatement("INSERT INTO tblData VALUES (default, ?, ?)");
-            db.mSelectAll = db.mConnection.prepareStatement("SELECT id, subject FROM tblData");
+            db.mSelectAll = db.mConnection.prepareStatement("SELECT id, subject, votes FROM tblData");
             db.mSelectOne = db.mConnection.prepareStatement("SELECT * from tblData WHERE id=?");
             db.mUpdateOne = db.mConnection.prepareStatement("UPDATE tblData SET message = ? WHERE id = ?");
         } catch (SQLException e) {
@@ -183,6 +194,7 @@ public class Database {
      * 
      * @return The number of rows that were inserted
      */
+     /*
     int insertRow(String subject, String message) {
         int count = 0;
         try {
@@ -194,12 +206,13 @@ public class Database {
         }
         return count;
     }
-
+    */
     /**
      * Query the database for a list of all subjects and their IDs
      * 
      * @return All rows, as an ArrayList
      */
+     /*
     ArrayList<RowData> selectAll() {
         ArrayList<RowData> res = new ArrayList<RowData>();
         try {
@@ -213,7 +226,7 @@ public class Database {
             e.printStackTrace();
             return null;
         }
-    }
+    }*/
 
     /**
      * Get all data for a specific row, by ID
@@ -222,6 +235,7 @@ public class Database {
      * 
      * @return The data for the requested row, or null if the ID was invalid
      */
+     /*
     RowData selectOne(int id) {
         RowData res = null;
         try {
@@ -235,7 +249,7 @@ public class Database {
         }
         return res;
     }
-
+*/
     /**
      * Delete a row by ID
      * 
@@ -243,6 +257,7 @@ public class Database {
      * 
      * @return The number of rows that were deleted.  -1 indicates an error.
      */
+     /*
     int deleteRow(int id) {
         int res = -1;
         try {
@@ -253,7 +268,7 @@ public class Database {
         }
         return res;
     }
-
+*/
     /**
      * Update the message for a row in the database
      * 
@@ -262,6 +277,7 @@ public class Database {
      * 
      * @return The number of rows that were updated.  -1 indicates an error.
      */
+     /*
     int updateOne(int id, String message) {
         int res = -1;
         try {
@@ -273,7 +289,7 @@ public class Database {
         }
         return res;
     }
-
+*/
     /**
      * Create tblData.  If it already exists, this will print an error
      */
