@@ -20,6 +20,7 @@ public class App {
         System.out.println("Main Menu");
         System.out.println("  [T] Create tblData");
         System.out.println("  [D] Drop tblData");
+        
         System.out.println("  [1] Query for a specific row");
         System.out.println("  [*] Query for all rows");
         System.out.println("  [-] Delete a row");
@@ -39,7 +40,6 @@ public class App {
     static char prompt(BufferedReader in) {
         // The valid actions:
         String actions = "TD1*-+~q?";
-
         // We repeat until a valid single-character option is selected        
         while (true) {
             System.out.print("[" + actions + "] :> ");
@@ -108,15 +108,18 @@ public class App {
      */
     public static void main(String[] argv) {
         // get the Postgres configuration from the environment
+        // Get the port on which to listen for requests
         Map<String, String> env = System.getenv();
-        String ip = env.get("POSTGRES_IP");
-        String port = env.get("POSTGRES_PORT");
-        String user = env.get("POSTGRES_USER");
-        String pass = env.get("POSTGRES_PASS");
+       /* String ip = env.get("IP");
+        String port = env.get("PORT");
+        String user = env.get("USER");
+        String pass = env.get("PASS");*/
+        //String dbUrl = System.getenv("JDBC_DATABASE_URL");
 
         // Get a fully-configured connection to the database, or exit 
         // immediately
-        Database db = Database.getDatabase(ip, port, user, pass);
+        Database db = Database.getDatabase();
+        //Database db = Database.getDatabase(ip, port, user, pass);
         if (db == null)
             return;
 
@@ -136,7 +139,9 @@ public class App {
                 db.createTable();
             } else if (action == 'D') {
                 db.dropTable();
-            } else if (action == '1') {
+            }
+            /*
+            else if (action == '1') {
                 int id = getInt(in, "Enter the row ID");
                 if (id == -1)
                     continue;
@@ -145,7 +150,9 @@ public class App {
                     System.out.println("  [" + res.mId + "] " + res.mSubject);
                     System.out.println("  --> " + res.mMessage);
                 }
-            } else if (action == '*') {
+                */
+                /*
+             else if (action == '*') {
                 ArrayList<Database.RowData> res = db.selectAll();
                 if (res == null)
                     continue;
@@ -153,7 +160,8 @@ public class App {
                 System.out.println("  -------------------------");
                 for (Database.RowData rd : res) {
                     System.out.println("  [" + rd.mId + "] " + rd.mSubject);
-                }
+                }*/
+                /*
             } else if (action == '-') {
                 int id = getInt(in, "Enter the row ID");
                 if (id == -1)
@@ -178,10 +186,14 @@ public class App {
                 if (res == -1)
                     continue;
                 System.out.println("  " + res + " rows updated");
-            }
+            }*/
         }
         // Always remember to disconnect from the database when the program 
         // exits
         db.disconnect();
     }
+    static String getDBURLFromEnv() {
+    ProcessBuilder processBuilder = new ProcessBuilder();
+        return processBuilder.environment().get("JDBC_DATABASE_URL");
+}
 }
