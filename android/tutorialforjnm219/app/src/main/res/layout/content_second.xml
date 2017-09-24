@@ -22,7 +22,7 @@
         tools:layout_editor_absoluteX="0dp" />
 
     <EditText
-        android:id="@+id/enterTitle"
+        android:id="@+id/enterSubject"
         android:layout_width="384dp"
         android:layout_height="52dp"
         android:ems="10"
@@ -43,7 +43,7 @@
         android:text=""
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="62dp"
-        android:layout_below="@+id/enterTitle"
+        android:layout_below="@+id/enterSubject"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_marginTop="50dp" />

@@ -23,7 +23,7 @@ class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ViewHolder> {
             super(itemView);
             //this.mIndex = (TextView) itemView.findViewById(R.id.listItemIndex);
             //this.mText = (TextView) itemView.findViewById(R.id.listItemText);
-            this.mTitle = (TextView) itemView.findViewById(R.id.listItemTitle);
+            this.mTitle = (TextView) itemView.findViewById(R.id.listItemSubject);
             this.mMessage = (TextView) itemView.findViewById(R.id.listItemMessage);
         }
     }
@@ -53,7 +53,7 @@ class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ViewHolder> {
         //holder.mIndex.setText(Integer.toString(d.mIndex));
         // don't want to display the id, for now. Thinking is user does not need to know and screen would get too busy
 
-        holder.mTitle.setText(d.mTitle);
+        holder.mTitle.setText(d.mSubject);
         holder.mMessage.setText(d.mMessage);
         //holder.mVotes.setText(Integer.toString(d.mVotes))
 

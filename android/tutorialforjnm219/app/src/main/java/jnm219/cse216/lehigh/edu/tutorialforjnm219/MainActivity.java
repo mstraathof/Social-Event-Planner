@@ -40,8 +40,8 @@ public class MainActivity extends AppCompatActivity {
     //ItemListAdapter adapter;
     RecyclerView.Adapter adapter;
 
-    //String url = "https://quiet-taiga-79213.herokuapp.com/messages";
-    String url = "https://forums.wholetomato.com/mira216.html";
+    String url = "https://quiet-taiga-79213.herokuapp.com/messages";
+    //String url = "https://forums.wholetomato.com/mira216.html";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,11 +123,11 @@ public class MainActivity extends AppCompatActivity {
                 //int num = json.getJSONObject(i).getInt("num");
                 int mId = json.getJSONObject(i).getInt("mId");
                 //String str = json.getJSONObject(i).getString("str");
-                String mTitle = json.getJSONObject(i).getString("mTitle");
+                String mSubject = json.getJSONObject(i).getString("mSubject");
                 String mMessage = json.getJSONObject(i).getString("mMessage");
                 //int mVotes = json.getJSONObject(i).getInt("mVotes");
-                mData.add(new Datum(mId, mTitle, mMessage));
-                //mData.add(new Datum(mId, mTitle, mMessage, mVotes));
+                mData.add(new Datum(mId, mSubject, mMessage));
+                //mData.add(new Datum(mId, mSubject, mMessage, mVotes));
             }
         } catch (final JSONException e) {
             Log.d("jnm219", "Error parsing JSON file: " + e.getMessage());
@@ -143,21 +143,21 @@ public class MainActivity extends AppCompatActivity {
         adapter.setClickListener(new ItemListAdapter.ClickListener() {
             @Override
             public void onClick(Datum d) {
-                Toast.makeText(MainActivity.this, d.mTitle + " --> " + d.mMessage, Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, d.mSubject + " --> " + d.mMessage, Toast.LENGTH_LONG).show();
             }
         });
         */
         try {
-            //JSONObject jsonObject = new JSONObject(response);
-            //JSONArray json= new JSONArray(jsonObject.getString("mData"));
+            JSONObject jsonObject = new JSONObject(response);
+            JSONArray json= new JSONArray(jsonObject.getString("mData"));
 
-            JSONArray json= new JSONArray(response);
-            //String jsonString = "[ { \"mId\":0, \"mTitle\":\"Movie\", \"mMessage\":\"Atomic Blonde\" }, { \"mId\":1, \"mTitle\":\"Game\", \"mMessage\":\"Monopoly\" } ]";
+            //JSONArray json= new JSONArray(response);
+            //String jsonString = "[ { \"mId\":0, \"mSubject\":\"Movie\", \"mMessage\":\"Atomic Blonde\" }, { \"mId\":1, \"mSubject\":\"Game\", \"mMessage\":\"Monopoly\" } ]";
             //JSONArray json= new JSONArray(jsonString);
 
             for (int i = 0; i < json.length(); ++i) {
                 int mId = json.getJSONObject(i).getInt("mId");
-                String mTitle = json.getJSONObject(i).getString("mTitle");
+                String mTitle = json.getJSONObject(i).getString("mSubject");
                 String mMessage = json.getJSONObject(i).getString("mMessage");
                 int mVotes = json.getJSONObject(i).getInt("mVotes");
                 mData.add(new Datum(mId, mTitle, mMessage, mVotes));
@@ -180,20 +180,20 @@ public class MainActivity extends AppCompatActivity {
                 // Get the "extra" string of intent
                 //Toast.makeText(MainActivity.this, intent.getStringExtra("result"), Toast.LENGTH_LONG).show();
 
-                String toastString = intent.getStringExtra("resultTitle") + " " + intent.getStringExtra("resultMessage");
+                String toastString = intent.getStringExtra("resultSubject") + " " + intent.getStringExtra("resultMessage");
                 Toast.makeText(MainActivity.this, toastString, Toast.LENGTH_LONG).show();
 
                 // POST to backend server. Modified version:
                 // https://www.itsalif.info/content/android-volley-tutorial-http-get-post-put
 
                 Map<String, String> jsonParams = new HashMap<String, String>();
-                //jsonParams.put("mTitle", "Hello");
+                //jsonParams.put("mSubject", "Hello");
                 //jsonParams.put("mMessage", "World");
-                //final String resultTitle = intent.getStringExtra("result");
-                final String resultTitle = intent.getStringExtra("resultTitle");
+                //final String resultSubject = intent.getStringExtra("result");
+                final String resultSubject = intent.getStringExtra("resultSubject");
                 final String resultMessage = intent.getStringExtra("resultMessage");
 
-                jsonParams.put("mTitle", resultTitle);
+                jsonParams.put("mSubject", resultSubject);
                 jsonParams.put("mMessage", resultMessage);
                 JsonObjectRequest postRequest = new JsonObjectRequest( Request.Method.POST, url,
                         new JSONObject(jsonParams),
@@ -202,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
                             public void onResponse(JSONObject response) {
                                 Log.e("jnm219", "got response");
                                 // add also to local list view.
-                                mData.add(new Datum(0, resultTitle, resultMessage, 0));   // todo: parse id from response
+                                mData.add(new Datum(0, resultSubject, resultMessage, 0));   // todo: parse id from response
                                 adapter.notifyDataSetChanged();
                             }
                         },

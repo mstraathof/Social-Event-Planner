@@ -9,7 +9,7 @@ class Datum {
     /**
      * The string contains the title for the piece of data
      */
-    String mTitle;
+    String mSubject;
 
     /**
      * The string contains the message for the piece of data
@@ -26,14 +26,14 @@ class Datum {
      * Construct a Datum by setting its index and text
      *
      * @param id The index of this piece of data
-     * @param title The string contents for this piece of data
+     * @param subject The string contents for this piece of data
      * @param message The string contains the message for the piece of data
      * @param votes The integer total number of votes for the piece of data
      */
 
-    Datum(int id, String title, String message, int votes) {
+    Datum(int id, String subject, String message, int votes) {
         mId = id;
-        mTitle = title;
+        mSubject = subject;
         mMessage = message;
         mVotes = votes;
     }

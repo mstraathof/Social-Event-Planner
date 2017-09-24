@@ -25,7 +25,7 @@ public class CreateBuzzActivity extends AppCompatActivity {
 
         // The OK button gets the text from the input box and returns it to the calling activity
         //final EditText et = (EditText) findViewById(R.id.editText);
-        final EditText et = (EditText) findViewById(R.id.enterTitle);
+        final EditText et = (EditText) findViewById(R.id.enterSubject);
         final EditText em = (EditText) findViewById(R.id.enterMessage);
 
         Button bOk = (Button) findViewById(R.id.buttonOk);
@@ -41,7 +41,7 @@ public class CreateBuzzActivity extends AppCompatActivity {
      */
                 if (!et.getText().toString().equals("") && !em.getText().toString().equals("")) {
                     Intent i = new Intent();
-                    i.putExtra("resultTitle", et.getText().toString());
+                    i.putExtra("resultSubject", et.getText().toString());
                     i.putExtra("resultMessage", em.getText().toString());
                     setResult(Activity.RESULT_OK, i);
                     finish();

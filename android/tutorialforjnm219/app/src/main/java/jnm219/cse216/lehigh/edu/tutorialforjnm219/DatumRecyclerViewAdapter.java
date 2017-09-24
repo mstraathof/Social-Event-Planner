@@ -15,9 +15,9 @@ public class DatumRecyclerViewAdapter extends RecyclerView.Adapter<DatumRecycler
 
         //private TextView indexTextView;
         //private TextView textTextView;
-        private TextView titleTextView;
+        private TextView subjectTextView;
         private TextView messageTextView;
-        //private TextView votesTextView;
+        private TextView votesTextView;
         private Button likeButton;
 
         public DatumViewHolder(View itemView) {
@@ -25,9 +25,9 @@ public class DatumRecyclerViewAdapter extends RecyclerView.Adapter<DatumRecycler
 
             //indexTextView = (TextView) itemView.findViewById(R.id.listItemIndex);
             //textTextView = (TextView) itemView.findViewById(R.id.listItemText);
-            titleTextView = (TextView) itemView.findViewById(R.id.listItemTitle);
+            subjectTextView = (TextView) itemView.findViewById(R.id.listItemSubject);
             messageTextView = (TextView) itemView.findViewById(R.id.listItemMessage);
-            //votesTextView = (TextView) itemView.findViewById(R.id.listItemVotes);
+            votesTextView = (TextView) itemView.findViewById(R.id.listItemVotes);
             likeButton = (Button) itemView.findViewById(R.id.listLikeButton);
         }
 
@@ -53,9 +53,9 @@ public class DatumRecyclerViewAdapter extends RecyclerView.Adapter<DatumRecycler
 
         //holder.indexTextView.setText(datum.mIndex);
         //holder.textTextView.setText(datum.mText);
-        holder.titleTextView.setText(datum.mTitle);
-        holder.messageTextView.setText(datum.mMessage);
-        //holder.votesTextView.setText(datum.mVotes);
+        holder.subjectTextView.setText("Subject: " + datum.mSubject);
+        holder.messageTextView.setText("Message: " + datum.mMessage);
+        holder.votesTextView.setText("Vote: " + datum.mVotes);        // setText needs a string
     }
 
     @Override

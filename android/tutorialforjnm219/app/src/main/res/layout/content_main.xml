@@ -16,6 +16,4 @@
         tools:layout_editor_absoluteX="8dp">
     </android.support.v7.widget.RecyclerView>
 
-
-
 </android.support.constraint.ConstraintLayout>
