@@ -55,7 +55,7 @@ public class DatumRecyclerViewAdapter extends RecyclerView.Adapter<DatumRecycler
         //holder.textTextView.setText(datum.mText);
         holder.subjectTextView.setText("Subject: " + datum.mSubject);
         holder.messageTextView.setText("Message: " + datum.mMessage);
-        holder.votesTextView.setText("Vote: " + datum.mVotes);        // setText needs a string
+        holder.votesTextView.setText("Votes: " + datum.mVotes);        // setText needs a string
     }
 
     @Override

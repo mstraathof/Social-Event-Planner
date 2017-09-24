@@ -183,9 +183,8 @@ public class MainActivity extends AppCompatActivity {
                 String toastString = intent.getStringExtra("resultSubject") + " " + intent.getStringExtra("resultMessage");
                 Toast.makeText(MainActivity.this, toastString, Toast.LENGTH_LONG).show();
 
-                // POST to backend server. Modified version:
+                // POST to backend server. Modified version of:
                 // https://www.itsalif.info/content/android-volley-tutorial-http-get-post-put
-
                 Map<String, String> jsonParams = new HashMap<String, String>();
                 //jsonParams.put("mSubject", "Hello");
                 //jsonParams.put("mMessage", "World");
@@ -193,6 +192,7 @@ public class MainActivity extends AppCompatActivity {
                 final String resultSubject = intent.getStringExtra("resultSubject");
                 final String resultMessage = intent.getStringExtra("resultMessage");
 
+                jsonParams.put("mTitle", resultSubject);        // todo: remove when backend updated
                 jsonParams.put("mSubject", resultSubject);
                 jsonParams.put("mMessage", resultMessage);
                 JsonObjectRequest postRequest = new JsonObjectRequest( Request.Method.POST, url,
@@ -202,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
                             public void onResponse(JSONObject response) {
                                 Log.e("jnm219", "got response");
                                 // add also to local list view.
-                                mData.add(new Datum(0, resultSubject, resultMessage, 0));   // todo: parse id from response
+                                mData.add(new Datum(0, resultSubject, resultMessage));   // todo: parse id from response
                                 adapter.notifyDataSetChanged();
                             }
                         },

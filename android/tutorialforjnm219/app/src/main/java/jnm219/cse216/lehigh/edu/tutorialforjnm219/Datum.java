@@ -28,7 +28,7 @@ class Datum {
      * @param id The index of this piece of data
      * @param subject The string contents for this piece of data
      * @param message The string contains the message for the piece of data
-     * @param votes The integer total number of votes for the piece of data
+     * @param votes The int contains the vote count for the piece of data
      */
 
     Datum(int id, String subject, String message, int votes) {
@@ -36,5 +36,12 @@ class Datum {
         mSubject = subject;
         mMessage = message;
         mVotes = votes;
+    }
+
+    Datum(int id, String subject, String message) {
+        mId = id;
+        mSubject = subject;
+        mMessage = message;
+        mVotes = 0;
     }
 }
