@@ -170,7 +170,10 @@ public class Database {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return count;
+        if(count == 0)
+                return -1;
+        else
+            return count;
     }
 
     /**

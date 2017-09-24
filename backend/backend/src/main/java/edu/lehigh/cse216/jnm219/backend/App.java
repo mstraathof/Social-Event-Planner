@@ -119,10 +119,14 @@ static int getIntFromEnv(String envar, int defaultVal) {
             response.status(200);
             response.type("application/json");
             // NB: createEntry checks for null title and message
-            int newId = db.insertRow(req.mTitle, req.mMessage);
+            int newId = db.insertRow(req.mSubject, req.mMessage); // mSubject vs mTitle?
             if (newId == -1) {
                 return gson.toJson(new StructuredResponse("error", "error performing insertion", null));
             } else {
+                ArrayList<RowData> list = new ArrayList<RowData>();
+                list = db.selectAll();
+                int listSize = list.size() - 1;
+                newId = list.get(listSize).mId;
                 return gson.toJson(new StructuredResponse("ok", "" + newId, null));
             }
         });
