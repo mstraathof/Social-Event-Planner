@@ -24,7 +24,7 @@ import java.util.Map;
  * For now, our app creates an HTTP server that can only get and add data.
  */
 public class App {
-    /**
+/**
  * Get an integer environment varible if it exists, and otherwise return the
  * default value.
  * 
@@ -52,27 +52,11 @@ static int getIntFromEnv(String envar, int defaultVal) {
         // https://stackoverflow.com/questions/10380835/is-it-ok-to-use-gson-instance-as-a-static-field-in-a-model-bean-reuse
         final Gson gson = new Gson();
         Spark.port(getIntFromEnv("PORT", 4567));
-        // dataStore holds all of the data that has been provided via HTTP 
-        // requests
-        //
-        // NB: every time we shut down the server, we will lose all data, and 
-        //     every time we start the server, we'll have an empty dataStore,
-        //     with IDs starting over from 0.
-        //Changing the retrivl from a DataStore to a Database
-        //final DataStore dataStore = new DataStore();
-
-        // get the Postgres configuration from the environment
-        Map<String, String> env = System.getenv();
-        String ip = env.get("POSTGRES_IP");
-        String port = env.get("POSTGRES_PORT");
-        String user = env.get("POSTGRES_USER");
-        String pass = env.get("POSTGRES_PASS");
 
         // Get a fully-configured connection to the database, or exit 
         // immediately
-        Database db = Database.getDatabase(ip, port, user, pass);
-    
-        
+        Database db = Database.getDatabase();
+
         // Set up the location for serving static files.  If the STATIC_LOCATION
         // environment variable is set, we will serve from it.  Otherwise, serve
         // from "/web"
@@ -135,15 +119,18 @@ static int getIntFromEnv(String envar, int defaultVal) {
             response.status(200);
             response.type("application/json");
             // NB: createEntry checks for null title and message
-            int newId = db.insertRow(req.mTitle, req.mMessage);
+            int newId = db.insertRow(req.mSubject, req.mMessage); // mSubject vs mTitle?
             if (newId == -1) {
                 return gson.toJson(new StructuredResponse("error", "error performing insertion", null));
             } else {
                 return gson.toJson(new StructuredResponse("ok", "" + newId, null));
             }
         });
-        // PUT route for updating a row in the DataStore.  This is almost 
-        // exactly the same as POST
+
+        /**
+         * PUT route for updating a row in the DataStore.  This is almost 
+         * exactly the same as POST
+         */
         Spark.put("/messages/:id", (request, response) -> {
             // If we can't get an ID or can't parse the JSON, Spark will send
             // a status 500
@@ -152,14 +139,27 @@ static int getIntFromEnv(String envar, int defaultVal) {
             // ensure status 200 OK, with a MIME type of JSON
             response.status(200);
             response.type("application/json");
-            int result = db.updateOne(idx, req.mTitle,req.mMessage);
+            int result = -1;
+            // Upvote if mChangeVote equals 1
+            if(req.mChangeVote == 1)
+            {
+                result = db.upVote(idx, 1);
+                return gson.toJson(new StructuredResponse("1", null, result));
+            }
+            // Downvote if mChangevote equals -1
+            else if(req.mChangeVote == -1)
+            {
+                result = db.downVote(idx, -1);
+                return gson.toJson(new StructuredResponse("1", null, result));
+            }
             if (result == -1) {
                 return gson.toJson(new StructuredResponse("error", "unable to update row " + idx, null));
             } else {
-                return gson.toJson(new StructuredResponse("ok", null, result));
+                return gson.toJson(new StructuredResponse("error", "invalid mChangeVote value. Must be 1 or -1.", null));
             }
         });
 
+        /**
         // DELETE route for removing a row from the DataStore
         Spark.delete("/messages/:id", (request, response) -> {
             // If we can't get an ID, Spark will send a status 500
@@ -176,6 +176,7 @@ static int getIntFromEnv(String envar, int defaultVal) {
                 return gson.toJson(new StructuredResponse("ok", null, null));
             }
         });
+        */
         
     }
 }
