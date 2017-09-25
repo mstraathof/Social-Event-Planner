@@ -164,8 +164,8 @@ public class Database {
             mInsertOne.setString(1, subject);
             mInsertOne.setString(2, message);
             mInsertOne.setInt(3, 0);
-            mInsertOne.setString(4, new SimpleDateFormat("MM/dd/yyyy hh:mm").format(new Date()));
-            mInsertOne.setString(5, new SimpleDateFormat("MM/dd/yyyy hh:mm").format(new Date()));
+            mInsertOne.setString(4, new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(new Date()));
+            mInsertOne.setString(5, new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(new Date()));
             count += mInsertOne.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
