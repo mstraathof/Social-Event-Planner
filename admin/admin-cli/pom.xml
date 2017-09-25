@@ -19,6 +19,11 @@
       <artifactId>postgresql</artifactId>
       <version>42.1.1</version>
     </dependency>
+    <dependency>
+    <groupId>com.heroku.sdk</groupId>
+    <artifactId>heroku-maven-plugin</artifactId>
+    <version>1.2.0</version>
+</dependency>
   </dependencies>
   <build>
   <plugins>
@@ -30,6 +35,39 @@
         <mainClass>edu.lehigh.cse216.jnm219.admin.App</mainClass>
       </configuration>
     </plugin>
+    <plugin>
+    <groupId>com.heroku.sdk</groupId>
+    <artifactId>heroku-maven-plugin</artifactId>
+    <version>1.2.0</version>
+    <configuration>
+        <jdkVersion>1.8</jdkVersion>
+        <appName>quiet-taiga-79213</appName> 
+        <processTypes>
+            <web>java -jar ./target/backend-1.0-SNAPSHOT-jar-with-dependencies.jar</web>
+        </processTypes>
+    </configuration>
+  </plugin>
+  <plugin>
+    <artifactId>maven-assembly-plugin</artifactId>
+    <executions>
+        <execution>
+            <phase>package</phase>
+            <goals>
+                <goal>single</goal>
+            </goals>
+        </execution>
+    </executions>
+    <configuration>
+        <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+        </descriptorRefs>
+        <archive>
+            <manifest>
+                <mainClass>edu.lehigh.cse216.jnm219.admin.App</mainClass>
+            </manifest>
+        </archive>
+    </configuration>
+</plugin>
   </plugins>
 </build>
 </project>

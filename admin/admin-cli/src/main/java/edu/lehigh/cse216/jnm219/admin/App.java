@@ -21,12 +21,12 @@ public class App {
         System.out.println("  [T] Create tblData");
         System.out.println("  [D] Drop tblData");
         
-        System.out.println("  [1] Query for a specific row");
+       /* System.out.println("  [1] Query for a specific row");
         System.out.println("  [*] Query for all rows");
         System.out.println("  [-] Delete a row");
         System.out.println("  [+] Insert a new row");
         System.out.println("  [~] Update a row");
-        System.out.println("  [q] Quit Program");
+        System.out.println("  [q] Quit Program");*/
         System.out.println("  [?] Help (this message)");
     }
 
@@ -39,7 +39,7 @@ public class App {
      */
     static char prompt(BufferedReader in) {
         // The valid actions:
-        String actions = "TD1*-+~q?";
+        String actions = "TDq?";
         // We repeat until a valid single-character option is selected        
         while (true) {
             System.out.print("[" + actions + "] :> ");
@@ -110,16 +110,11 @@ public class App {
         // get the Postgres configuration from the environment
         // Get the port on which to listen for requests
         Map<String, String> env = System.getenv();
-       /* String ip = env.get("IP");
-        String port = env.get("PORT");
-        String user = env.get("USER");
-        String pass = env.get("PASS");*/
-        //String dbUrl = System.getenv("JDBC_DATABASE_URL");
 
         // Get a fully-configured connection to the database, or exit 
         // immediately
         Database db = Database.getDatabase();
-        //Database db = Database.getDatabase(ip, port, user, pass);
+        
         if (db == null)
             return;
 
@@ -140,6 +135,14 @@ public class App {
             } else if (action == 'D') {
                 db.dropTable();
             }
+            db.disconnect();
+        }
+    }
+        static String getDBURLFromEnv() {
+        ProcessBuilder processBuilder = new ProcessBuilder();
+            return processBuilder.environment().get("JDBC_DATABASE_URL");
+    }
+    }
             /*
             else if (action == '1') {
                 int id = getInt(in, "Enter the row ID");
@@ -187,13 +190,6 @@ public class App {
                     continue;
                 System.out.println("  " + res + " rows updated");
             }*/
-        }
         // Always remember to disconnect from the database when the program 
         // exits
-        db.disconnect();
-    }
-    static String getDBURLFromEnv() {
-    ProcessBuilder processBuilder = new ProcessBuilder();
-        return processBuilder.environment().get("JDBC_DATABASE_URL");
-}
-}
+      

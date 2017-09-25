@@ -20,27 +20,27 @@ public class Database {
     /**
      * A prepared statement for getting all data in the database
      */
-    private PreparedStatement mSelectAll;
+    //private PreparedStatement mSelectAll;
 
     /**
      * A prepared statement for getting one row from the database
      */
-    private PreparedStatement mSelectOne;
+   // private PreparedStatement mSelectOne;
 
     /**
      * A prepared statement for deleting a row from the database
      */
-    private PreparedStatement mDeleteOne;
+    //private PreparedStatement mDeleteOne;
 
     /**
      * A prepared statement for inserting into the database
      */
-    private PreparedStatement mInsertOne;
+   // private PreparedStatement mInsertOne;
 
     /**
      * A prepared statement for updating a single row in the database
      */
-    private PreparedStatement mUpdateOne;
+    //private PreparedStatement mUpdateOne;
 
     /**
      * A prepared statement for creating the table in our database
@@ -75,7 +75,18 @@ public class Database {
          * The message stored in this row
          */
         String mMessage;
-
+        /**
+         * The votes stored in this row
+         */
+        int mVotes;
+        /**
+         * The date created stored in this row
+         */
+        String mCreateTime;
+        /**
+         * The time modified stored in this row
+         */
+        String mModifyTime;
         /**
          * Construct a RowData object by providing values for its fields
          */
@@ -95,16 +106,17 @@ public class Database {
     private static Connection getConnection() throws URISyntaxException, SQLException {
     //String dbUrl = App.getDBURLFromEnv();
     return DriverManager.getConnection("jdbc:postgresql://ec2-107-21-109-15.compute-1.amazonaws.com:5432/dfjhqhen0vfnm?user=wmptnnamvihvzv&password=021c55db34a371a345a4e8279d144dde484f6e1455b10b217525f6885e363433&sslmode=require");
-}
+    }
+    // url for test
+    private static Connection getConnection(String url) throws URISyntaxException, SQLException {
+        //String dbUrl = App.getDBURLFromEnv();
+        return DriverManager.getConnection(url);
+    }
+    
 
     /**
      * Get a fully-configured connection to the database
      * 
-     * @param ip   The IP address of the database server
-     * @param port The port on the database server to which connection requests
-     *             should be sent
-     * @param user The user ID to use when connecting
-     * @param pass The password to use when connecting
      * 
      * @return A Database object, or null if we cannot connect properly
      */
@@ -147,11 +159,11 @@ public class Database {
             db.mDropTable = db.mConnection.prepareStatement("DROP TABLE tblData");
 
             // Standard CRUD operations
-            db.mDeleteOne = db.mConnection.prepareStatement("DELETE FROM tblData WHERE id = ?");
+            /*db.mDeleteOne = db.mConnection.prepareStatement("DELETE FROM tblData WHERE id = ?");
             db.mInsertOne = db.mConnection.prepareStatement("INSERT INTO tblData VALUES (default, ?, ?)");
             db.mSelectAll = db.mConnection.prepareStatement("SELECT id, subject, votes FROM tblData");
             db.mSelectOne = db.mConnection.prepareStatement("SELECT * from tblData WHERE id=?");
-            db.mUpdateOne = db.mConnection.prepareStatement("UPDATE tblData SET message = ? WHERE id = ?");
+            db.mUpdateOne = db.mConnection.prepareStatement("UPDATE tblData SET message = ? WHERE id = ?");*/
         } catch (SQLException e) {
             System.err.println("Error creating prepared statement");
             e.printStackTrace();
@@ -185,6 +197,33 @@ public class Database {
         mConnection = null;
         return true;
     }
+      /**
+     * Create tblData.  If it already exists, this will print an error
+     */
+    boolean createTable() {
+        try {
+            mCreateTable.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Remove tblData from the database.  If it does not exist, this will print
+     * an error.
+     */
+    boolean dropTable() {
+        try {
+            mDropTable.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+}
 
     /**
      * Insert a row into the database
@@ -290,26 +329,4 @@ public class Database {
         return res;
     }
 */
-    /**
-     * Create tblData.  If it already exists, this will print an error
-     */
-    void createTable() {
-        try {
-            mCreateTable.execute();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Remove tblData from the database.  If it does not exist, this will print
-     * an error.
-     */
-    void dropTable() {
-        try {
-            mDropTable.execute();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-}
+  
