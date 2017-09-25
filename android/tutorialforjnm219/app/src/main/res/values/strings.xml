@@ -2,5 +2,5 @@
     <string name="app_name">The Buzz</string>
     <string name="action_settings">BUZZ</string>
     <string name="title_activity_second">SecondActivity</string>
-    <string name="like_button">LIKE</string>
+    <string name="like_button">Upvote</string>
 </resources>
