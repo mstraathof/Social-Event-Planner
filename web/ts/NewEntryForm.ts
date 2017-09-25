@@ -1,6 +1,7 @@
 /**
  * NewEntryForm encapsulates all of the code for the form for adding an entry
  */
+var Handlebars: any;
 class NewEntryForm {
     
         /**
@@ -35,7 +36,6 @@ class NewEntryForm {
         public static refresh() {
             NewEntryForm.init();
         }
-    
         /**
          * Hide the NewEntryForm.  Be sure to clear its fields first
          */
@@ -44,7 +44,6 @@ class NewEntryForm {
             $("#" + NewEntryForm.NAME + "-message").val("");
             $("#" + NewEntryForm.NAME).modal("hide");
         }
-    
         /**
          * Show the NewEntryForm.  Be sure to clear its fields, because there are
          * ways of making a Bootstrap modal disapper without clicking Close, and
@@ -56,8 +55,6 @@ class NewEntryForm {
             $("#" + NewEntryForm.NAME + "-message").val("");
             $("#" + NewEntryForm.NAME).modal("show");
         }
-    
-    
         /**
          * Send data to submit the form only if the fields are both valid.  
          * Immediately hide the form when we send data, so that the user knows that 
@@ -79,7 +76,7 @@ class NewEntryForm {
                 type: "POST",
                 url: "/messages",
                 dataType: "json",
-                data: JSON.stringify({ mTitle: title, mMessage: msg }),
+                data: JSON.stringify({ mSubject: title, mMessage: msg }),
                 success: NewEntryForm.onSubmitResponse
             });
         }

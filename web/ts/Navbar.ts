@@ -4,6 +4,7 @@
  * page.  Apart from that, it has an "add" button, which forwards to 
  * NewEntryForm
  */
+var Handlebars: any;
 class Navbar {
     /**
      * Track if the Singleton has been initialized
