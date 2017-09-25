@@ -48,7 +48,7 @@ public class Database {
      */
     private PreparedStatement mUpdateOne;
     /**
-     * 
+     * A prepared statement for updating a single row in the database
      */
     private PreparedStatement mUpdateVote;
 
@@ -112,7 +112,7 @@ public class Database {
             // Standard CRUD operations
             db.mDeleteOne = db.mConnection.prepareStatement("DELETE FROM tblData WHERE id = ?");
             db.mInsertOne = db.mConnection.prepareStatement("INSERT INTO tblData VALUES (default, ?, ?, ?, ?, ?)");
-            db.mSelectAll = db.mConnection.prepareStatement("SELECT * FROM tblData");
+            db.mSelectAll = db.mConnection.prepareStatement("SELECT * FROM tblData ORDER BY modifyTime DESC");
             db.mSelectOne = db.mConnection.prepareStatement("SELECT * from tblData WHERE id=?");
             db.mUpdateOne = db.mConnection.prepareStatement("UPDATE tblData SET subject = ?, message = ? WHERE id = ?");
             db.mUpdateVote = db.mConnection.prepareStatement("UPDATE tblData SET votes = votes + ? WHERE id = ?");

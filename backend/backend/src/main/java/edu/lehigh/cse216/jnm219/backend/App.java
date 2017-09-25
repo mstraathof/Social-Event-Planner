@@ -123,10 +123,6 @@ static int getIntFromEnv(String envar, int defaultVal) {
             if (newId == -1) {
                 return gson.toJson(new StructuredResponse("error", "error performing insertion", null));
             } else {
-                ArrayList<RowData> list = new ArrayList<RowData>();
-                list = db.selectAll();
-                int listSize = list.size() - 1;
-                newId = list.get(listSize).mId;
                 return gson.toJson(new StructuredResponse("ok", "" + newId, null));
             }
         });
