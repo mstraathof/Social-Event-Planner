@@ -1,5 +1,6 @@
 package jnm219.cse216.lehigh.edu.tutorialforjnm219;
 
+import android.app.Activity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,7 +10,16 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+
+import org.json.JSONObject;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DatumRecyclerViewAdapter extends RecyclerView.Adapter<DatumRecyclerViewAdapter.DatumViewHolder>{
 
@@ -38,8 +48,38 @@ public class DatumRecyclerViewAdapter extends RecyclerView.Adapter<DatumRecycler
                     datumList.get(position).mVotes++;
                     notifyItemChanged(position);
 
-                    // todo: write code to POST or PUT a vote change to the backend server.
-                    Log.d("button", "click " + position);
+                    // todo: move PUT to main activity.
+                    //Log.d("jnm219", "attempting to change vote count of " + datumList.get(position).mId);
+                    String url = "https://quiet-taiga-79213.herokuapp.com/messages";
+                    Map<String, String> jsonParams = new HashMap<String, String>();
+
+                    jsonParams.put("mChangeVote", "1");
+                    JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.PUT, url + "/" + datumList.get(position).mId,
+                            new JSONObject(jsonParams),
+                            new Response.Listener<JSONObject>() {
+                                @Override
+                                public void onResponse(JSONObject response) {
+                                    Log.e("jnm219", "got response from PUT to update vote count");
+                                    // todo: consider updating local vote count only if PUT succeeded.
+                                }
+                            },
+                            new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                    Log.e("jnm219", "JsonObjectRequest() to update vote count failed: " + error.getMessage());
+                                }
+                            }) {
+                        @Override
+                        public Map<String, String> getHeaders() {
+                            HashMap<String, String> headers = new HashMap<String, String>();
+                            headers.put("Content-Type", "application/json; charset=utf-8");
+                            headers.put("User-agent", System.getProperty("http.agent"));
+                            return headers;
+                        }
+                    };
+                    VolleySingleton.getInstance(v.getContext()).addToRequestQueue(postRequest);
+
+                    //Log.d("button", "click " + position);
                 }
             });
         }

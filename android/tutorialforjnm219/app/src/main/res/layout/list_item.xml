@@ -28,6 +28,7 @@
         style="@style/Widget.AppCompat.Button.Small"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:onClick="onLikeButtonClick"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         android:text="@string/like_button"

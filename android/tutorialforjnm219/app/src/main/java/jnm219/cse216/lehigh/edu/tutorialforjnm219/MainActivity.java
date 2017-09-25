@@ -1,5 +1,6 @@
 package jnm219.cse216.lehigh.edu.tutorialforjnm219;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -50,18 +51,18 @@ public class MainActivity extends AppCompatActivity {
 
         // get from the backend server a list of all entries.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-            new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    populateListFromVolley(response);
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        populateListFromVolley(response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e("jnm219", "StringRequest() failed: " + error.getMessage());
+                    }
                 }
-            },
-            new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.e("jnm219", "StringRequest() failed: " + error.getMessage());
-                }
-            }
         );
 
         RecyclerView rv = (RecyclerView) findViewById(R.id.datum_list_view);
@@ -71,14 +72,14 @@ public class MainActivity extends AppCompatActivity {
         rv.setAdapter(adapter);
 
         rv.addOnItemTouchListener(
-            new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
-                @Override
-                public void onItemClick(View view, int position) {
-                    // onItemClick() is called when user clicks anywhere in an adapter row.
-                    // do nothing here.
-                    //Log.d("click", "" + position);
-                }
-            })
+                new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+                        // onItemClick() is called when user clicks anywhere in an adapter row.
+                        // do nothing here.
+                        //Log.d("click", "" + position);
+                    }
+                })
         );
 
         VolleySingleton.getInstance(this).addToRequestQueue(stringRequest); // add request to queue.
@@ -107,10 +108,31 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-    private void populateListFromVolley(String response){
+
+// todo: refresh the app
+    public void refreshData() {
+        mData.clear();
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            populateListFromVolley(response);
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.e("jnm219", "StringRequest() failed: " + error.getMessage());
+                        }
+                    }
+            );
+        VolleySingleton.getInstance(this).addToRequestQueue(stringRequest);
+    }
+
+    private void populateListFromVolley(String response) {
         try {
             JSONObject jsonObject = new JSONObject(response);
-            JSONArray json= new JSONArray(jsonObject.getString("mData"));
+            JSONArray json = new JSONArray(jsonObject.getString("mData"));
 
             for (int i = 0; i < json.length(); ++i) {
                 int mId = json.getJSONObject(i).getInt("mId");
@@ -144,14 +166,14 @@ public class MainActivity extends AppCompatActivity {
                 jsonParams.put("mTitle", resultSubject);        // todo: remove when backend updated
                 jsonParams.put("mSubject", resultSubject);
                 jsonParams.put("mMessage", resultMessage);
-                JsonObjectRequest postRequest = new JsonObjectRequest( Request.Method.POST, url,
+                JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, url,
                         new JSONObject(jsonParams),
                         new Response.Listener<JSONObject>() {
                             @Override
                             public void onResponse(JSONObject response) {
                                 Log.e("jnm219", "got response");
                                 // add also to local list view.
-                                mData.add(new Datum(0, resultSubject, resultMessage));   // todo: parse id from response
+                                mData.add(new Datum(resultSubject, resultMessage));   // todo: parse id from response
                                 adapter.notifyDataSetChanged();
                             }
                         },
@@ -161,17 +183,21 @@ public class MainActivity extends AppCompatActivity {
                                 Log.e("jnm219", "JsonObjectRequest() failed: " + error.getMessage());
                             }
                         }) {
-                        @Override
-                        public Map<String, String> getHeaders() {
-                            HashMap<String, String> headers = new HashMap<String, String>();
-                            headers.put("Content-Type", "application/json; charset=utf-8");
-                            headers.put("User-agent", System.getProperty("http.agent"));
-                            return headers;
-                        }
-                    };
-
+                    @Override
+                    public Map<String, String> getHeaders() {
+                        HashMap<String, String> headers = new HashMap<String, String>();
+                        headers.put("Content-Type", "application/json; charset=utf-8");
+                        headers.put("User-agent", System.getProperty("http.agent"));
+                        return headers;
+                    }
+                };
                 VolleySingleton.getInstance(this).addToRequestQueue(postRequest);
             }
         }
+        refreshData();
+    }
+
+    public void updateVoteCount(int position) {
+        // todo: call updateVoteCount() in listener for like-button click
     }
 }

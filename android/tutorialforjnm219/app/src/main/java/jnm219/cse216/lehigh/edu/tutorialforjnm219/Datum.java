@@ -38,8 +38,8 @@ class Datum {
         mVotes = votes;
     }
 
-    Datum(int id, String subject, String message) {
-        mId = id;
+    Datum(String subject, String message) {
+        mId = 0;
         mSubject = subject;
         mMessage = message;
         mVotes = 0;
