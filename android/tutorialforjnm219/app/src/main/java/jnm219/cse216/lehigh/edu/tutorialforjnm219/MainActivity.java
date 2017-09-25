@@ -50,23 +50,36 @@ public class MainActivity extends AppCompatActivity {
 
         // get from the backend server a list of all entries.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        populateListFromVolley(response);
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("jnm219", "StringRequest() failed: " + error.getMessage());
+            new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    populateListFromVolley(response);
+                }
+            },
+            new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.e("jnm219", "StringRequest() failed: " + error.getMessage());
+                }
             }
-        });
+        );
 
         RecyclerView rv = (RecyclerView) findViewById(R.id.datum_list_view);
         rv.setLayoutManager(new LinearLayoutManager(this));
         rv.addItemDecoration(new SimpleDividerItemDecoration(this));
         adapter = new DatumRecyclerViewAdapter(mData);
         rv.setAdapter(adapter);
+
+        rv.addOnItemTouchListener(
+            new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
+                @Override
+                public void onItemClick(View view, int position) {
+                    // onItemClick() is called when user clicks anywhere in an adapter row.
+                    // do nothing here.
+                    //Log.d("click", "" + position);
+                }
+            })
+        );
 
         VolleySingleton.getInstance(this).addToRequestQueue(stringRequest); // add request to queue.
     }
