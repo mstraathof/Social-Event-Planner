@@ -144,13 +144,13 @@ static int getIntFromEnv(String envar, int defaultVal) {
             if(req.mChangeVote == 1)
             {
                 result = db.upVote(idx, 1);
-                return gson.toJson(new StructuredResponse("upVote", null, result));
+                return gson.toJson(new StructuredResponse("1", null, result));
             }
             // Downvote if mChangevote equals -1
             else if(req.mChangeVote == -1)
             {
                 result = db.downVote(idx, -1);
-                return gson.toJson(new StructuredResponse("downVote", null, result));
+                return gson.toJson(new StructuredResponse("1", null, result));
             }
             if (result == -1) {
                 return gson.toJson(new StructuredResponse("error", "unable to update row " + idx, null));
