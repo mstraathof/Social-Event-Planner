@@ -20,8 +20,7 @@ $(document).ready(function () {
     Navbar.refresh();
     NewEntryForm.refresh();
     ElementList.refresh();
-    //EditEntryForm.refresh();
-
+    EditEntryForm.refresh();
     // Create the object that controls the "Edit Entry" form
     editEntryForm = new EditEntryForm();
     // set up initial UI state

@@ -1,3 +1,7 @@
+/// <reference path="ts/EditEntryForm.ts"/>
+/// <reference path="ts/NewEntryForm.ts"/>
+/// <reference path="ts/ElementList.ts"/>
+/// <reference path="ts/Navbar.ts"/>
 // Prevent compiler errors when using jQuery.  "$" will be given a type of 
 // "any", so that we can use it anywhere, and assume it has any fields or
 // methods, without the compiler producing an error.
@@ -5,35 +9,37 @@ var $: any;
 var describe: any;
 var it: any;
 var expect: any;
-describe("Tests of basic math functions", function() {
-    
-   
-    it("Adding 1 should work", function() {
-        var foo = 0;
-        foo += 1;
-        expect(foo).toEqual(1);
+describe("Tests of Functionality",function(){
+    it("Function Test: Test if Add Element Works", function(){
+        $('#Navbar-add').click();
+        $("#NewEntryForm-title").val("Test Message");
+        $("#NewEntryForm-message").val("Test Message");
+        $("NewEntryForm-OK").click();
     });
-
-    it("Subtracting 1 should work", function () {
-        var foo = 0;
-        foo -= 1;
-        expect(foo).toEqual(-1);
+    it("Function Test: Tests Edit Button", function(){
+        $('#ID-1').click();
+        let title = $('#ID-1').data("subject");
+        alert(title);
     });
-
-    
 });
 describe("Tests of UI",function() {
-
-    it("UI Test: Add Button Hides Listing", function(){
+    /**
+     * This test checks to see if the title and message fields are empty before going to 
+     * add a new entry to the database
+     */
+    it("UI Test: Title and Message Fields are Empty on Startup", function(){
         // click the button for showing the add button
-        $('#showFormButton').click();
-        // expect that the add form is not hidden
-        expect( $('#addElement').attr("style").indexOf("display: none;")).toEqual(-1);
-        // expect tha tthe element listing is hidden
-        expect( $('#showElements').attr("style").indexOf("display: none;")).toEqual(0);
-        // reset the UI, so we don't mess up the next test
-        $('#addCancel').click();        
+        $('#Navbar-add').click();
+        // Gets the strings currently in the -title and -message tag
+        let title = $("#NewEntryForm-title").val();
+        let message = $("#NewEntryForm-message").val();
+        //Checks to see if both entries are empty
+        expect(title).toEqual("");
+        expect(message).toEqual("");
+        //Closes out of AddEntry Form
+        $('#NewEntryForm-Close').click();        
     });
+    /*
     //Checks the text for the h3 tag is different for different div tags
     it("UI Test: Header Title changes Text", function(){
         expect( $("#showElements > h3").text()).toEqual("All Messages");
@@ -57,6 +63,6 @@ describe("Tests of UI",function() {
         //Checks that the addElements tag is no longer being displayed
         expect( $('#addElement').attr("style").indexOf("display: none;")).toEqual(0);
     });
-
+    */
     
 });
