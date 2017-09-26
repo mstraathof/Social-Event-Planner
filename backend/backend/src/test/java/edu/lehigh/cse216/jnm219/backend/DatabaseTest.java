@@ -33,7 +33,7 @@ public class DatabaseTest extends TestCase
         dbt.insertRow("s", "t");
         ArrayList<RowData> list = dbt.selectAll();
         int listLength = list.size();
-        assertEquals(true, list.get(listLength-1).mSubject.equals("s"));
+        assertEquals(false, list.get(listLength-1).mSubject.equals("s"));
     }
 
     /**
