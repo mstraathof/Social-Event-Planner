@@ -33,6 +33,7 @@
         android:paddingRight="16dp"
         android:text="@string/like_button"
         android:textAlignment="center"
+        android:textAllCaps="false"
         android:textSize="14sp" />
 
 </LinearLayout>

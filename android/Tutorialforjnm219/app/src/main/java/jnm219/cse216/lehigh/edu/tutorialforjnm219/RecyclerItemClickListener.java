@@ -45,6 +45,10 @@ public class RecyclerItemClickListener implements RecyclerView.OnItemTouchListen
         return false;
     }
 
+    /* For future reference, use onTouchEvent if the user presses anywhere in the row.
+    * You can use the mGestureDetector above as well
+    * */
+
     @Override
     public void onTouchEvent(RecyclerView view, MotionEvent motionEvent) {
     }

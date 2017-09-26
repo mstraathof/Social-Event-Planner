@@ -30,7 +30,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
+import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Datum> mData = new ArrayList<>();
     RecyclerView.Adapter adapter;
 
+    // enter into the browser to understand what the android app is parsing in the GET request.
     String url = "https://quiet-taiga-79213.herokuapp.com/messages";
 
     @Override
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        /*
         // get from the backend server a list of all entries.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
@@ -64,7 +66,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
         );
-
+        */
+        // Create the recycler view.
         RecyclerView rv = (RecyclerView) findViewById(R.id.datum_list_view);
         rv.setLayoutManager(new LinearLayoutManager(this));
         rv.addItemDecoration(new SimpleDividerItemDecoration(this));
@@ -82,7 +85,8 @@ public class MainActivity extends AppCompatActivity {
                 })
         );
 
-        VolleySingleton.getInstance(this).addToRequestQueue(stringRequest); // add request to queue.
+        refreshList();      // populate RecyclerView with initial set of buzzes.
+        //VolleySingleton.getInstance(this).addToRequestQueue(stringRequest); // add request to queue.
     }
 
     @Override
@@ -92,6 +96,11 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * What happens when the user selects an item in the menu.
+     * The only item right now is the option to create a new buzz.
+     * @param item from the menu
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -109,31 +118,38 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-// todo: refresh the app
-    public void refreshData() {
-        mData.clear();
-            StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                    new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            populateListFromVolley(response);
-                        }
-                    },
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            Log.e("jnm219", "StringRequest() failed: " + error.getMessage());
-                        }
+    // refresh the list of buzzes.
+    // refreshList() only queues the request to populate.
+    // populateListFromVolley() does the real work: parsing the server response and updating the adapter.
+    private void refreshList()
+    {
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        populateListFromVolley(response);
                     }
-            );
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e("jnm219", "StringRequest() failed: " + error.getMessage());
+                    }
+                }
+        );
         VolleySingleton.getInstance(this).addToRequestQueue(stringRequest);
     }
 
+    /**
+     * populateListFromVolley parses the response string and extracts necessary data to make datums.
+     * @param response is a string returned from a GET request.
+     */
     private void populateListFromVolley(String response) {
         try {
             JSONObject jsonObject = new JSONObject(response);
             JSONArray json = new JSONArray(jsonObject.getString("mData"));
 
+            mData.clear();      // get rid of existing buzzes
             for (int i = 0; i < json.length(); ++i) {
                 int mId = json.getJSONObject(i).getInt("mId");
                 String mTitle = json.getJSONObject(i).getString("mSubject");
@@ -150,6 +166,11 @@ public class MainActivity extends AppCompatActivity {
         Log.d("jnm219", "Successfully parsed JSON file.");
     }
 
+    /**
+     * @param requestCode tells you which activity needs to be responded to.
+     * @param resultCode holds the result ok if the activity succeed.
+     * @param intent gets sent from the activity. The only activity right now is the CreateBuzzActivity.
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent intent) {
         // Check which request we're responding to
@@ -163,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
                 final String resultSubject = intent.getStringExtra("resultSubject");
                 final String resultMessage = intent.getStringExtra("resultMessage");
 
-                jsonParams.put("mTitle", resultSubject);        // todo: remove when backend updated
+                // add the data collected from user into map which gets made into a JSONObject
                 jsonParams.put("mSubject", resultSubject);
                 jsonParams.put("mMessage", resultMessage);
                 JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, url,
@@ -172,9 +193,6 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onResponse(JSONObject response) {
                                 Log.e("jnm219", "got response");
-                                // add also to local list view.
-                                mData.add(new Datum(resultSubject, resultMessage));   // todo: parse id from response
-                                adapter.notifyDataSetChanged();
                             }
                         },
                         new Response.ErrorListener() {
@@ -192,12 +210,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                 };
                 VolleySingleton.getInstance(this).addToRequestQueue(postRequest);
+                refreshList();
             }
         }
-        refreshData();
-    }
-
-    public void updateVoteCount(int position) {
-        // todo: call updateVoteCount() in listener for like-button click
     }
 }

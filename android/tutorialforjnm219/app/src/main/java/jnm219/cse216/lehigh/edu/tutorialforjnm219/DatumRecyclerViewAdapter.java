@@ -21,6 +21,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This adapter is a bridge between our RecyclerAdapterView and the underlying data
+ */
+
 public class DatumRecyclerViewAdapter extends RecyclerView.Adapter<DatumRecyclerViewAdapter.DatumViewHolder>{
 
     public class DatumViewHolder extends RecyclerView.ViewHolder {
@@ -48,11 +52,12 @@ public class DatumRecyclerViewAdapter extends RecyclerView.Adapter<DatumRecycler
                     datumList.get(position).mVotes++;
                     notifyItemChanged(position);
 
-                    // todo: move PUT to main activity.
+                    // todo: move PUT to main activity implementing an interface to link the two
                     //Log.d("jnm219", "attempting to change vote count of " + datumList.get(position).mId);
                     String url = "https://quiet-taiga-79213.herokuapp.com/messages";
                     Map<String, String> jsonParams = new HashMap<String, String>();
 
+                    // make a put request to an up-vote
                     jsonParams.put("mChangeVote", "1");
                     JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.PUT, url + "/" + datumList.get(position).mId,
                             new JSONObject(jsonParams),
@@ -85,7 +90,7 @@ public class DatumRecyclerViewAdapter extends RecyclerView.Adapter<DatumRecycler
         }
     }
 
-    private final List<Datum> datumList;
+    private final List<Datum> datumList;    // holds all the datums
 
     public DatumRecyclerViewAdapter(List<Datum> datumList) {
         this.datumList = datumList;
@@ -98,6 +103,12 @@ public class DatumRecyclerViewAdapter extends RecyclerView.Adapter<DatumRecycler
         return new DatumViewHolder(itemView);
     }
 
+    /**
+     * Sets the subject, message, and vote count for each buzz in list on the main page.
+     * Displayed by the RecyclerView
+     * @param holder from the RecyclerView
+     * @param position is the specific buzz/datum being placed in the holder
+     */
     @Override
     public void onBindViewHolder(DatumViewHolder holder, int position) {
         final Datum datum = datumList.get(position);
