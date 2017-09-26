@@ -3,47 +3,49 @@ package jnm219.cse216.lehigh.edu.tutorialforjnm219;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Debug;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class SecondActivity extends AppCompatActivity {
+/**
+ * Is called when the user clicks the three dots on the main page, then clicks Create a Buzz.
+ * The purpose of this class is to allow the user to create a new buzz/entry.
+ */
+public class CreateBuzzActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_second);
 
-        // Get the parameter from the calling activity, and put it in the TextView
+        // Get top label from the calling activity, and put it in TextView
         Intent input = getIntent();
-        String label_contents = input.getStringExtra("label_contents");
-        final TextView tv = (TextView) findViewById(R.id.specialMessage);
+        String topLabel = input.getStringExtra("topLabel");
+        final TextView tv = (TextView) findViewById(R.id.topLabel);
+        tv.setText(topLabel);
 
-        tv.setText(label_contents);
+        final EditText et = (EditText) findViewById(R.id.enterSubject);
+        final EditText em = (EditText) findViewById(R.id.enterMessage);
 
         // The OK button gets the text from the input box and returns it to the calling activity
-        final EditText et = (EditText) findViewById(R.id.editText);
         Button bOk = (Button) findViewById(R.id.buttonOk);
         bOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!et.getText().toString().equals("")) {
+                // Create an intent only when the user entered text in both fields
+                if (!et.getText().toString().equals("") && !em.getText().toString().equals("")) {
                     Intent i = new Intent();
-                    i.putExtra("result", et.getText().toString());
+                    i.putExtra("resultSubject", et.getText().toString());
+                    i.putExtra("resultMessage", em.getText().toString());
                     setResult(Activity.RESULT_OK, i);
                     finish();
                 }
             }
         });
 
-        // The Cancel button returns to the caller without sending any data
+        // The Cancel button returns to the caller without sending it any data
         Button bCancel = (Button) findViewById(R.id.buttonCancel);
         bCancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -53,6 +55,4 @@ public class SecondActivity extends AppCompatActivity {
             }
         });
     }
-
-
 }
