@@ -42,7 +42,10 @@ class NewEntryForm {
         private static hide() {
             $("#" + NewEntryForm.NAME + "-title").val("");
             $("#" + NewEntryForm.NAME + "-message").val("");
+            //These lines hide the modal background(the shadow when bringing up a new entry form)
             $("#" + NewEntryForm.NAME).modal("hide");
+            $('body').removeClass('modal-open');
+            $('.modal-backdrop').remove();
         }
         /**
          * Show the NewEntryForm.  Be sure to clear its fields, because there are
@@ -65,6 +68,16 @@ class NewEntryForm {
             // that neither is empty
             let title = "" + $("#" + NewEntryForm.NAME + "-title").val();
             let msg = "" + $("#" + NewEntryForm.NAME + "-message").val();
+            if(msg.length >= 500)
+            {
+                window.alert("Error: Message exceeds 500");
+                return;
+            }
+            if(title.length >= 50)
+            {
+                window.alert("Error: Title exceeds 50");
+                return;
+            }
             if (title === "" || msg === "") {
                 window.alert("Error: title or message is not valid");
                 return;
