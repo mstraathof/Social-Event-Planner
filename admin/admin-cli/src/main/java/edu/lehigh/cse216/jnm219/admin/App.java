@@ -21,12 +21,12 @@ public class App {
         System.out.println("  [T] Create tblData");
         System.out.println("  [D] Drop tblData");
         
-        System.out.println("  [1] Query for a specific row");
+       /* System.out.println("  [1] Query for a specific row");
         System.out.println("  [*] Query for all rows");
         System.out.println("  [-] Delete a row");
         System.out.println("  [+] Insert a new row");
         System.out.println("  [~] Update a row");
-        System.out.println("  [q] Quit Program");
+        System.out.println("  [q] Quit Program");*/
         System.out.println("  [?] Help (this message)");
     }
 
@@ -39,7 +39,7 @@ public class App {
      */
     static char prompt(BufferedReader in) {
         // The valid actions:
-        String actions = "TD1*-+~q?";
+        String actions = "TDq?";
         // We repeat until a valid single-character option is selected        
         while (true) {
             System.out.print("[" + actions + "] :> ");
@@ -67,6 +67,7 @@ public class App {
      * 
      * @return The string that the user provided.  May be "".
      */
+    /*
     static String getString(BufferedReader in, String message) {
         String s;
         try {
@@ -78,7 +79,7 @@ public class App {
         }
         return s;
     }
-
+/*
     /**
      * Ask the user to enter an integer
      * 
@@ -87,6 +88,7 @@ public class App {
      * 
      * @return The integer that the user provided.  On error, it will be -1
      */
+    /*
     static int getInt(BufferedReader in, String message) {
         int i = -1;
         try {
@@ -99,7 +101,7 @@ public class App {
         }
         return i;
     }
-
+*/
     /**
      * The main routine runs a loop that gets a request from the user and
      * processes it
@@ -110,19 +112,15 @@ public class App {
         // get the Postgres configuration from the environment
         // Get the port on which to listen for requests
         Map<String, String> env = System.getenv();
-       /* String ip = env.get("IP");
-        String port = env.get("PORT");
-        String user = env.get("USER");
-        String pass = env.get("PASS");*/
-        //String dbUrl = System.getenv("JDBC_DATABASE_URL");
 
         // Get a fully-configured connection to the database, or exit 
         // immediately
-        Database db = Database.getDatabase();
-        //Database db = Database.getDatabase(ip, port, user, pass);
+        // This url is for the main url for the quiet-taiga database
+        Database db = Database.getDatabase("jdbc:postgresql://ec2-107-21-109-15.compute-1.amazonaws.com:5432/dfjhqhen0vfnm?user=wmptnnamvihvzv&password=021c55db34a371a345a4e8279d144dde484f6e1455b10b217525f6885e363433&sslmode=require");
         if (db == null)
+        {
             return;
-
+        }
         // Start our basic command-line interpreter:
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         while (true) {
@@ -133,13 +131,34 @@ public class App {
             char action = prompt(in);
             if (action == '?') {
                 menu();
+                //get disconnected to database
             } else if (action == 'q') {
                 break;
+                // call createTable from database
             } else if (action == 'T') {
                 db.createTable();
+                // call createTable from database
             } else if (action == 'D') {
                 db.dropTable();
             }
+        }
+         db.disconnect();
+    }
+            /**
+         * Get an integer environment varible if it exists, and otherwise return the
+         * default value.
+         * 
+         * @envar      The name of the environment variable to get.
+         * @defaultVal The integer value to use as the default if envar isn't found
+         * 
+         * @returns The best answer we could come up with for a value for envar
+         */
+        static String getDBURLFromEnv() 
+        {
+        ProcessBuilder processBuilder = new ProcessBuilder();
+        return processBuilder.environment().get("JDBC_DATABASE_URL");
+        }
+    }
             /*
             else if (action == '1') {
                 int id = getInt(in, "Enter the row ID");
@@ -187,13 +206,7 @@ public class App {
                     continue;
                 System.out.println("  " + res + " rows updated");
             }*/
-        }
         // Always remember to disconnect from the database when the program 
-        // exits
-        db.disconnect();
-    }
-    static String getDBURLFromEnv() {
-    ProcessBuilder processBuilder = new ProcessBuilder();
-        return processBuilder.environment().get("JDBC_DATABASE_URL");
-}
-}
+        // exits APP.JAVA
+
+      
