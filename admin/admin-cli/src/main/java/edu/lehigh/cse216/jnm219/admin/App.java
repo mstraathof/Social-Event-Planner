@@ -207,6 +207,6 @@ public class App {
                 System.out.println("  " + res + " rows updated");
             }*/
         // Always remember to disconnect from the database when the program 
-        // exits APP.JAVA
+        // exits
 
       
