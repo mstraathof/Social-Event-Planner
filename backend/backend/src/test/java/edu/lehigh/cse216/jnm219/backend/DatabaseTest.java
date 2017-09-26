@@ -30,7 +30,7 @@ public class DatabaseTest extends TestCase
     {
         Spark.port(App.getIntFromEnv("PORT", 5432));
         Database dbt = Database.getDatabase(2);
-        dbt.insertRow("s", "m");
+        dbt.insertRow("s", "t");
         ArrayList<RowData> list = dbt.selectAll();
         int listLength = list.size();
         assertEquals(true, list.get(listLength-1).mSubject.equals("s"));
@@ -43,7 +43,7 @@ public class DatabaseTest extends TestCase
     {
         Spark.port(App.getIntFromEnv("PORT", 5432));
         Database dbt = Database.getDatabase(2);
-        dbt.insertRow("s", "m");
+        dbt.insertRow("u", "v");
         ArrayList<RowData> list = dbt.selectAll();
         int listLength = list.size();
         int id = list.get(listLength-1).mId;
@@ -57,7 +57,7 @@ public class DatabaseTest extends TestCase
     {
         Spark.port(App.getIntFromEnv("PORT", 5432));
         Database dbt = Database.getDatabase(2);
-        dbt.insertRow("s", "m");
+        dbt.insertRow("w", "x");
         assertEquals(false, -1 == dbt.upVote(1, 1));
     }
     /**
@@ -67,7 +67,7 @@ public class DatabaseTest extends TestCase
     {
         Spark.port(App.getIntFromEnv("PORT", 5432));
         Database dbt = Database.getDatabase(2);
-        dbt.insertRow("s", "m");
+        dbt.insertRow("y", "z");
         assertEquals(false, -1 == dbt.upVote(1, -1));
     }
 }
