@@ -36,5 +36,12 @@ public class AppTest
         assertTrue( true );
     }
 
-
+    /**
+     * Test the getIntFromEnv Method
+     */
+    public void testGetIntFromEnv()
+    {
+        int a = App.getIntFromEnv("PORT", 4567);
+        assertEquals(4567, a);
+    }
 }
