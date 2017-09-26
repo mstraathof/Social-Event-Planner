@@ -25,8 +25,8 @@ public class App {
         System.out.println("  [*] Query for all rows");
         System.out.println("  [-] Delete a row");
         System.out.println("  [+] Insert a new row");
-        System.out.println("  [~] Update a row");
-        System.out.println("  [q] Quit Program");*/
+        System.out.println("  [~] Update a row");*/
+        System.out.println("  [q] Quit Program");
         System.out.println("  [?] Help (this message)");
     }
 
