@@ -115,6 +115,7 @@ public class App {
 
         // Get a fully-configured connection to the database, or exit 
         // immediately
+        // This url is for the main url for the quiet-taiga database
         Database db = Database.getDatabase("jdbc:postgresql://ec2-107-21-109-15.compute-1.amazonaws.com:5432/dfjhqhen0vfnm?user=wmptnnamvihvzv&password=021c55db34a371a345a4e8279d144dde484f6e1455b10b217525f6885e363433&sslmode=require");
         if (db == null)
         {
@@ -130,21 +131,33 @@ public class App {
             char action = prompt(in);
             if (action == '?') {
                 menu();
+                //get disconnected to database
             } else if (action == 'q') {
                 break;
+                // call createTable from database
             } else if (action == 'T') {
                 db.createTable();
+                // call createTable from database
             } else if (action == 'D') {
                 db.dropTable();
             }
         }
          db.disconnect();
     }
-    
-        static String getDBURLFromEnv() {
+            /**
+         * Get an integer environment varible if it exists, and otherwise return the
+         * default value.
+         * 
+         * @envar      The name of the environment variable to get.
+         * @defaultVal The integer value to use as the default if envar isn't found
+         * 
+         * @returns The best answer we could come up with for a value for envar
+         */
+        static String getDBURLFromEnv() 
+        {
         ProcessBuilder processBuilder = new ProcessBuilder();
-            return processBuilder.environment().get("JDBC_DATABASE_URL");
-    }
+        return processBuilder.environment().get("JDBC_DATABASE_URL");
+        }
     }
             /*
             else if (action == '1') {
