@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="jnm219.cse216.lehigh.edu.tutorialforjnm219.SecondActivity">
+    tools:context="jnm219.cse216.lehigh.edu.tutorialforjnm219.CreateBuzzActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"

@@ -1,0 +1,31 @@
+/* font, color, and alignment for the titles of the three displayable regions */
+h3 {
+    background-color: #85C1E9;
+    font-size: 24pt;
+    font-weight: bold;
+    height: 42px;
+    text-align: center;
+}
+
+/* The main screen table should have some space to the left */
+#messageList {
+    margin-left: 15px;
+}
+
+/* The table should be wider than it absolutely needs to be */
+table {
+    width: 500px;
+    font-family: 'Fresca', sans-serif;
+}
+
+/* alternate color of table rows */
+tr:nth-child(even) {background: #D6EAF8}
+tr:nth-child(odd) {background: #AED6F1}
+
+/* make table row height a bit bigger than necessary */
+tr {
+    height: 15px;
+}
+
+/* make the first column of the table wide */
+td:first-child {width: 75%;}

@@ -1,0 +1,21 @@
+/*When a row is hovered over, the cursor will change to a pointer */
+tr{
+    cursor: pointer;
+}
+/*Background color will change upon hover and click effects */
+tr:hover{
+    background-color: #A9CCE3;
+}
+tr:active{
+    background-color: #7FB3D5;
+}
+
+button.EditEntryForm-upvote{
+    background-image: url(http://i.imgur.com/PdJs3Zv.png);
+
+}
+
+button.EditEntryForm-downvote{
+    background-image: url(http://www.3h.ca/blog/wp-content/uploads/2013/01/downvote-copy.png);
+
+}

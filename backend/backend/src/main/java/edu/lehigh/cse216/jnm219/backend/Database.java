@@ -5,6 +5,14 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.net.URISyntaxException;
+// Imports for time functionality
+import java.security.Timestamp;
+import java.sql.Time;
+import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.Calendar;
+import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
 
@@ -39,16 +47,10 @@ public class Database {
      * A prepared statement for updating a single row in the database
      */
     private PreparedStatement mUpdateOne;
-
     /**
-     * A prepared statement for creating the table in our database
+     * A prepared statement for updating a single row in the database
      */
-    private PreparedStatement mCreateTable;
-
-    /**
-     * A prepared statement for dropping the table in our database
-     */
-    private PreparedStatement mDropTable;
+    private PreparedStatement mUpdateVote;
 
     /**
      * The Database constructor is private: we only create Database objects 
@@ -58,23 +60,52 @@ public class Database {
     }
 
     /**
+     * Give the Database object a connection, fail if we cannot get one
+     * Must be logged into heroku on a local computer to be able to use mvn heroku:deploy
+     */
+    private static Connection getConnection() throws URISyntaxException, SQLException {
+        String dbUrl = System.getenv("JDBC_DATABASE_URL"); // Url for heroku database connection
+        return DriverManager.getConnection(dbUrl);
+    }
+
+    /**
+     * Give the Database object a connection, fail if we cannot get one
+     * Must be logged into heroku on a local computer to be able to use mvn heroku:deploy
+     * Used for testing only
+     */
+    private static Connection getConnection2() throws URISyntaxException, SQLException {
+        // Main heroku server connect
+        //return DriverManager.getConnection("jdbc:postgresql://ec2-107-21-109-15.compute-1.amazonaws.com:5432/dfjhqhen0vfnm?user=wmptnnamvihvzv&password=021c55db34a371a345a4e8279d144dde484f6e1455b10b217525f6885e363433&sslmode=require");
+        // Test heroku server connect
+        return DriverManager.getConnection("jdbc:postgresql://ec2-107-22-211-182.compute-1.amazonaws.com:5432/dd8h04ocdonsvj?user=qcxhljggghpbxa&password=6d462cf3d5d52813f0a69912a10908fad2ff06725737ce41e0cf0750b83d2375&sslmode=require");
+    }
+
+    /**
      * Get a fully-configured connection to the database
      * 
-     * @param ip   The IP address of the database server
-     * @param port The port on the database server to which connection requests
-     *             should be sent
-     * @param user The user ID to use when connecting
-     * @param pass The password to use when connecting
+     * @param int connectionType = type of connection. 1 for normal server and 2 for test server connection.
      * 
      * @return A Database object, or null if we cannot connect properly
      */
-    static Database getDatabase(String ip, String port, String user, String pass) {
+    static Database getDatabase(int connectionType) {
         // Create an un-configured Database object
         Database db = new Database();
 
         // Give the Database object a connection, fail if we cannot get one
         try {
-            Connection conn = DriverManager.getConnection("jdbc:postgresql://" + ip + ":" + port + "/", user, pass);
+            Connection conn;
+            if(connectionType == 1)
+            {
+                conn = getConnection();
+            }
+            else if(connectionType == 2)
+            {
+                conn = getConnection2();
+            }
+            else
+            {
+                conn = getConnection();
+            }
             if (conn == null) {
                 System.err.println("Error: DriverManager.getConnection() returned a null object");
                 return null;
@@ -82,6 +113,10 @@ public class Database {
             db.mConnection = conn;
         } catch (SQLException e) {
             System.err.println("Error: DriverManager.getConnection() threw a SQLException");
+            e.printStackTrace();
+            return null;
+        } catch (URISyntaxException e) {
+            System.err.println("Error: DriverManager.getConnection() threw a URISyntaxException");
             e.printStackTrace();
             return null;
         }
@@ -94,19 +129,13 @@ public class Database {
             //     as constants, and then build the strings for the statements
             //     from those constants.
 
-            // Note: no "IF NOT EXISTS" or "IF EXISTS" checks on table 
-            // creation/deletion, so multiple executions will cause an exception
-            db.mCreateTable = db.mConnection.prepareStatement(
-                    "CREATE TABLE tblData (id SERIAL PRIMARY KEY, subject VARCHAR(50) "
-                    + "NOT NULL, message VARCHAR(500) NOT NULL)");
-            db.mDropTable = db.mConnection.prepareStatement("DROP TABLE tblData");
-
             // Standard CRUD operations
             db.mDeleteOne = db.mConnection.prepareStatement("DELETE FROM tblData WHERE id = ?");
-            db.mInsertOne = db.mConnection.prepareStatement("INSERT INTO tblData VALUES (default, ?, ?)");
-            db.mSelectAll = db.mConnection.prepareStatement("SELECT id, subject, message FROM tblData");
+            db.mInsertOne = db.mConnection.prepareStatement("INSERT INTO tblData VALUES (default, ?, ?, ?, ?, ?)");
+            db.mSelectAll = db.mConnection.prepareStatement("SELECT * FROM tblData ORDER BY modifyTime DESC");
             db.mSelectOne = db.mConnection.prepareStatement("SELECT * from tblData WHERE id=?");
             db.mUpdateOne = db.mConnection.prepareStatement("UPDATE tblData SET subject = ?, message = ? WHERE id = ?");
+            db.mUpdateVote = db.mConnection.prepareStatement("UPDATE tblData SET votes = votes + ? WHERE id = ?");
         } catch (SQLException e) {
             System.err.println("Error creating prepared statement");
             e.printStackTrace();
@@ -154,11 +183,17 @@ public class Database {
         try {
             mInsertOne.setString(1, subject);
             mInsertOne.setString(2, message);
+            mInsertOne.setInt(3, 0);
+            mInsertOne.setString(4, new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(new Date()));
+            mInsertOne.setString(5, new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(new Date()));
             count += mInsertOne.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return count;
+        if(count == 0)
+                return -1;
+        else
+            return count;
     }
 
     /**
@@ -172,7 +207,7 @@ public class Database {
             ResultSet rs = mSelectAll.executeQuery();
             while (rs.next()) {
 
-                res.add(new RowData(rs.getInt("id"), rs.getString("subject"), rs.getString("message")));
+                res.add(new RowData(rs.getInt("id"), rs.getString("subject"), rs.getString("message"), rs.getInt("votes"), rs.getString("createTime"), rs.getString("modifyTime")));
             }
             rs.close();
             return res;
@@ -195,8 +230,46 @@ public class Database {
             mSelectOne.setInt(1, id);
             ResultSet rs = mSelectOne.executeQuery();
             if (rs.next()) {
-                res = new RowData(rs.getInt("id"), rs.getString("subject"), rs.getString("message"));
+                res = new RowData(rs.getInt("id"), rs.getString("subject"), rs.getString("message"), rs.getInt("votes"), rs.getString("createTime"), rs.getString("modifyTime"));
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
+    /**
+     * Increases the number of votes for a given post by one
+     * 
+     * @param id The id of the row being altered
+     * 
+     * @return The data of the newly altered row, or null if the ID was invalid
+     */
+    int upVote(int id, int voteChange) {
+        int res = -1;
+        try {
+            mUpdateVote.setInt(1, voteChange);
+            mUpdateVote.setInt(2, id);
+            res = mUpdateVote.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
+    /**
+     * Decreases the number of votes for a given post by one
+     * 
+     * @param id The id of the row being altered
+     * 
+     * @return The data of the newly altered row, or null if the ID was invalid
+     */
+    int downVote(int id, int voteChange) {
+        int res = -1;
+        try {
+            mUpdateVote.setInt(1, voteChange);
+            mUpdateVote.setInt(2, id);
+            res = mUpdateVote.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -209,7 +282,7 @@ public class Database {
      * @param id The id of the row to delete
      * 
      * @return The number of rows that were deleted.  -1 indicates an error.
-     */
+     * 
     int deleteRow(int id) {
         int res = -1;
         try {
@@ -221,13 +294,11 @@ public class Database {
         return res;
     }
 
-    /**
      * Update the message for a row in the database
      * @param subject The new subject contents
      * @param id The id of the row to update
      * @param message The new message contents
      * @return The number of rows that were updated.  -1 indicates an error.
-     */
     int updateOne(int id,String subject, String message) {
         int res = -1;
         try {
@@ -240,27 +311,5 @@ public class Database {
         }
         return res;
     }
-
-    /**
-     * Create tblData.  If it already exists, this will print an error
-     */
-    void createTable() {
-        try {
-            mCreateTable.execute();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Remove tblData from the database.  If it does not exist, this will print
-     * an error.
-     */
-    void dropTable() {
-        try {
-            mDropTable.execute();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
+    */
 }
