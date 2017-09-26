@@ -3,6 +3,7 @@ The Buzz is a project Team Liger will be developing in CSE216.
 At its current state, it is a web page where you can post a 
 message with a title, and upvote or downvote the post.  
 It consists of a Web API, backend, and Android support.  
+  
 Visit us at:  
 http://quiet-taiga-79213.herokuapp.com/
 
