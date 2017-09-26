@@ -55,7 +55,7 @@ static int getIntFromEnv(String envar, int defaultVal) {
 
         // Get a fully-configured connection to the database, or exit 
         // immediately
-        Database db = Database.getDatabase();
+        Database db = Database.getDatabase(1);
 
         // Set up the location for serving static files.  If the STATIC_LOCATION
         // environment variable is set, we will serve from it.  Otherwise, serve
