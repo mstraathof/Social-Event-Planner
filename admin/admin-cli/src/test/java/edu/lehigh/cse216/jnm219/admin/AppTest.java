@@ -35,19 +35,4 @@ public class AppTest
     {
         assertTrue( true );
     }
-    public void testCreateTable()
-    {
-        Database db = Database.getDatabase();
-        assertTrue(db.createTable());
-    }
-    public void testDeleteTable()
-    {
-        Database db = Database.getDatabase();
-        assertTrue(db.dropTable());
-    }
-    public void testDisconnect()
-    {
-        Database db = Database.getDatabase();
-        assertTrue(db.disconnect());
-    }
 }

@@ -6,7 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.net.URISyntaxException;
-
+import java.util.logging.Logger;
 import java.util.ArrayList;
 
 public class Database {
@@ -62,50 +62,48 @@ public class Database {
      * abstract representation of a row of the database.  RowData and the 
      * Database are tightly coupled: if one changes, the other should too.
      */
-    public static class RowData {
+ 
+    //public static class RowData {
         /**
          * The ID of this row of the database
          */
-        int mId;
+        //int mId;
         /**
          * The subject stored in this row
          */
-        String mSubject;
+       // String mSubject;
         /**
          * The message stored in this row
          */
-        String mMessage;
+        //String mMessage;
         /**
          * The votes stored in this row
          */
-        int mVotes;
+        //int mVotes;
         /**
          * The date created stored in this row
          */
-        String mCreateTime;
+       // String mCreateTime;
         /**
          * The time modified stored in this row
          */
-        String mModifyTime;
+        //String mModifyTime;
         /**
          * Construct a RowData object by providing values for its fields
          */
+         /*
         public RowData(int id, String subject, String message) {
             mId = id;
             mSubject = subject;
             mMessage = message;
         }
     }
-
+*/
     /**
      * The Database constructor is private: we only create Database objects 
      * through the getDatabase() method.
      */
     private Database() {
-    }
-    private static Connection getConnection() throws URISyntaxException, SQLException {
-    //String dbUrl = App.getDBURLFromEnv();
-    return DriverManager.getConnection("jdbc:postgresql://ec2-107-21-109-15.compute-1.amazonaws.com:5432/dfjhqhen0vfnm?user=wmptnnamvihvzv&password=021c55db34a371a345a4e8279d144dde484f6e1455b10b217525f6885e363433&sslmode=require");
     }
     // url for test
     private static Connection getConnection(String url) throws URISyntaxException, SQLException {
@@ -120,13 +118,13 @@ public class Database {
      * 
      * @return A Database object, or null if we cannot connect properly
      */
-    static Database getDatabase()  {
+    static Database getDatabase(String dbUrl)  {
         // Create an un-configured Database object
         Database db = new Database();
   
         // Give the Database object a connection, fail if we cannot get one
         try {
-            Connection conn = getConnection();
+            Connection conn = getConnection(dbUrl);
             if (conn == null) {
                 System.err.println("Error: DriverManager.getConnection() returned a null object");
                 return null;
@@ -172,7 +170,6 @@ public class Database {
         }
         return db;
     }
-
     /**
      * Close the current connection to the database, if one exists.
      * 
@@ -190,7 +187,7 @@ public class Database {
             mConnection.close();
         } catch (SQLException e) {
             System.err.println("Error: Connection.close() threw a SQLException");
-            e.printStackTrace();
+            //e.printStackTrace();
             mConnection = null;
             return false;
         }
@@ -204,7 +201,8 @@ public class Database {
         try {
             mCreateTable.execute();
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Table is already created");
+            //e.printStackTrace();
             return false;
         }
         return true;
@@ -218,7 +216,8 @@ public class Database {
         try {
             mDropTable.execute();
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("There is no table to drop");
+           // e.printStackTrace();
             return false;
         }
         return true;

@@ -67,6 +67,7 @@ public class App {
      * 
      * @return The string that the user provided.  May be "".
      */
+    /*
     static String getString(BufferedReader in, String message) {
         String s;
         try {
@@ -78,7 +79,7 @@ public class App {
         }
         return s;
     }
-
+/*
     /**
      * Ask the user to enter an integer
      * 
@@ -87,6 +88,7 @@ public class App {
      * 
      * @return The integer that the user provided.  On error, it will be -1
      */
+    /*
     static int getInt(BufferedReader in, String message) {
         int i = -1;
         try {
@@ -99,7 +101,7 @@ public class App {
         }
         return i;
     }
-
+*/
     /**
      * The main routine runs a loop that gets a request from the user and
      * processes it
@@ -113,11 +115,11 @@ public class App {
 
         // Get a fully-configured connection to the database, or exit 
         // immediately
-        Database db = Database.getDatabase();
-        
+        Database db = Database.getDatabase("jdbc:postgresql://ec2-107-21-109-15.compute-1.amazonaws.com:5432/dfjhqhen0vfnm?user=wmptnnamvihvzv&password=021c55db34a371a345a4e8279d144dde484f6e1455b10b217525f6885e363433&sslmode=require");
         if (db == null)
+        {
             return;
-
+        }
         // Start our basic command-line interpreter:
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         while (true) {
@@ -135,9 +137,10 @@ public class App {
             } else if (action == 'D') {
                 db.dropTable();
             }
-            db.disconnect();
         }
+         db.disconnect();
     }
+    
         static String getDBURLFromEnv() {
         ProcessBuilder processBuilder = new ProcessBuilder();
             return processBuilder.environment().get("JDBC_DATABASE_URL");
