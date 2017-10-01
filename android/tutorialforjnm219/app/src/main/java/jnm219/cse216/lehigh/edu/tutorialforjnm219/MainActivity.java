@@ -108,10 +108,16 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
+        if (id == R.id.create_buzz_settings) {
             Intent i = new Intent(getApplicationContext(), CreateBuzzActivity.class);
             i.putExtra("topLabel", "Create a buzz:");
             startActivityForResult(i, 789); // 789 is the number that will come back to us
+            return true;
+        }
+        if (id == R.id.login_settings){
+            Intent i = new Intent(getApplicationContext(), login.class);
+            i.putExtra("topLabel","Log In:");
+            startActivityForResult(i, 666);
             return true;
         }
 
@@ -211,6 +217,13 @@ public class MainActivity extends AppCompatActivity {
                 };
                 VolleySingleton.getInstance(this).addToRequestQueue(postRequest);
                 refreshList();
+            }
+        }
+
+        if (requestCode == 666)
+        {
+            if(resultCode == RESULT_OK){
+                Toast.makeText(this, "Jack Was Here", Toast.LENGTH_SHORT).show();
             }
         }
     }

@@ -18,7 +18,7 @@ public class CreateBuzzActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_second);
+        setContentView(R.layout.createbuzz_layout);
 
         // Get top label from the calling activity, and put it in TextView
         Intent input = getIntent();

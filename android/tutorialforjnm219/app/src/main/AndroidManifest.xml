@@ -32,6 +32,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".login"
+            android:label="loginMenu"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intend-filter>
+                <action android:name="android.intent.action.Main" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intend-filter>
+        </activity>
     </application>
 
 </manifest>

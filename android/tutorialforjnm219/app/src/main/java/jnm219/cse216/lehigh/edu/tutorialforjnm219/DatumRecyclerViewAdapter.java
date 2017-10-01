@@ -27,12 +27,14 @@ import java.util.Map;
 
 public class DatumRecyclerViewAdapter extends RecyclerView.Adapter<DatumRecyclerViewAdapter.DatumViewHolder>{
 
+
     public class DatumViewHolder extends RecyclerView.ViewHolder {
 
         private TextView subjectTextView;
         private TextView messageTextView;
         private TextView votesTextView;
         private Button likeButton;
+        private Button viewChanger;
 
         public DatumViewHolder(View itemView) {
             super(itemView);
@@ -40,7 +42,17 @@ public class DatumRecyclerViewAdapter extends RecyclerView.Adapter<DatumRecycler
             messageTextView = (TextView) itemView.findViewById(R.id.listItemMessage);
             votesTextView = (TextView) itemView.findViewById(R.id.listItemVotes);
             likeButton = (Button) itemView.findViewById(R.id.listLikeButton);
+            viewChanger = (Button) itemView.findViewById(R.id.listViewChanger);
 
+            viewChanger.setOnClickListener(new View.OnClickListner(){
+                @Override
+                public void onClick(View v){
+
+                    
+                }
+            });
+
+            //Click button handler for the like button
             likeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -103,6 +115,7 @@ public class DatumRecyclerViewAdapter extends RecyclerView.Adapter<DatumRecycler
         return new DatumViewHolder(itemView);
     }
 
+
     /**
      * Sets the subject, message, and vote count for each buzz in list on the main page.
      * Displayed by the RecyclerView
@@ -117,6 +130,7 @@ public class DatumRecyclerViewAdapter extends RecyclerView.Adapter<DatumRecycler
         holder.messageTextView.setText("Message: " + datum.mMessage);
         holder.votesTextView.setText("Votes: " + datum.mVotes);        // setText needs a string
     }
+
 
     @Override
     public int getItemCount() {
