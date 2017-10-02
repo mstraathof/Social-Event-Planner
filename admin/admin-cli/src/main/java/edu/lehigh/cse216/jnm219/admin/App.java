@@ -8,6 +8,13 @@ import java.util.ArrayList;
 import java.util.Map;
 
 /**
+ * Drop all
+ * Drop one
+ * Create all
+ * CreateTable(that takes a table as parameter)
+ */
+
+/**
  * App is our basic admin app.  For now, it is a demonstration of the six key 
  * operations on a database: connect, insert, update, query, delete, disconnect
  */
@@ -18,8 +25,8 @@ public class App {
      */
     static void menu() {
         System.out.println("Main Menu");
-        System.out.println("  [T] Create tblData");
-        System.out.println("  [D] Drop tblData");
+        System.out.println("  [T] Create all tables");
+        System.out.println("  [D] Drop a table");
         
        /* System.out.println("  [1] Query for a specific row");
         System.out.println("  [*] Query for all rows");
@@ -136,7 +143,7 @@ public class App {
                 break;
                 // call createTable from database
             } else if (action == 'T') {
-                db.createTable();
+                db.createAllTables();
                 // call createTable from database
             } else if (action == 'D') {
                 db.dropTable();

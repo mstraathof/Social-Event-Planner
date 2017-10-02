@@ -43,9 +43,29 @@ public class Database {
     //private PreparedStatement mUpdateOne;
 
     /**
-     * A prepared statement for creating the table in our database
+     * A prepared statement for creating the user table in the database
      */
-    private PreparedStatement mCreateTable;
+    private PreparedStatement mCreateUserTable;
+
+    /**
+     * A prepared statement for creating the message in the database
+     */
+    private PreparedStatement mCreateMessageTable;
+
+    /**
+     * A prepared statement for creating the comment table in the database
+     */
+    private PreparedStatement mCreateCommentTable;
+
+    /**
+     * A prepared statement for creating the down-vote table in the database
+     */
+    private PreparedStatement mCreateDownVoteTable;
+
+    /**
+     * A prepared statement for creating the up-vote table in the database
+     */
+    private PreparedStatement mCreateUpVoteTable;
 
     /**
      * A prepared statement for dropping the table in our database
@@ -111,11 +131,8 @@ public class Database {
         return DriverManager.getConnection(url);
     }
     
-
     /**
      * Get a fully-configured connection to the database
-     * 
-     * 
      * @return A Database object, or null if we cannot connect properly
      */
     static Database getDatabase(String dbUrl)  {
@@ -150,18 +167,58 @@ public class Database {
 
             // Note: no "IF NOT EXISTS" or "IF EXISTS" checks on table 
             // creation/deletion, so multiple executions will cause an exception
-            db.mCreateTable = db.mConnection.prepareStatement(
-                    "CREATE TABLE tblData (id SERIAL PRIMARY KEY, subject VARCHAR(50) "
-                    + "NOT NULL, message VARCHAR(500) NOT NULL, votes INT NOT NULL, "
-                     +"createTime VARCHAR(50) not null, modifyTime VARCHAR(50) not null)");
-            db.mDropTable = db.mConnection.prepareStatement("DROP TABLE tblData");
+            db.mCreateMessageTable = db.mConnection.prepareStatement(
+                    "CREATE TABLE tblMessage (id SERIAL PRIMARY KEY,"
+                    +"subject VARCHAR(50) not null,"
+                    +"user_id INTEGER, message VARCHAR(500) not null,"
+                    +"createTime VARCHAR(50) not null,"
+                    +"FOREIGN KEY (user_id) REFERENCES tblUser (user_id)"
+            );
+            db.mCreateUserTable = db.mConnection.preparedStatement(
+                    "CREATE TABLE tblUser (user_id SERIAL PRIMARY KEY,"
+                    +"username VARCHAR(255) not null,"
+                    +"realname VARCHAR(255) not null,"
+                    +"email VARCHAR(255) not null,"
+                    +"salt BYTEA,"
+                    +"password BYTEA"
+            );
+            db.mCreateCommentTable = db.mConnection.preparedStatement(
+                    "CREATE TABLE IF NOT EXISTS tblComment ("
+                    +"comment_id SERIAL PRIMARY KEY,"
+                    +"user_id INTEGER,"
+                    +"message_id INTEGER,"
+                    +"comment_text VARCHAR(255) not null,"
+                    //Need to add creation date/time
+                    +"createTime VARCHAR(50) not null,"
+                    +"FOREIGN KEY (user_id) REFERENCES tblUser (user_id),"
+                    +"FOREIGN KEY (message_id) REFERENCES tblMessage (message_id)"
+            );
+            db.mCreateDownVoteTable = db.mConnection.preparedStatement(
+                    "CREATE TABLE IF NOT EXISTS tblDownVote ("
+                    +"user_id INTEGER,"
+                    +"message_id INTEGER,"
+                    +"FOREIGN KEY (user_id) REFERENCES tblUser (user_id),"
+                    +"FOREIGN KEY (message_id) REFERENCES tblMessage (message_id),"
+                    +"PRIMARY KEY (user_id, message_id)"
+            );
+            db.mCreateUpVoteTable = db.mConnection.preparedStatement(
+                    "CREATE TABLE IF NOT EXISTS tblUpVote ("
+                    +"user_id INTEGER,"
+                    +"message_id INTEGER,"
+                    +"FOREIGN KEY (user_id) REFERENCES tblUser (user_id),"
+                    +"FOREIGN KEY (message_id) REFERENCES tblMessage (message_id),"
+                    +"PRIMARY KEY (user_id, message_id)"
+            );
+            db.mDropTable = db.mConnection.prepareStatement("DROP TABLE ?");
 
             // Standard CRUD operations
-            /*db.mDeleteOne = db.mConnection.prepareStatement("DELETE FROM tblData WHERE id = ?");
+            /*
+            db.mDeleteOne = db.mConnection.prepareStatement("DELETE FROM tblData WHERE id = ?");
             db.mInsertOne = db.mConnection.prepareStatement("INSERT INTO tblData VALUES (default, ?, ?)");
             db.mSelectAll = db.mConnection.prepareStatement("SELECT id, subject, votes FROM tblData");
             db.mSelectOne = db.mConnection.prepareStatement("SELECT * from tblData WHERE id=?");
-            db.mUpdateOne = db.mConnection.prepareStatement("UPDATE tblData SET message = ? WHERE id = ?");*/
+            db.mUpdateOne = db.mConnection.prepareStatement("UPDATE tblData SET message = ? WHERE id = ?");
+            */
         } catch (SQLException e) {
             System.err.println("Error creating prepared statement");
             e.printStackTrace();
@@ -194,12 +251,125 @@ public class Database {
         mConnection = null;
         return true;
     }
-      /**
-     * Create tblData.  If it already exists, this will print an error
+
+    /**
+     * Create all tables: tblUser, tblMessage, tblComments, tblUpVote, tblDownVote.  
+     * If it already exists, this will print an error
      */
-    boolean createTable() {
+    boolean createAllTables() {
         try {
-            mCreateTable.execute();
+            mCreateUserTable.execute();
+            mCreateMessageTable.execute();
+            mCreateCommentTable.execute();
+            mCreateDownVoteTable.execute();
+            mCreateUpVoteTable.execute();
+        } catch (SQLException e) {
+            System.err.println("Table is already created");
+            //e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+    
+    /** Create table based on parameter given */
+    boolean createTable(String table) {
+        try {
+            switch(table) {
+                case "user": 
+                    mCreateUserTable.execute();
+                    break;
+                case "message":
+                    mCreateMessageTable.execute();
+                    break;
+                case "comment":
+                    mCreateCommentTable.execute();
+                    break;
+                case "downvote":
+                    mCreateDownVoteTable.execute();
+                    break;
+                case "upvote":
+                    mCreateUpVoteTable.execute();
+                    break;
+                default:
+                    System.err.println("Invalid input for creating table.");
+                    System.err.println("Options are: user, message, comment, downvote, upvote");
+                    return false;
+            }
+        } catch (SQLException e) {
+            System.err.println("Table is already created. Error: " + e);
+            //e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Create tblUser.  If it already exists, this will print an error
+     */
+    boolean createUserTable() {
+        try {
+            //mCreateTable.execute();
+            mCreateUserTable.execute();
+        } catch (SQLException e) {
+            System.err.println("Table is already created");
+            //e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Create tblMessage.  If it already exists, this will print an error
+     */
+    boolean createMessageTable() {
+        try {
+            //mCreateTable.execute();
+            mCreateMessageTable.execute();
+        } catch (SQLException e) {
+            System.err.println("Table is already created");
+            //e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Create tblComment.  If it already exists, this will print an error
+     */
+    boolean createCommentTable() {
+        try {
+            //mCreateTable.execute();
+            mCreateCommentTable.execute();
+        } catch (SQLException e) {
+            System.err.println("Table is already created");
+            //e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Create tblDownVote.  If it already exists, this will print an error
+     */
+    boolean createDownVoteTable() {
+        try {
+            //mCreateTable.execute();
+            mCreateDownVoteTable.execute();
+        } catch (SQLException e) {
+            System.err.println("Table is already created");
+            //e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Create tblUpVote.  If it already exists, this will print an error
+     */
+    boolean createUpVoteTable() {
+        try {
+            //mCreateTable.execute();
+            mCreateUpVoteTable.execute();
         } catch (SQLException e) {
             System.err.println("Table is already created");
             //e.printStackTrace();
@@ -212,11 +382,27 @@ public class Database {
      * Remove tblData from the database.  If it does not exist, this will print
      * an error.
      */
-    boolean dropTable() {
+    boolean dropTable(String table) {
         try {
+            mDropTable.setString(1, table);
             mDropTable.execute();
         } catch (SQLException e) {
             System.err.println("There is no table to drop");
+           // e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    boolean dropAllTables() {
+        try {
+            String[] tables = {"user", "message", "comment", "upvote", "downvote"}; 
+            for (int i = 0; i < tables.length; i++) {
+                dropTable(tables[i]);
+                mDropTable.execute();
+            }
+        } catch (SQLException e) {
+            System.err.println("Error occured while dropping tables: "+ e);
            // e.printStackTrace();
             return false;
         }
