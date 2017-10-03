@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
         RecyclerView rv = (RecyclerView) findViewById(R.id.datum_list_view);
         rv.setLayoutManager(new LinearLayoutManager(this));
         rv.addItemDecoration(new SimpleDividerItemDecoration(this));
-        adapter = new DatumRecyclerViewAdapter(mData);
+        adapter = new DatumRecyclerAdapter(mData);
         rv.setAdapter(adapter);
 
         rv.addOnItemTouchListener(

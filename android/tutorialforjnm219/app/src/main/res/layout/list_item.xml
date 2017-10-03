@@ -23,6 +23,10 @@
         android:layout_height="wrap_content"
         android:text=""/>
 
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true">
     <Button
         android:id="@+id/listLikeButton"
         style="@style/Widget.AppCompat.Button.Small"
@@ -36,16 +40,17 @@
         android:textAllCaps="false"
         android:textSize="14sp" />
     <Button
-        android:id="@+id/listViewChanger"
+        android:id="@+id/listDislikeButton"
         style="@style/Widget.AppCompat.Button.Small"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="onListChangeView"
+        android:onClick="onDislikeButtonClick"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
-        android:text="View Changer"
+        android:text="Downvote"
         android:textAlignment="center"
         android:textAllCaps="false"
         android:textSize="14sp" />
+    </LinearLayout>
 
 </LinearLayout>
