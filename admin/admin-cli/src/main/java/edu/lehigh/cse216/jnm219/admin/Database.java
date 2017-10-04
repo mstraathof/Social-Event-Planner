@@ -48,6 +48,11 @@ public class Database {
     private PreparedStatement mCreateUserTable;
 
     /**
+     * A prepared statement for creating the user's profile table in the database
+     */
+    private PreparedStatement mCreateProfileTable;
+
+    /**
      * A prepared statement for creating the message in the database
      */
     private PreparedStatement mCreateMessageTable;
@@ -167,47 +172,54 @@ public class Database {
 
             // Note: no "IF NOT EXISTS" or "IF EXISTS" checks on table 
             // creation/deletion, so multiple executions will cause an exception
-            db.mCreateMessageTable = db.mConnection.prepareStatement(
-                    "CREATE TABLE tblMessage (id SERIAL PRIMARY KEY,"
-                    +"subject VARCHAR(50) not null,"
-                    +"user_id INTEGER, message VARCHAR(500) not null,"
-                    +"createTime VARCHAR(50) not null,"
-                    +"FOREIGN KEY (user_id) REFERENCES tblUser (user_id)"
-            );
             db.mCreateUserTable = db.mConnection.preparedStatement(
-                    "CREATE TABLE tblUser (user_id SERIAL PRIMARY KEY,"
-                    +"username VARCHAR(255) not null,"
-                    +"realname VARCHAR(255) not null,"
-                    +"email VARCHAR(255) not null,"
-                    +"salt BYTEA,"
-                    +"password BYTEA"
+                "CREATE TABLE tblUser (user_id SERIAL PRIMARY KEY,"
+                +"username VARCHAR(255) not null,"
+                +"realname VARCHAR(255) not null,"
+                +"email VARCHAR(255) not null,"
+                +"salt BYTEA,"
+                +"password BYTEA"
+            );
+            db.mCreateProfileTable = db.mConnection.prepareStatement(
+                "CREATE TABLE IF NOT EXISTS tblProfile ("
+                +"profile_id SERIAL PRIMARY KEY,"
+                +"profile_text VARCHAR(500),"
+                +"user_id INTEGER,"
+                +"FOREIGN KEY (user_id) REFERENCES tblUser (user_id)"
+            );
+            db.mCreateMessageTable = db.mConnection.prepareStatement(
+                "CREATE TABLE tblMessage (message_id SERIAL PRIMARY KEY,"
+                +"subject VARCHAR(50) not null,"
+                +"user_id INTEGER, message VARCHAR(500) not null,"
+                +"createTime VARCHAR(50) not null,"
+                +"FOREIGN KEY (user_id) REFERENCES tblUser (user_id)"
             );
             db.mCreateCommentTable = db.mConnection.preparedStatement(
-                    "CREATE TABLE IF NOT EXISTS tblComment ("
-                    +"comment_id SERIAL PRIMARY KEY,"
-                    +"user_id INTEGER,"
-                    +"message_id INTEGER,"
-                    +"comment_text VARCHAR(255) not null,"
-                    //Need to add creation date/time
-                    +"createTime VARCHAR(50) not null,"
-                    +"FOREIGN KEY (user_id) REFERENCES tblUser (user_id),"
-                    +"FOREIGN KEY (message_id) REFERENCES tblMessage (message_id)"
+                "CREATE TABLE IF NOT EXISTS tblComment ("
+                +"comment_id SERIAL PRIMARY KEY,"
+                +"user_id INTEGER,"
+                +"message_id INTEGER,"
+                +"comment_text VARCHAR(255) not null,"
+                //Need to add creation date/time
+                +"createTime VARCHAR(50) not null,"
+                +"FOREIGN KEY (user_id) REFERENCES tblUser (user_id),"
+                +"FOREIGN KEY (message_id) REFERENCES tblMessage (message_id)"
             );
             db.mCreateDownVoteTable = db.mConnection.preparedStatement(
-                    "CREATE TABLE IF NOT EXISTS tblDownVote ("
-                    +"user_id INTEGER,"
-                    +"message_id INTEGER,"
-                    +"FOREIGN KEY (user_id) REFERENCES tblUser (user_id),"
-                    +"FOREIGN KEY (message_id) REFERENCES tblMessage (message_id),"
-                    +"PRIMARY KEY (user_id, message_id)"
+                "CREATE TABLE IF NOT EXISTS tblDownVote ("
+                +"user_id INTEGER,"
+                +"message_id INTEGER,"
+                +"FOREIGN KEY (user_id) REFERENCES tblUser (user_id),"
+                +"FOREIGN KEY (message_id) REFERENCES tblMessage (message_id),"
+                +"PRIMARY KEY (user_id, message_id)"
             );
             db.mCreateUpVoteTable = db.mConnection.preparedStatement(
-                    "CREATE TABLE IF NOT EXISTS tblUpVote ("
-                    +"user_id INTEGER,"
-                    +"message_id INTEGER,"
-                    +"FOREIGN KEY (user_id) REFERENCES tblUser (user_id),"
-                    +"FOREIGN KEY (message_id) REFERENCES tblMessage (message_id),"
-                    +"PRIMARY KEY (user_id, message_id)"
+                "CREATE TABLE IF NOT EXISTS tblUpVote ("
+                +"user_id INTEGER,"
+                +"message_id INTEGER,"
+                +"FOREIGN KEY (user_id) REFERENCES tblUser (user_id),"
+                +"FOREIGN KEY (message_id) REFERENCES tblMessage (message_id),"
+                +"PRIMARY KEY (user_id, message_id)"
             );
             db.mDropTable = db.mConnection.prepareStatement("DROP TABLE ?");
 
@@ -253,12 +265,13 @@ public class Database {
     }
 
     /**
-     * Create all tables: tblUser, tblMessage, tblComments, tblUpVote, tblDownVote.  
+     * Create all tables: tblUser, tblMessage, tblComment, tblUpVote, tblDownVote.  
      * If it already exists, this will print an error
      */
     boolean createAllTables() {
         try {
             mCreateUserTable.execute();
+            mCreateProfileTable.execute();
             mCreateMessageTable.execute();
             mCreateCommentTable.execute();
             mCreateDownVoteTable.execute();
@@ -278,6 +291,9 @@ public class Database {
                 case "user": 
                     mCreateUserTable.execute();
                     break;
+                case "profile":
+                    mCreateProfileTable.execute();
+                    break;
                 case "message":
                     mCreateMessageTable.execute();
                     break;
@@ -292,7 +308,7 @@ public class Database {
                     break;
                 default:
                     System.err.println("Invalid input for creating table.");
-                    System.err.println("Options are: user, message, comment, downvote, upvote");
+                    System.err.println("Options are: user, profile, message, comment, downvote, upvote");
                     return false;
             }
         } catch (SQLException e) {
@@ -396,7 +412,7 @@ public class Database {
 
     boolean dropAllTables() {
         try {
-            String[] tables = {"user", "message", "comment", "upvote", "downvote"}; 
+            String[] tables = {"tblUser", "tblMessage", "tblProfile", "tblComment", "tblUpvote", "tblDownvote"}; 
             for (int i = 0; i < tables.length; i++) {
                 dropTable(tables[i]);
                 mDropTable.execute();

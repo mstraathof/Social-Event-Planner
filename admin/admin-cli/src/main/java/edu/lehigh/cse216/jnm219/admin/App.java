@@ -26,7 +26,7 @@ public class App {
     static void menu() {
         System.out.println("Main Menu");
         System.out.println("  [T] Create all tables");
-        System.out.println("  [D] Drop a table");
+        System.out.println("  [D] Drop all tables");
         
        /* System.out.println("  [1] Query for a specific row");
         System.out.println("  [*] Query for all rows");
@@ -146,7 +146,7 @@ public class App {
                 db.createAllTables();
                 // call createTable from database
             } else if (action == 'D') {
-                db.dropTable();
+                db.dropAllTables();
             }
         }
          db.disconnect();
