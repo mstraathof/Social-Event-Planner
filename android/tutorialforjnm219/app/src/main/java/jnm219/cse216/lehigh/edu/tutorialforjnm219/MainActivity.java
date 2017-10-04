@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onItemClick(View view, int position) {
                         // onItemClick() is called when user clicks anywhere in an adapter row.
                         // do nothing here.
-                        //Log.d("click", "" + position);
+                        Log.d("click", "" + position);
                     }
                 })
         );
@@ -118,6 +118,13 @@ public class MainActivity extends AppCompatActivity {
             Intent i = new Intent(getApplicationContext(), login.class);
             i.putExtra("topLabel","Log In:");
             startActivityForResult(i, 666);
+            return true;
+        }
+
+        if(id == R.id.register_settings){
+            Intent i = new Intent(getApplicationContext(), Register.class);
+            i.putExtra("topLabel","Register for The Buzz");
+            startActivityForResult(i, 667);
             return true;
         }
 
@@ -179,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent intent) {
-        // Check which request we're responding to
+        // Json request for Create Buzz
         if (requestCode == 789) {
             // Make sure the request was successful
             if (resultCode == RESULT_OK) {
@@ -219,12 +226,82 @@ public class MainActivity extends AppCompatActivity {
                 refreshList();
             }
         }
-
+        //Json Request for the Login Screen
         if (requestCode == 666)
         {
-            if(resultCode == RESULT_OK){
-                Toast.makeText(this, "Jack Was Here", Toast.LENGTH_SHORT).show();
+            if(resultCode == RESULT_OK) {
+                Map<String, String> jsonParams = new HashMap<String, String>();
+                final String resultUsername = intent.getStringExtra("resultUserName");
+                final String resultPassword = intent.getStringExtra("resultPassword");
+
+                jsonParams.put("mUsername",resultUsername);
+                jsonParams.put("mPassword",resultPassword);
+                JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, url,
+                        new JSONObject(jsonParams),
+                        new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response){
+                                Log.e("Liger","got response");
+
+                            }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Log.e("Liger", "JsonObjectRequest() failed: " + error.getMessage());
+
+                            }
+                        }) {
+                    @Override
+                    public Map<String, String> getHeaders() {
+                        HashMap<String, String> headers = new HashMap<String, String>();
+                        headers.put("Content-Type", "application/json; charset=utf-8");
+                        headers.put("User-agent", System.getProperty("http.agent"));
+                        return headers;
+                    }
+                };
+                VolleySingleton.getInstance(this).addToRequestQueue(postRequest);
+                refreshList();
             }
         }
+        //Json Request for the Register Screen
+        if(requestCode == 667)
+        {
+            if(resultCode == RESULT_OK) {
+                Map<String, String> jsonParams = new HashMap<String, String>();
+                final String resultUsername = intent.getStringExtra("resultUserName");
+                final String resultPassword = intent.getStringExtra("resultPassword");
+
+                jsonParams.put("mUsername",resultUsername);
+                jsonParams.put("mPassword",resultPassword);
+                JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, url,
+                        new JSONObject(jsonParams),
+                        new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response){
+                                Log.e("Liger","got response");
+
+                            }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Log.e("Liger", "JsonObjectRequest() failed: " + error.getMessage());
+
+                            }
+                        }) {
+                    @Override
+                    public Map<String, String> getHeaders() {
+                        HashMap<String, String> headers = new HashMap<String, String>();
+                        headers.put("Content-Type", "application/json; charset=utf-8");
+                        headers.put("User-agent", System.getProperty("http.agent"));
+                        return headers;
+                    }
+                };
+                VolleySingleton.getInstance(this).addToRequestQueue(postRequest);
+                refreshList();
+            }
+        }
+
     }
 }
