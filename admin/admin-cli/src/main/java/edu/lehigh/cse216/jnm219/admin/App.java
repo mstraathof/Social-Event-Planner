@@ -27,12 +27,20 @@ public class App {
         System.out.println("Main Menu");
         System.out.println("  [T] Create all tables");
         System.out.println("  [D] Drop all tables");
+        System.out.println("  [U] Create user table");
+        System.out.println("  [p] Create profile table");        
+        System.out.println("  [m] Create message table");
+        System.out.println("  [c] Create comment table");
+        System.out.println("  [u] Create upvote table");
+        System.out.println("  [d] Create downvote table");
         
-       /* System.out.println("  [1] Query for a specific row");
+        /* 
+        System.out.println("  [1] Query for a specific row");
         System.out.println("  [*] Query for all rows");
         System.out.println("  [-] Delete a row");
         System.out.println("  [+] Insert a new row");
-        System.out.println("  [~] Update a row");*/
+        System.out.println("  [~] Update a row");
+        */
         System.out.println("  [q] Quit Program");
         System.out.println("  [?] Help (this message)");
     }
@@ -138,20 +146,30 @@ public class App {
             char action = prompt(in);
             if (action == '?') {
                 menu();
-                //get disconnected to database
+            //get disconnected to database
             } else if (action == 'q') {
                 break;
-                // call createTable from database
             } else if (action == 'T') {
                 db.createAllTables();
-                // call createTable from database
             } else if (action == 'D') {
                 db.dropAllTables();
+            } else if (action == 'U') {     // tblUser
+                db.createTable('U');
+            } else if (action == 'p') {     // tblProfile
+                db.createTable('p');
+            } else if (action == 'm') {     // tblMessage
+                db.createTable('m');
+            } else if (action == 'c') {     // tblComment
+                db.createTable('c');
+            } else if (action == 'u') {     // tblUpVote
+                db.createTable('u');
+            } else if (action == 'd') {     // tblDownVote
+                db.createTable('d');
             }
         }
          db.disconnect();
     }
-            /**
+        /**
          * Get an integer environment varible if it exists, and otherwise return the
          * default value.
          * 
@@ -160,12 +178,11 @@ public class App {
          * 
          * @returns The best answer we could come up with for a value for envar
          */
-        static String getDBURLFromEnv() 
-        {
-        ProcessBuilder processBuilder = new ProcessBuilder();
-        return processBuilder.environment().get("JDBC_DATABASE_URL");
+        static String getDBURLFromEnv() {
+            ProcessBuilder processBuilder = new ProcessBuilder();
+            return processBuilder.environment().get("JDBC_DATABASE_URL");
         }
-    }
+}
             /*
             else if (action == '1') {
                 int id = getInt(in, "Enter the row ID");

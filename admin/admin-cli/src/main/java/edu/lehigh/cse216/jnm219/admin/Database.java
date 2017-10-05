@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.net.URISyntaxException;
 import java.util.logging.Logger;
 import java.util.ArrayList;
@@ -172,29 +173,29 @@ public class Database {
 
             // Note: no "IF NOT EXISTS" or "IF EXISTS" checks on table 
             // creation/deletion, so multiple executions will cause an exception
-            db.mCreateUserTable = db.mConnection.preparedStatement(
+            db.mCreateUserTable = db.mConnection.prepareStatement(
                 "CREATE TABLE tblUser (user_id SERIAL PRIMARY KEY,"
                 +"username VARCHAR(255) not null,"
                 +"realname VARCHAR(255) not null,"
                 +"email VARCHAR(255) not null,"
                 +"salt BYTEA,"
-                +"password BYTEA"
+                +"password BYTEA)"
             );
             db.mCreateProfileTable = db.mConnection.prepareStatement(
-                "CREATE TABLE IF NOT EXISTS tblProfile ("
+                "CREATE TABLE tblProfile ("
                 +"profile_id SERIAL PRIMARY KEY,"
                 +"profile_text VARCHAR(500),"
                 +"user_id INTEGER,"
-                +"FOREIGN KEY (user_id) REFERENCES tblUser (user_id)"
+                +"FOREIGN KEY (user_id) REFERENCES tblUser (user_id))"
             );
             db.mCreateMessageTable = db.mConnection.prepareStatement(
                 "CREATE TABLE tblMessage (message_id SERIAL PRIMARY KEY,"
                 +"subject VARCHAR(50) not null,"
                 +"user_id INTEGER, message VARCHAR(500) not null,"
                 +"createTime VARCHAR(50) not null,"
-                +"FOREIGN KEY (user_id) REFERENCES tblUser (user_id)"
+                +"FOREIGN KEY (user_id) REFERENCES tblUser (user_id))"
             );
-            db.mCreateCommentTable = db.mConnection.preparedStatement(
+            db.mCreateCommentTable = db.mConnection.prepareStatement(
                 "CREATE TABLE IF NOT EXISTS tblComment ("
                 +"comment_id SERIAL PRIMARY KEY,"
                 +"user_id INTEGER,"
@@ -203,25 +204,25 @@ public class Database {
                 //Need to add creation date/time
                 +"createTime VARCHAR(50) not null,"
                 +"FOREIGN KEY (user_id) REFERENCES tblUser (user_id),"
-                +"FOREIGN KEY (message_id) REFERENCES tblMessage (message_id)"
+                +"FOREIGN KEY (message_id) REFERENCES tblMessage (message_id))"
             );
-            db.mCreateDownVoteTable = db.mConnection.preparedStatement(
+            db.mCreateDownVoteTable = db.mConnection.prepareStatement(
                 "CREATE TABLE IF NOT EXISTS tblDownVote ("
                 +"user_id INTEGER,"
                 +"message_id INTEGER,"
                 +"FOREIGN KEY (user_id) REFERENCES tblUser (user_id),"
                 +"FOREIGN KEY (message_id) REFERENCES tblMessage (message_id),"
-                +"PRIMARY KEY (user_id, message_id)"
+                +"PRIMARY KEY (user_id, message_id))"
             );
-            db.mCreateUpVoteTable = db.mConnection.preparedStatement(
+            db.mCreateUpVoteTable = db.mConnection.prepareStatement(
                 "CREATE TABLE IF NOT EXISTS tblUpVote ("
                 +"user_id INTEGER,"
                 +"message_id INTEGER,"
                 +"FOREIGN KEY (user_id) REFERENCES tblUser (user_id),"
                 +"FOREIGN KEY (message_id) REFERENCES tblMessage (message_id),"
-                +"PRIMARY KEY (user_id, message_id)"
+                +"PRIMARY KEY (user_id, message_id))"
             );
-            db.mDropTable = db.mConnection.prepareStatement("DROP TABLE ?");
+            //db.mDropTable = db.mConnection.prepareStatement("DROP TABLE ?");
 
             // Standard CRUD operations
             /*
@@ -285,37 +286,75 @@ public class Database {
     }
     
     /** Create table based on parameter given */
-    boolean createTable(String table) {
+    boolean createTable(char action) {
         try {
-            switch(table) {
-                case "user": 
-                    mCreateUserTable.execute();
-                    break;
-                case "profile":
-                    mCreateProfileTable.execute();
-                    break;
-                case "message":
-                    mCreateMessageTable.execute();
-                    break;
-                case "comment":
-                    mCreateCommentTable.execute();
-                    break;
-                case "downvote":
-                    mCreateDownVoteTable.execute();
-                    break;
-                case "upvote":
-                    mCreateUpVoteTable.execute();
-                    break;
-                default:
-                    System.err.println("Invalid input for creating table.");
-                    System.err.println("Options are: user, profile, message, comment, downvote, upvote");
-                    return false;
-            }
+            if (action == 'U') {            // tblUser
+                mCreateUserTable.execute();
+            } else if (action == 'p') {     // tblProfile
+                mCreateProfileTable.execute();
+            } else if (action == 'm') {     // tblMessage
+                mCreateMessageTable.execute();
+            } else if (action == 'c') {     // tblComment
+                mCreateCommentTable.execute();
+            } else if (action == 'u') {     // tblUpVote
+                mCreateUpVoteTable.execute();
+            } else if (action == 'd') {     // tblDownVote
+                mCreateDownVoteTable.execute();
+            } else {
+                System.err.println("Invalid input for creating table.");
+                System.err.println("Options are: [U]ser, [p]rofile, [m]essage, [c]omment, [d]ownvote, [u]pvote");
+                return false;
+            }    
         } catch (SQLException e) {
             System.err.println("Table is already created. Error: " + e);
             //e.printStackTrace();
             return false;
         }
+        return true;
+    }
+
+    /**
+     * Remove tblData from the database.  If it does not exist, this will print
+     * an error.
+     */
+    boolean dropTable(String table) {
+        Statement stmt = null;        
+        try {
+            stmt = mConnection.createStatement();
+            String sql = "DROP TABLE " + table;
+            stmt.executeUpdate(sql);
+            //mDropTable.setString(1, table);
+            //mDropTable.execute();
+        } catch (SQLException e) {
+            System.err.println("There is no table to drop");
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    boolean dropAllTables() {
+       // try {
+            boolean result;
+            String[] tables = {"tblUpVote", "tblDownVote", "tblComment", "tblProfile", "tblMessage", "tblUser"};
+            for (int i = 0; i < tables.length; i++) {
+                result = dropTable(tables[i]);
+                if (result == false) {
+                    return false;
+                }
+            }
+            /*
+            String[] tables = {"tblUser", "tblMessage", "tblProfile", "tblComment", "tblUpVote", "tblDownVote"}; 
+            for (int i = 0; i < tables.length; i++) {
+                dropTable(tables[i]);
+                mDropTable.execute();
+            }
+            */
+        //} catch (SQLException e) {
+            //System.err.println("Error occured while dropping tables: "+ e);
+           // e.printStackTrace();
+            //return false;
+        //}
         return true;
     }
 
@@ -389,37 +428,6 @@ public class Database {
         } catch (SQLException e) {
             System.err.println("Table is already created");
             //e.printStackTrace();
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Remove tblData from the database.  If it does not exist, this will print
-     * an error.
-     */
-    boolean dropTable(String table) {
-        try {
-            mDropTable.setString(1, table);
-            mDropTable.execute();
-        } catch (SQLException e) {
-            System.err.println("There is no table to drop");
-           // e.printStackTrace();
-            return false;
-        }
-        return true;
-    }
-
-    boolean dropAllTables() {
-        try {
-            String[] tables = {"tblUser", "tblMessage", "tblProfile", "tblComment", "tblUpvote", "tblDownvote"}; 
-            for (int i = 0; i < tables.length; i++) {
-                dropTable(tables[i]);
-                mDropTable.execute();
-            }
-        } catch (SQLException e) {
-            System.err.println("Error occured while dropping tables: "+ e);
-           // e.printStackTrace();
             return false;
         }
         return true;
