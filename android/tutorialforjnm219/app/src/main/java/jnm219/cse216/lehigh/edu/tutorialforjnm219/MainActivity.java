@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,21 +33,43 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TimerTask;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity{
 
     /**
      * mData holds the data we get from Volley
      */
     ArrayList<Datum> mData = new ArrayList<>();
+    /**
+     * mMessageData holds data for all the message objects
+     */
     ArrayList<Message> mMessageData = new ArrayList<>();
+    /**
+     * mCommentData holds data for all the comments, this probably has to be put within the declaration of a new message
+     */
     ArrayList<Comment> mCommentData = new ArrayList<>();
 
+    /**
+     * Global for the loginInfo object, key and id will be 0 when not logged in
+     */
     LoginInfo mLoginInfo = new LoginInfo();
 
+    Menu optionsMenu;
+    //Adapter for the message object
     RecyclerView.Adapter adapter;
 
     // enter into the browser to understand what the android app is parsing in the GET request.
     String url = "https://quiet-taiga-79213.herokuapp.com/messages";
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        optionsMenu = menu;
+
+        MenuItem buzz = (MenuItem) menu.findItem(R.id.create_buzz_settings);
+        buzz.setVisible(false);
+        return true;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,16 +94,11 @@ public class MainActivity extends AppCompatActivity {
                     }
                 })
         );
-
+        //Sets the loginInfo object to its default value of user Id and key to 0
+        //A user will not be able to comment, post a buzz, or upvote when they are not logged in
+        mLoginInfo = new LoginInfo();
         refreshList();      // populate RecyclerView with initial set of buzzes.
         //VolleySingleton.getInstance(this).addToRequestQueue(stringRequest); // add request to queue.
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
     }
 
     /**
@@ -96,10 +114,17 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.create_buzz_settings) {
-            Intent i = new Intent(getApplicationContext(), CreateBuzzActivity.class);
-            i.putExtra("topLabel", "Create a buzz:");
-            startActivityForResult(i, 789); // 789 is the number that will come back to us
-            return true;
+            int userId = mLoginInfo.mUserId;
+            int key = mLoginInfo.mKey;
+            if(userId != 0 && key != 0){
+                Intent i = new Intent(getApplicationContext(), CreateBuzzActivity.class);
+                i.putExtra("topLabel", "Create a buzz:");
+                startActivityForResult(i, 789); // 789 is the number that will come back to us
+                return true;
+            }
+            else{
+                Toast.makeText(MainActivity.this, userId + " --> " + key, Toast.LENGTH_LONG).show();
+            }
         }
         if (id == R.id.login_settings){
             Intent i = new Intent(getApplicationContext(), login.class);
@@ -299,6 +324,21 @@ public class MainActivity extends AppCompatActivity {
                         return headers;
                     }
                 };
+                mLoginInfo.mUserId = 1;
+                mLoginInfo.mKey = 2;
+
+                //This finds the menuItem for creating a buzz and makes it visible
+                MenuItem buzz = (MenuItem) optionsMenu.findItem(R.id.create_buzz_settings);
+                buzz.setVisible(true);
+
+                //This finds the menuItem for login and makes it hidden
+                MenuItem login = (MenuItem) optionsMenu.findItem(R.id.login_settings);
+                login.setVisible(false);
+
+                //This finds the menuItem for registering and makes it hidden
+                MenuItem register = (MenuItem) optionsMenu.findItem(R.id.register_settings);
+                register.setVisible(false);
+
                 VolleySingleton.getInstance(this).addToRequestQueue(postRequest);
                 refreshList();
             }
@@ -345,4 +385,5 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
 }

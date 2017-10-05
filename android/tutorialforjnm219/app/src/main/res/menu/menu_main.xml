@@ -20,6 +20,7 @@
         android:id="@+id/login_settings"
         android:orderInCategory="2"
         android:title="Log In"
-        app:showAsAction="never" />
+        app:showAsAction="never"
+        app:actionViewClass = "android.widget.SearchView"/>
 
 </menu>
