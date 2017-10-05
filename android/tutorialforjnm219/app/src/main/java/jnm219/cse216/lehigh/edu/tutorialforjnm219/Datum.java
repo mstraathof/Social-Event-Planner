@@ -21,7 +21,6 @@ class Datum {
      */
     int mVotes;
 
-
     /**
      * Construct a Datum by setting its index and text
      *

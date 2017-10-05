@@ -38,6 +38,11 @@ public class MainActivity extends AppCompatActivity {
      * mData holds the data we get from Volley
      */
     ArrayList<Datum> mData = new ArrayList<>();
+    ArrayList<Message> mMessageData = new ArrayList<>();
+    ArrayList<Comment> mCommentData = new ArrayList<>();
+
+    LoginInfo mLoginInfo = new LoginInfo();
+
     RecyclerView.Adapter adapter;
 
     // enter into the browser to understand what the android app is parsing in the GET request.
@@ -49,24 +54,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        /*
-        // get from the backend server a list of all entries.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        populateListFromVolley(response);
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.e("jnm219", "StringRequest() failed: " + error.getMessage());
-                    }
-                }
-        );
-        */
         // Create the recycler view.
         RecyclerView rv = (RecyclerView) findViewById(R.id.datum_list_view);
         rv.setLayoutManager(new LinearLayoutManager(this));
@@ -133,14 +120,15 @@ public class MainActivity extends AppCompatActivity {
 
     // refresh the list of buzzes.
     // refreshList() only queues the request to populate.
-    // populateListFromVolley() does the real work: parsing the server response and updating the adapter.
+    // populateMessageFromVolley() does the real work: parsing the server response and updating the adapter.
     private void refreshList()
     {
+        String url = "https://quiet-taiga-79213.herokuapp.com/messages";
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        populateListFromVolley(response);
+                        populateMessageFromVolley(response);
                     }
                 },
                 new Response.ErrorListener() {
@@ -154,29 +142,77 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * populateListFromVolley parses the response string and extracts necessary data to make datums.
+     * populateMessageFromVolley parses the response string and extracts necessary data to make datums.
      * @param response is a string returned from a GET request.
      */
-    private void populateListFromVolley(String response) {
+    private void populateMessageFromVolley(String response) {
         try {
             JSONObject jsonObject = new JSONObject(response);
-            JSONArray json = new JSONArray(jsonObject.getString("mData"));
+            JSONArray json = new JSONArray(jsonObject.getString("mMessageData"));
 
-            mData.clear();      // get rid of existing buzzes
+            mMessageData.clear();      // get rid of existing buzzes
             for (int i = 0; i < json.length(); ++i) {
-                int mId = json.getJSONObject(i).getInt("mId");
+                int mUserId = json.getJSONObject(i).getInt("mId");
                 String mTitle = json.getJSONObject(i).getString("mSubject");
                 String mMessage = json.getJSONObject(i).getString("mMessage");
-                int mVotes = json.getJSONObject(i).getInt("mVotes");
-                mData.add(new Datum(mId, mTitle, mMessage, mVotes));
-                Log.d("mira", mId + ":" + mTitle + ":" + mMessage + ":" + mVotes);
+                String mCreateTime = json.getJSONObject(i).getString("mCreateTime");
+                int mMessageId = json.getJSONObject(i).getInt("mMessageId");
+
+                mMessageData.add(new Message(mUserId, mTitle, mMessage, mCreateTime,mMessageId));
+                Log.d("Liger", mUserId + ":" + mTitle + ":" + mMessage + ":" + mMessageId);
             }
             adapter.notifyDataSetChanged();
         } catch (final JSONException e) {
-            Log.d("jnm219", "Error parsing JSON file: " + e.getMessage());
+            Log.d("Liger", "Error parsing JSON file: " + e.getMessage());
             return;
         }
-        Log.d("jnm219", "Successfully parsed JSON file.");
+        Log.d("Liger", "Successfully parsed JSON file.");
+    }
+
+    /**
+     *populate Comments from volley parses the response string and extracts the necessary data for the comment objects
+     * @param response is a string returned from a GET request
+     */
+    private void populateCommentFromVolley(String response){
+        try{
+            JSONObject jsonObject = new JSONObject(response);
+            JSONArray json = new JSONArray(jsonObject.getString("mCommentData"));
+
+            mCommentData.clear(); //Clears all of the existing messages
+            for(int i = 0; i < json.length(); ++i){
+                int mCommentId = json.getJSONObject(i).getInt("mCommentId");
+                int mUserId = json.getJSONObject(i).getInt("mUserId");
+                int mMessageId = json.getJSONObject(i).getInt("mMessageId");
+                String mComment = json.getJSONObject(i).getString("mComment");
+                String mCreateTime = json.getJSONObject(i).getString("mCreateTime");
+
+                mCommentData.add(new Comment(mCommentId,mUserId,mMessageId,mComment,mCreateTime));
+                Log.d("Liger",mCommentId + ":" + mUserId + ":" + mMessageId +":" + mComment+ ":" + mCreateTime);
+            }
+        adapter.notifyDataSetChanged();
+        } catch(final JSONException e){
+            Log.d("Liger","Error Parsing JSON file: "+ e.getMessage());
+            return;
+        }
+    }
+    /**
+     * This Route holds the data for a logged in user
+     */
+    private void loginUser(String response){
+        try{
+            JSONObject jsonObject = new JSONObject(response);
+            JSONArray json = new JSONArray(jsonObject.getString("mLoginInfo"));
+
+            int mUserId = json.getJSONObject(0).getInt("mUserId");
+            int mKey = json.getJSONObject(0).getInt ("mKey");
+
+            mLoginInfo = new LoginInfo(mUserId,mKey);
+            Log.d("Liger",mUserId+":"+mKey);
+
+        } catch(final JSONException e){
+            Log.d("Liger","Error Parsing JSON file: "+e.getMessage());
+            return;
+        }
     }
 
     /**
@@ -191,6 +227,7 @@ public class MainActivity extends AppCompatActivity {
             // Make sure the request was successful
             if (resultCode == RESULT_OK) {
 
+                String url = "https://quiet-taiga-79213.herokuapp.com/messages";
                 // POST to backend server. Modified version of:
                 // https://www.itsalif.info/content/android-volley-tutorial-http-get-post-put
                 Map<String, String> jsonParams = new HashMap<String, String>();
@@ -230,6 +267,8 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == 666)
         {
             if(resultCode == RESULT_OK) {
+                String url = "https://quiet-taiga-79213.herokuapp.com/login";
+
                 Map<String, String> jsonParams = new HashMap<String, String>();
                 final String resultUsername = intent.getStringExtra("resultUserName");
                 final String resultPassword = intent.getStringExtra("resultPassword");
@@ -268,6 +307,8 @@ public class MainActivity extends AppCompatActivity {
         if(requestCode == 667)
         {
             if(resultCode == RESULT_OK) {
+                String url = "https://quiet-taiga-79213.herokuapp.com/register";
+
                 Map<String, String> jsonParams = new HashMap<String, String>();
                 final String resultUsername = intent.getStringExtra("resultUserName");
                 final String resultPassword = intent.getStringExtra("resultPassword");
