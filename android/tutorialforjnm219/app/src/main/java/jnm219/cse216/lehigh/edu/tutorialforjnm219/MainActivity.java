@@ -182,8 +182,10 @@ public class MainActivity extends AppCompatActivity{
                 String mMessage = json.getJSONObject(i).getString("mMessage");
                 String mCreateTime = json.getJSONObject(i).getString("mCreateTime");
                 int mMessageId = json.getJSONObject(i).getInt("mMessageId");
+                int mVotes = json.getJSONObject(i).getInt("mVotes");
+                String mUsername = json.getJSONObject(i).getString("mUsername");
 
-                mMessageData.add(new Message(mUserId, mTitle, mMessage, mCreateTime,mMessageId));
+                mMessageData.add(new Message(mUserId, mTitle, mMessage, mCreateTime,mMessageId,mVotes,mUsername));
                 Log.d("Liger", mUserId + ":" + mTitle + ":" + mMessage + ":" + mMessageId);
             }
             adapter.notifyDataSetChanged();

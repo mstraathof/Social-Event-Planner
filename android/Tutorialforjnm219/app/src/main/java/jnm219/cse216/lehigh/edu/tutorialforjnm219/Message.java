@@ -35,7 +35,29 @@ public class Message {
 
     int mUserId;
 
-    Message(int messageId, String subject,String message, String createTime, int userId){
+    /**
+     * mUsername is used to hold data for the posters username
+     */
+
+    String mUsername;
+
+    /**
+     * mVotes holds the data for how many votes this message has
+     */
+    int mVotes;
+
+    /**
+     *
+     * @param messageId
+     * @param subject
+     * @param message
+     * @param createTime
+     * @param userId
+     * @param votes
+     * @param username
+     */
+
+    Message(int messageId, String subject,String message, String createTime, int userId,int votes, String username){
 
         mMessageId = messageId;
 
@@ -46,5 +68,9 @@ public class Message {
         mCreateTime = createTime;
 
         mUserId = userId;
+
+        mVotes = votes;
+
+        mUsername = username;
     }
 }
