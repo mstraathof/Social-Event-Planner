@@ -26,12 +26,12 @@ public class Database {
     /**
      * A prepared statement for getting all data in the database
      */
-    private PreparedStatement mSelectAll;
+    private PreparedStatement mSelectAllMessage;
 
     /**
      * A prepared statement for getting one row from the database
      */
-    private PreparedStatement mSelectOne;
+    private PreparedStatement mSelectOneMessage;
 
     /**
      * A prepared statement for deleting a row from the database
@@ -50,8 +50,8 @@ public class Database {
     /**
      * A prepared statement for updating a single row in the database
      */
+    private PreparedStatement mInsertUser;
     private PreparedStatement mUpdateVote;
-
     /**
      * The Database constructor is private: we only create Database objects 
      * through the getDatabase() method.
@@ -130,12 +130,26 @@ public class Database {
             //     from those constants.
 
             // Standard CRUD operations
-            db.mDeleteOne = db.mConnection.prepareStatement("DELETE FROM tblData WHERE id = ?");
-            db.mInsertOne = db.mConnection.prepareStatement("INSERT INTO tblData VALUES (default, ?, ?, ?, ?, ?)");
-            db.mSelectAll = db.mConnection.prepareStatement("SELECT * FROM tblData ORDER BY modifyTime DESC");
-            db.mSelectOne = db.mConnection.prepareStatement("SELECT * from tblData WHERE id=?");
-            db.mUpdateOne = db.mConnection.prepareStatement("UPDATE tblData SET subject = ?, message = ? WHERE id = ?");
-            db.mUpdateVote = db.mConnection.prepareStatement("UPDATE tblData SET votes = votes + ? WHERE id = ?");
+            //db.mDeleteOne = db.mConnection.prepareStatement("DELETE FROM tblData WHERE id = ?");
+            db.mInsertOne = db.mConnection.prepareStatement("INSERT INTO tblMessage VALUES (default, ?, ?, ?, ?)");
+            db.mSelectAllMessage = db.mConnection.prepareStatement("SELECT * FROM tblMessage ORDER BY createTime DESC");
+            db.mSelectOneMessage = db.mConnection.prepareStatement("SELECT * from tblMessage WHERE id=?");
+            //db.mUpdateOneMessage = db.mConnection.prepareStatement("UPDATE tblMessage SET subject = ?, message = ? WHERE id = ?");
+            db.mUpdateVote = db.mConnection.prepareStatement("UPDATE tblMessage SET votes = votes + ? WHERE id = ?");
+            db.mInsertUser = db.mConnection.prepareStatement("Insert into tblUser Values (default, ?, ?, ?, ?, ?)");
+           /* db.mSelectOneUser = db.mConnection.prepareStatement("Select * from tblUser where username=?");
+            db.mSelectAllUser = db.mConnection.prepareStatement("Select * from tblUser");
+            db.mUpdateUser = db.mConnection.prepareStatement("Update tblUser Set Password=? where username=? and email=?");
+            db.mInsertComment = db.mConnection.prepareStatement("Insert into tblComment values (defalut, ?, ?, ?, ?");
+            db.mSelectAllComment = db.mConnection.prepareStatement("select * from tblComment where message_id=? ");
+            db.mInsertLikes = db.mConnection.prepareStatement("");
+            db.mUpdateLikes = db.mConnection.prepareStatement("");
+            db.mCountLikes = db.mConnection.prepareStatement("");
+            db.mSelectOneLikes = db.mConnection.prepareStatement("");
+            db.mInsertDislikes = db.mConnection.prepareStatement("");
+            db.mUpdateDislikes = db.mConnection.prepareStatement("");
+            db.mCountDislikes = db.mConnection.prepareStatement("");
+            db.mSelectOneDislikes = db.mConnection.prepareStatement(""); */
         } catch (SQLException e) {
             System.err.println("Error creating prepared statement");
             e.printStackTrace();
@@ -204,7 +218,7 @@ public class Database {
     ArrayList<RowData> selectAll() {
         ArrayList<RowData> res = new ArrayList<RowData>();
         try {
-            ResultSet rs = mSelectAll.executeQuery();
+            ResultSet rs = mSelectAllMessage.executeQuery();
             while (rs.next()) {
 
                 res.add(new RowData(rs.getInt("id"), rs.getString("subject"), rs.getString("message"), rs.getInt("votes"), rs.getString("createTime"), rs.getString("modifyTime")));
@@ -227,8 +241,8 @@ public class Database {
     RowData selectOne(int id) {
         RowData res = null;
         try {
-            mSelectOne.setInt(1, id);
-            ResultSet rs = mSelectOne.executeQuery();
+            mSelectOneMessage.setInt(1, id);
+            ResultSet rs = mSelectOneMessage.executeQuery();
             if (rs.next()) {
                 res = new RowData(rs.getInt("id"), rs.getString("subject"), rs.getString("message"), rs.getInt("votes"), rs.getString("createTime"), rs.getString("modifyTime"));
             }
@@ -237,7 +251,22 @@ public class Database {
         }
         return res;
     }
-
+    boolean insertUser(String username,String realname,String email,int salt, String pw )
+    {
+        RowData res=null;
+        try {
+            mInsertUser.setString(1,username);
+            mInsertUser.setString(2,realname);
+            mInsertUser.setString(3,email);
+            mInsertUser.setInt(4,salt);
+            mInsertUser.setString(5,pw);
+            ResultSet rs = mInsertUser.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
     /**
      * Increases the number of votes for a given post by one
      * 
@@ -250,7 +279,7 @@ public class Database {
         try {
             mUpdateVote.setInt(1, voteChange);
             mUpdateVote.setInt(2, id);
-            res = mUpdateVote.executeUpdate();
+           res = mUpdateVote.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -267,8 +296,8 @@ public class Database {
     int downVote(int id, int voteChange) {
         int res = -1;
         try {
-            mUpdateVote.setInt(1, voteChange);
-            mUpdateVote.setInt(2, id);
+            //mUpdateVote.setInt(1, voteChange);
+            //mUpdateVote.setInt(2, id);
             res = mUpdateVote.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

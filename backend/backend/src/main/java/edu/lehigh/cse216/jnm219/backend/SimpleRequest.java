@@ -22,4 +22,8 @@ public class SimpleRequest {
      * An indicator for whether the backend should call upVote or downVote functionality.
      */
     public int mChangeVote;
+    public String mUsername;
+    public String mRealName;
+    public String mEmail;
+    public String mPassword;
 }

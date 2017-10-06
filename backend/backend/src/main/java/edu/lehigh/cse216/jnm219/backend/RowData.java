@@ -42,7 +42,10 @@ public class RowData {
      * The most recent time of row modification
      */
     String mModifyTime;
-
+    String mUsername;
+    String mRealName;
+    String mEmail;
+    String mPassword;
     /**
      * Construct a RowData object by providing values for its fields
      */
