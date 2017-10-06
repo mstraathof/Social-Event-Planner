@@ -26,4 +26,5 @@ public class SimpleRequest {
     public String mRealName;
     public String mEmail;
     public String mPassword;
+    
 }

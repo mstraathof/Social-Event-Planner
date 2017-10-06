@@ -41,7 +41,6 @@ public class RowData {
     /**
      * The most recent time of row modification
      */
-    String mModifyTime;
     String mUsername;
     String mRealName;
     String mEmail;
@@ -49,12 +48,10 @@ public class RowData {
     /**
      * Construct a RowData object by providing values for its fields
      */
-    public RowData(int id, String subject, String message, int votes, String createTime, String modifyTime) {
+    public RowData(int id, String subject, String message, String createTime) {
         mId = id;
         mSubject = subject;
         mMessage = message;
-        mVotes = votes;
         mCreateTime = createTime;
-        mModifyTime = modifyTime;
     }
 }

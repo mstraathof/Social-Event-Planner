@@ -12,11 +12,18 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Map;
-
+import java.util.Hashtable;
+import java.util.Enumeration;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.SecretKeyFactory;
+import java.math.BigInteger;
+import java.security.spec.InvalidKeySpecException;
 import java.io.IOException;
-
+import java.util.Random;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -33,15 +40,59 @@ public class App {
  * 
  * @returns The best answer we could come up with for a value for envar
  */
-static int getIntFromEnv(String envar, int defaultVal) {
-    ProcessBuilder processBuilder = new ProcessBuilder();
-    if (processBuilder.environment().get(envar) != null) {
-        return Integer.parseInt(processBuilder.environment().get(envar));
+    static int getIntFromEnv(String envar, int defaultVal) {
+        ProcessBuilder processBuilder = new ProcessBuilder();
+        if (processBuilder.environment().get(envar) != null) {
+            return Integer.parseInt(processBuilder.environment().get(envar));
+        }
+        return defaultVal;
     }
-    return defaultVal;
-}
+    private static byte [] encryptPw (String password,byte [] salt) throws NoSuchAlgorithmException, InvalidKeySpecException
+    {
+        int iterations= 1000;
+        char[] chars = password.toCharArray();
+        PBEKeySpec spec = new PBEKeySpec(chars, salt, iterations, 64 * 8);
+        SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+        byte [] securedPw= skf.generateSecret(spec).getEncoded();
+        return securedPw;
+    }
 
-    public static void main(String[] args) {
+    private static byte [] getSalt() throws NoSuchAlgorithmException
+    {
+        SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
+        byte[] salt = new byte[16];
+        sr.nextBytes(salt);
+        return salt;
+    }
+
+    private static String toHex(byte[] array) throws NoSuchAlgorithmException
+    {
+        BigInteger bi = new BigInteger(1, array);
+        String hex = bi.toString(16);
+        int paddingLength = (array.length * 2) - hex.length();
+        if(paddingLength > 0)
+        {
+            return String.format("%0"  +paddingLength + "d", 0) + hex;
+        }else{
+            return hex;
+        }
+    }
+    static Hashtable<String,Integer> logged_in=new Hashtable<String,Integer    >();
+    public static int keyGenerator (){
+        Random rand = new Random();
+        int  random = rand.nextInt(10000) + 1000;
+        return random;
+    };
+    public static boolean checkLogin (String userName)
+    {
+        return logged_in.containsKey(userName);
+    };
+    public static void logOut(String user)
+    {
+        logged_in.remove(user);
+    };
+    public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException 
+    {
 
         // gson provides us with a way to turn JSON into objects, and objects
         // into JSON.
@@ -82,8 +133,8 @@ static int getIntFromEnv(String envar, int defaultVal) {
         Spark.get("/messages", (request, response) -> {
             // ensure status 200 OK, with a MIME type of JSON
             response.status(200);
-            response.type("application/json");
-            return gson.toJson(new StructuredResponse("ok", null, db.selectAll()));
+            response.type("application/json"); 
+            return gson.toJson(new StructuredResponse("ok", null, db.selectAllMessage()));
         });
 
         // GET route that returns everything for a single row in the DataStore.
@@ -97,19 +148,15 @@ static int getIntFromEnv(String envar, int defaultVal) {
             // ensure status 200 OK, with a MIME type of JSON
             response.status(200);
             response.type("application/json");
-            RowData data = db.selectOne(idx);
+            RowData data = db.selectOneMessage(idx);
             if (data == null) {
                 return gson.toJson(new StructuredResponse("error", idx + " not found", null));
             } else {
                 return gson.toJson(new StructuredResponse("ok", null, data));
             }
         });
-/*
-        byte encryptPw (String password)
-        {
 
-        }
-        */
+       
         /**This method is to get the information from user to put into table for registeration */
          Spark.post("/user", (request, response) -> {
             // NB: if gson.Json fails, Spark will reply with status 500 Internal 
@@ -120,12 +167,45 @@ static int getIntFromEnv(String envar, int defaultVal) {
             //     describes the error.
             response.status(200);
             response.type("application/json");
+            byte [] salt = getSalt();
+            byte [] password= encryptPw (req.mPassword,salt);
             // NB: createEntry checks for null title and message
-            boolean newUser = db.insertUser(req.mUsername, req.mEmail,req.mRealName,324234, req.mPassword); // mSubject vs mTitle?
+            boolean newUser = db.insertUser(req.mUsername, req.mEmail,req.mRealName,salt, password); // mSubject vs mTitle?
             if (newUser == false) {
                 return gson.toJson(new StructuredResponse("error", "error performing insertion", null));
             } else {
                 return gson.toJson(new StructuredResponse("ok", "" + newUser, null));
+            }
+        });
+       
+        Spark.get ("/log_in/:username", (request, response)->{
+            String username=request.params("username");
+            response.status(200);
+            response.type("application/json");
+            int key= keyGenerator(); 
+            if (checkLogin(username)==false)
+            {
+                logged_in.put(username,key);
+                return gson.toJson(new StructuredResponse("ok", username + " has key: "+key, null));
+            }
+            else 
+            {
+                logOut(username);
+                return gson.toJson(new StructuredResponse("error", "this person is already logged in", null));
+            }
+        });
+        Spark.get ("/log_out/:username", (request, response)->{
+            String username=request.params("username");
+            response.status(200);
+            response.type("application/json");
+            if (checkLogin(username)==false)
+            {
+                return gson.toJson(new StructuredResponse("error", "this person is not logged in", null));
+            }
+            else 
+            {
+                logOut(username);
+                return gson.toJson(new StructuredResponse("ok", username + " logged out ", null));
             }
         });
         // POST route for adding a new element to the DataStore.  This will read
@@ -150,10 +230,21 @@ static int getIntFromEnv(String envar, int defaultVal) {
             }
         });
 
+
+
+
+
+
+
+
+
+
+
         /**
          * PUT route for updating a row in the DataStore.  This is almost 
          * exactly the same as POST
          */
+        /*
         Spark.put("/messages/:id", (request, response) -> {
             // If we can't get an ID or can't parse the JSON, Spark will send
             // a status 500
@@ -181,7 +272,7 @@ static int getIntFromEnv(String envar, int defaultVal) {
                 return gson.toJson(new StructuredResponse("error", "invalid mChangeVote value. Must be 1 or -1.", null));
             }
         });
-
+*/
         /**
         // DELETE route for removing a row from the DataStore
         Spark.delete("/messages/:id", (request, response) -> {
