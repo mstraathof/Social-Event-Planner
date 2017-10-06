@@ -76,7 +76,7 @@ public class Database {
     /**
      * A prepared statement for dropping the table in our database
      */
-    private PreparedStatement mDropTable;
+    //private PreparedStatement mDropTable;
 
     /**
      * RowData is like a struct in C: we use it to hold data, and we allow 
