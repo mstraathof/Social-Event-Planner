@@ -25,6 +25,8 @@ class Navbar {
         if (!Navbar.isInit) {
             $("body").prepend(Handlebars.templates[Navbar.NAME + ".hb"]());
             $("#"+Navbar.NAME+"-add").click(NewEntryForm.show);
+            $("#"+Navbar.NAME+"-createAccount").click(CreateAccountForm.show);
+            $("#"+Navbar.NAME+"-logIn").click(LoginWindow.show);
             Navbar.isInit = true;
         }
     }

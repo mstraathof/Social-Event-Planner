@@ -11,7 +11,7 @@ TARGETFOLDER=../backend/backend/src/main/resources
 WEBFOLDERNAME=web
 
 # These are all of the singletons in the program
-SINGLETONS=(ElementList EditEntryForm NewEntryForm Navbar)
+SINGLETONS=(ElementList EditEntryForm NewEntryForm Navbar LoginWindow CreateAccountForm)
 
 # step 1: make sure we have someplace to put everything.  We will delete the
 #         old folder tree, and then make it from scratch
@@ -47,6 +47,7 @@ done
 
 # step 7: copy the main HTML shell
 cp index.html $TARGETFOLDER/$WEBFOLDERNAME
+cp userprofile.html $TARGETFOLDER/$WEBFOLDERNAME
 
 # step 8: set up Jasmine
 node_modules/typescript/bin/tsc apptest.ts --strict --outFile $TARGETFOLDER/$WEBFOLDERNAME/apptest.js

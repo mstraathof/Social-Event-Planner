@@ -22,6 +22,20 @@
                         <span class="glyphicon glyphicon-plus"></span><span class="sr-only">Show Trending Posts</span>
                     </a>
                 </li>
+                <li>
+                    <a class="btn btn-link" id="Navbar-createAccount">
+                        Create Account
+                    </a>
+                </li>
+                <li>
+                    <a class="btn btn-link" id="Navbar-logIn">
+                        Log In
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="userprofile.html">Profile</a>
+                </li>
+
             </ul>
         </div>
     </div>
