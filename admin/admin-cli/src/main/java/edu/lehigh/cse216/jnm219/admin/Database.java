@@ -159,7 +159,7 @@ public class Database {
             return null;
         }
         catch (URISyntaxException e) {
-            System.err.println("Error: DriverManager.getConnection() threw a SQLException");
+            System.err.println("Error: DriverManager.getConnection() threw a URISyntaxException");
             e.printStackTrace();
             return null;
         }
@@ -179,7 +179,8 @@ public class Database {
                 +"realname VARCHAR(255) not null,"
                 +"email VARCHAR(255) not null,"
                 +"salt BYTEA,"
-                +"password BYTEA)"
+                +"password BYTEA,"
+                +"verification BIT)"
             );
             db.mCreateProfileTable = db.mConnection.prepareStatement(
                 "CREATE TABLE tblProfile ("
