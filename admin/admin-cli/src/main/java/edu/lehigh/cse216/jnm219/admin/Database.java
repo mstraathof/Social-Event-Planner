@@ -192,19 +192,20 @@ public class Database {
                 "CREATE TABLE tblMessage (message_id SERIAL PRIMARY KEY,"
                 +"subject VARCHAR(50),"
                 +"message VARCHAR(500),"
-                +"user_id INTEGER,"
+                +"username VARCHAR(255),"
                 +"createTime VARCHAR(50),"
-                +"FOREIGN KEY (user_id) REFERENCES tblUser (user_id))"
+                +"vote INTEGER,"
+                +"FOREIGN KEY (username) REFERENCES tblUser (username))"
             );
             db.mCreateCommentTable = db.mConnection.prepareStatement(
                 "CREATE TABLE IF NOT EXISTS tblComment ("
                 +"comment_id SERIAL PRIMARY KEY,"
-                +"user_id INTEGER,"
+                +"username VARCHAR(255),"
                 +"message_id INTEGER,"
                 +"comment_text VARCHAR(255),"
                 //Need to add creation date/time
                 +"createTime VARCHAR(50),"
-                +"FOREIGN KEY (user_id) REFERENCES tblUser (user_id),"
+                +"FOREIGN KEY (username) REFERENCES tblUser (username),"
                 +"FOREIGN KEY (message_id) REFERENCES tblMessage (message_id))"
             );
             db.mCreateDownVoteTable = db.mConnection.prepareStatement(

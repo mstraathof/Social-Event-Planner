@@ -56,10 +56,11 @@ public class App {
      */
     static char prompt(BufferedReader in) {
         // The valid actions:
-        String actions = "TDq?";
+        String mainActions = "TDq?";
+        String allActions = "TDUpmcudXPMCYZq?";
         // We repeat until a valid single-character option is selected        
         while (true) {
-            System.out.print("[" + actions + "] :> ");
+            System.out.print("[" + mainActions + "] :> ");
             String action;
             try {
                 action = in.readLine();
@@ -69,7 +70,7 @@ public class App {
             }
             if (action.length() != 1)
                 continue;
-            if (actions.contains(action)) {
+            if (allActions.contains(action)) {
                 return action.charAt(0);
             }
             System.out.println("Invalid Command");
