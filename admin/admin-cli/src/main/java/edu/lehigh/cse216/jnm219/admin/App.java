@@ -8,13 +8,6 @@ import java.util.ArrayList;
 import java.util.Map;
 
 /**
- * Drop all
- * Drop one
- * Create all
- * CreateTable(that takes a table as parameter)
- */
-
-/**
  * App is our basic admin app.  For now, it is a demonstration of the six key 
  * operations on a database: connect, insert, update, query, delete, disconnect
  */
@@ -25,15 +18,26 @@ public class App {
      */
     static void menu() {
         System.out.println("Main Menu");
+        System.out.println("---------------------------");
         System.out.println("  [T] Create all tables");
         System.out.println("  [D] Drop all tables");
+        System.out.println();
         System.out.println("  [U] Create user table");
         System.out.println("  [p] Create profile table");        
         System.out.println("  [m] Create message table");
         System.out.println("  [c] Create comment table");
         System.out.println("  [u] Create upvote table");
         System.out.println("  [d] Create downvote table");
-        
+        System.out.println();
+        System.out.println("  [X] Drop user table");
+        System.out.println("  [P] Drop profile table");
+        System.out.println("  [M] Drop message table");
+        System.out.println("  [C] Drop comment table");
+        System.out.println("  [Y] Drop upvote table");
+        System.out.println("  [Z] Drop downvote table");
+        System.out.println();
+        System.out.println("  [q] Quit Program");
+        System.out.println("  [?] Help (this message)");
         /* 
         System.out.println("  [1] Query for a specific row");
         System.out.println("  [*] Query for all rows");
@@ -41,8 +45,6 @@ public class App {
         System.out.println("  [+] Insert a new row");
         System.out.println("  [~] Update a row");
         */
-        System.out.println("  [q] Quit Program");
-        System.out.println("  [?] Help (this message)");
     }
 
     /**
@@ -153,7 +155,9 @@ public class App {
                 db.createAllTables();
             } else if (action == 'D') {
                 db.dropAllTables();
-            } else if (action == 'U') {     // tblUser
+            } 
+            // Individual creation of tables
+            else if (action == 'U') {       // tblUser
                 db.createTable('U');
             } else if (action == 'p') {     // tblProfile
                 db.createTable('p');
@@ -165,6 +169,20 @@ public class App {
                 db.createTable('u');
             } else if (action == 'd') {     // tblDownVote
                 db.createTable('d');
+            } 
+            // Individual table drops
+            else if (action == 'X') {   
+                db.dropTable("tblUser");
+            } else if (action == 'P') {       
+                db.dropTable("tblProfile");
+            } else if (action == 'M') {       
+                db.dropTable("tblMessage");
+            } else if (action == 'C') {       
+                db.dropTable("tblComment");
+            } else if (action == 'Y') {       
+                db.dropTable("tblUpVote");
+            } else if (action == 'Z') {       
+                db.dropTable("tblDownVote");
             }
         }
          db.disconnect();
