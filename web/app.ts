@@ -2,6 +2,7 @@
 /// <reference path="ts/NewEntryForm.ts"/>
 /// <reference path="ts/ElementList.ts"/>
 /// <reference path="ts/Navbar.ts"/>
+/// <reference path="ts/NavbarLoggedIn.ts"/>
 /// <reference path="ts/LoginWindow.ts"/>
 /// <reference path="ts/CreateAccountForm.ts"/>
 
@@ -9,10 +10,10 @@
 // "any", so that we can use it anywhere, and assume it has any fields or
 // methods, without the compiler producing an error.
 var $: any;
-
+var userKey;
 // Prevent compiler errors when using Handlebars
 var Handlebars: any;
-
+var loggedIn=false;
 // a global for the EditEntryForm of the program.  See newEntryForm for 
 // explanation
 var editEntryForm: EditEntryForm;
@@ -22,7 +23,11 @@ var createAccountForm: CreateAccountForm;
 
 // Run some configuration code when the web page loads
 $(document).ready(function () {
-    Navbar.refresh();
+    if(loggedIn == false){
+        Navbar.refresh();
+    }else{
+        NavbarLoggedIn.refresh();
+    }
     NewEntryForm.refresh();
     CreateAccountForm.refresh();
     LoginWindow.refresh();

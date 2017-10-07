@@ -11,7 +11,7 @@ TARGETFOLDER=../backend/backend/src/main/resources
 WEBFOLDERNAME=web
 
 # These are all of the singletons in the program
-SINGLETONS=(ElementList EditEntryForm NewEntryForm Navbar LoginWindow CreateAccountForm)
+SINGLETONS=(ElementList EditEntryForm NewEntryForm Navbar LoginWindow CreateAccountForm NavbarLoggedIn)
 
 # step 1: make sure we have someplace to put everything.  We will delete the
 #         old folder tree, and then make it from scratch

@@ -79,7 +79,7 @@ class CreateAccountForm {
                 type: "POST",
                 url: "/register",
                 dataType: "json",
-                data: JSON.stringify({ mUsername: username, mRealName: userName, mEmail: email, mPassword: password }),
+                data: JSON.stringify({ mUsername: userName, mRealName: userName, mEmail: email, mPassword: password }),
                 success: CreateAccountForm.onCreateResponse
             });
         }

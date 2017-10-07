@@ -5,7 +5,7 @@
  * NewEntryForm
  */
 var Handlebars: any;
-class Navbar {
+class NavbarLoggedIn {
     /**
      * Track if the Singleton has been initialized
      */
@@ -14,7 +14,7 @@ class Navbar {
     /**
      * The name of the DOM entry associated with Navbar
      */
-    private static readonly NAME = "Navbar";
+    private static readonly NAME = "NavbarLoggedIn";
 
     /**
      * Initialize the Navbar Singleton by creating its element in the DOM and
@@ -22,11 +22,10 @@ class Navbar {
      * method, to ensure that the Singleton is initialized before use.
      */
     private static init() {
-        if (!Navbar.isInit) {
-            $("body").prepend(Handlebars.templates[Navbar.NAME + ".hb"]());
-            $("#"+Navbar.NAME+"-createAccount").click(CreateAccountForm.show);
-            $("#"+Navbar.NAME+"-logIn").click(LoginWindow.show);
-            Navbar.isInit = true;
+        if (!NavbarLoggedIn.isInit) {
+            $("body").prepend(Handlebars.templates[NavbarLoggedIn.NAME + ".hb"]());
+            $("#"+NavbarLoggedIn.NAME+"-add").click(NewEntryForm.show);
+            NavbarLoggedIn.isInit = true;
         }
     }
 
@@ -37,12 +36,6 @@ class Navbar {
      * is configured.
      */
     public static refresh() {
-        if(loggedIn == true){
-            $("nav.navbar-default").hide();
-            NavbarLoggedIn.refresh();
-        }else{
-            $("nav.navbar-default").hide();         
-            Navbar.init();
-        }
+        NavbarLoggedIn.init();
     }
 }

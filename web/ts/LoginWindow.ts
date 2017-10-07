@@ -24,13 +24,14 @@ class LoginWindow {
         private static init() {
             if (!LoginWindow.isInit) {
                 if(username != ""){
+                    //window.alert("already logged in");
                     loggedIn = true;
                 }
                 if(loggedIn == false){
                     $("body").append(Handlebars.templates[LoginWindow.NAME + ".hb"]());
                     $("#" + LoginWindow.NAME + "-Submit").click(LoginWindow.submitForm);
                     $("#" + LoginWindow.NAME + "-Close").click(LoginWindow.hide);
-                    window.alert(loggedIn);
+                    //window.alert(loggedIn);
                     LoginWindow.isInit = true;
                     loggedIn = true;
                     LoginWindow.refresh();                
@@ -90,6 +91,7 @@ class LoginWindow {
             LoginWindow.hide();
             window.alert(username+" "+password);
             LoginWindow.refresh();
+            Navbar.refresh();
             // // set up an AJAX post.  When the server replies, the result will go to
 
             $.ajax({
@@ -99,6 +101,7 @@ class LoginWindow {
                 data: JSON.stringify({ mUsername: username, mPassword: password }),
                 success: LoginWindow.onLoginResponse
             });
+            userKey = "abc";
         }
     
         /**
@@ -108,6 +111,6 @@ class LoginWindow {
          * @param data The object returned by the server
          */
         private static onLoginResponse(data: any) {
-            window.alert("good");
+            window.alert("good: "+data);
         }
     }
