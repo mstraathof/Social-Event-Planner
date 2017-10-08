@@ -43,6 +43,8 @@ public class Database {
      */
     //private PreparedStatement mUpdateOne;
 
+    private PreparedStatement mCreateUnauthorizedUserTable;
+
     /**
      * A prepared statement for creating the user table in the database
      */
@@ -173,8 +175,15 @@ public class Database {
 
             // Note: no "IF NOT EXISTS" or "IF EXISTS" checks on table 
             // creation/deletion, so multiple executions will cause an exception
+            db.mCreateUnauthorizedUserTable = db.mConnection.prepareStatement(
+                "CREATE TABLE tblUnauthorizedUser ("
+                +"user_id SERIAL PRIMARY KEY,"
+                +"username VARCHAR(255) UNIQUE,"
+                +"email VARCHAR(255))"
+            );
             db.mCreateUserTable = db.mConnection.prepareStatement(
-                "CREATE TABLE tblUser (user_id SERIAL PRIMARY KEY,"
+                "CREATE TABLE tblUser ("
+                +"user_id SERIAL PRIMARY KEY,"
                 +"username VARCHAR(255) UNIQUE,"
                 +"realname VARCHAR(255),"
                 +"email VARCHAR(255),"
@@ -274,6 +283,7 @@ public class Database {
      */
     boolean createAllTables() {
         try {
+            mCreateUnauthorizedUserTable.execute();
             mCreateUserTable.execute();
             mCreateProfileTable.execute();
             mCreateMessageTable.execute();
@@ -293,6 +303,8 @@ public class Database {
         try {
             if (action == 'U') {            // tblUser
                 mCreateUserTable.execute();
+            } else if (action == 'a') {
+                mCreateUnauthorizedUserTable.execute();
             } else if (action == 'p') {     // tblProfile
                 mCreateProfileTable.execute();
             } else if (action == 'm') {     // tblMessage
@@ -339,7 +351,7 @@ public class Database {
     boolean dropAllTables() {
        // try {
             boolean result;
-            String[] tables = {"tblUpVote", "tblDownVote", "tblComment", "tblProfile", "tblMessage", "tblUser"};
+            String[] tables = {"tblUpVote", "tblDownVote", "tblComment", "tblProfile", "tblMessage", "tblUser", "tblUnauthorizedUser"};
             for (int i = 0; i < tables.length; i++) {
                 result = dropTable(tables[i]);
                 if (result == false) {

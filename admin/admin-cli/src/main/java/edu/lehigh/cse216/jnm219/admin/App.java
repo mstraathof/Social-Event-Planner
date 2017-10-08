@@ -22,6 +22,7 @@ public class App {
         System.out.println("  [T] Create all tables");
         System.out.println("  [D] Drop all tables");
         System.out.println();
+        System.out.println("  [a] Create unauthorized user table");
         System.out.println("  [U] Create user table");
         System.out.println("  [p] Create profile table");        
         System.out.println("  [m] Create message table");
@@ -29,6 +30,7 @@ public class App {
         System.out.println("  [u] Create upvote table");
         System.out.println("  [d] Create downvote table");
         System.out.println();
+        System.out.println("  [A] Drop unauthorized user table");
         System.out.println("  [X] Drop user table");
         System.out.println("  [P] Drop profile table");
         System.out.println("  [M] Drop message table");
@@ -57,7 +59,7 @@ public class App {
     static char prompt(BufferedReader in) {
         // The valid actions:
         String mainActions = "TDq?";
-        String allActions = "TDUpmcudXPMCYZq?";
+        String allActions = "TDaUpmcudAXPMCYZq?";
         // We repeat until a valid single-character option is selected        
         while (true) {
             System.out.print("[" + mainActions + "] :> ");
@@ -158,7 +160,9 @@ public class App {
                 db.dropAllTables();
             } 
             // Individual creation of tables
-            else if (action == 'U') {       // tblUser
+            else if (action == 'a') {       // tblUnauthorizedUser
+                db.createTable('a');
+            }else if (action == 'U') {       // tblUser
                 db.createTable('U');
             } else if (action == 'p') {     // tblProfile
                 db.createTable('p');
@@ -172,7 +176,9 @@ public class App {
                 db.createTable('d');
             } 
             // Individual table drops
-            else if (action == 'X') {   
+            else if (action == 'A') {
+                db.dropTable("tblUnauthorizedUser");
+            } else if (action == 'X') {   
                 db.dropTable("tblUser");
             } else if (action == 'P') {       
                 db.dropTable("tblProfile");
