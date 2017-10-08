@@ -26,11 +26,16 @@ class NavbarLoggedIn {
             $("body").prepend(Handlebars.templates[NavbarLoggedIn.NAME + ".hb"]());
             $("#"+NavbarLoggedIn.NAME+"-add").click(NewEntryForm.show);
             $("#"+NavbarLoggedIn.NAME+"-profile").click(NavbarLoggedIn.loadProfile);
-            NavbarLoggedIn.isInit = true;
+            //$("div.container-fluid well span6").hide();
+            //$("div.container-fluid well span6").hide();
+            //ProfilePage.show(Gusername);
+            $("div.container-fluid well span6").hide(); 
+            ElementList.refresh();
+            //NavbarLoggedIn.isInit = true;
         }
     }
     public static loadProfile(){
-        window.alert(Gusername);
+        window.alert("hittt me "+Gusername);
         ProfilePage.show(Gusername);
     }
     /**

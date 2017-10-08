@@ -49,6 +49,18 @@ class ElementList {
         });
     }
 
+    public static refreshUser(username:string) {
+        // Make sure the singleton is initialized
+        ElementList.init();
+        // Issue a GET, and then pass the result to update()
+        $.ajax({
+            type: "GET",
+            url: "/messages/"+username,
+            dataType: "json",
+            success: ElementList.update
+        });
+    }
+
     /**
     * update() is the private method used by refresh() to update the 
     * It initializes the editbtn (window Tied to seeing the title and message)

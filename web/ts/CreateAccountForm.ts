@@ -68,7 +68,27 @@ class CreateAccountForm {
             let realName = "" + $("#" + CreateAccountForm.NAME + "-realname").val();
             let email = "" + $("#" + CreateAccountForm.NAME + "-email").val();
             let password = "" + $("#" + CreateAccountForm.NAME + "-password").val();
-            
+            if(userName.length >= 500)
+            {
+                window.alert("Error: UserName exceeds 500");
+                //check if username exists already or nah
+                return;
+            }
+            if(realName.length >= 50)
+            {
+                window.alert("Error: Name exceeds 50");
+                return;
+            }
+            if (email == "" || !email.includes("@") || !email.includes(".com")) {
+                window.alert("Error: Invalid Email");
+                return;
+            }
+            //must have seperate includes forpassword
+            if (password.length >= 50 || !password.includes("1234567890")) {
+                window.alert("Error: Password must have a number");
+                return;
+            }
+
             CreateAccountForm.hide();
             //window.alert(username+" "+password);
             CreateAccountForm.refresh();

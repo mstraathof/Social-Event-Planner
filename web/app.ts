@@ -6,6 +6,8 @@
 /// <reference path="ts/LoginWindow.ts"/>
 /// <reference path="ts/CreateAccountForm.ts"/>
 /// <reference path="ts/ProfilePage.ts"/>
+/// <reference path="ts/EditBio.ts"/>
+
 
 // Prevent compiler errors when using jQuery.  "$" will be given a type of 
 // "any", so that we can use it anywhere, and assume it has any fields or
@@ -26,7 +28,7 @@ var editEntryForm: EditEntryForm;
 var loginWindow: LoginWindow;
 var createAccountForm: CreateAccountForm;
 //var loggedIn = false;
-
+var editBio: EditBio;
 // Run some configuration code when the web page loads
 $(document).ready(function () {
     if(GloggedIn == false){
@@ -44,6 +46,7 @@ $(document).ready(function () {
     editEntryForm = new EditEntryForm();
     loginWindow = new LoginWindow();
     createAccountForm = new CreateAccountForm();
+    editBio = new EditBio();
     // set up initial UI state
 
     $("#editElement").hide();

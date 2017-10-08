@@ -16,18 +16,47 @@ class ProfilePage{
          * method, to ensure that the Singleton is initialized before use.
          */
         private static init() {
-            window.alert("entered into profile script");
+            //NavbarLoggedIn.refresh();
             if (!ProfilePage.isInit) {
-                NavbarLoggedIn.refresh();
-                ElementList.refresh;
+                //$("div.panel-default").hide();
+                //$("nav.navbar-default").hide();
+                //NavbarLoggedIn.refresh();
+                $("nav.xyz").hide();
+                //window.alert("end of profile init");
+                //$("nav.navbar-default").hide();
+                
             }
         }
 
         public static show(username: string) {
-            $("div.panel-default").hide();
-            $("nav.navbar-default").hide();
+            ProfilePage.init();
+            //NavbarLoggedIn.refresh();
+            //$("div.panel-default").hide();
+            //$("nav.navbar-default").hide();
             Gusername = username;
-            $("body").prepend(Handlebars.templates[ProfilePage.NAME + ".hb"]());
-            window.alert(username+" is logged in");
+            $("#ElementList").remove();
+            //ElementList.refreshUser(Gusername);
+            $("body").append(Handlebars.templates[ProfilePage.NAME + ".hb"]());
+            $("#"+ProfilePage.NAME+"-editBio").click(EditBio.showEdit);
+            ElementList.refresh();
+            //ProfilePage.init(Gusername);
+            //window.alert(username+" is logged in");
+        }
+
+        public static editBio() {
+            window.alert("allow to edit bio now");
+            EditBio.showEdit();
+        }
+
+        public static changeBio(username: string) {
+            let newBio = $("#EditBio-newBio").val();
+            window.alert(newBio);
+
+        }
+        public static hideEdit() {
+            let newBio = "";
+            $("#EditBio").modal("hide");
+            $('body').removeClass('modal-open');
+            $('.modal-backdrop').remove();
         }
     }
