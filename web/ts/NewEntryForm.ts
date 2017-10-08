@@ -1,6 +1,7 @@
 /**
  * NewEntryForm encapsulates all of the code for the form for adding an entry
  */
+
 var Handlebars: any;
 class NewEntryForm {
     

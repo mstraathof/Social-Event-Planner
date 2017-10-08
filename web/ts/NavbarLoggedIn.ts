@@ -25,10 +25,14 @@ class NavbarLoggedIn {
         if (!NavbarLoggedIn.isInit) {
             $("body").prepend(Handlebars.templates[NavbarLoggedIn.NAME + ".hb"]());
             $("#"+NavbarLoggedIn.NAME+"-add").click(NewEntryForm.show);
+            $("#"+NavbarLoggedIn.NAME+"-profile").click(NavbarLoggedIn.loadProfile);
             NavbarLoggedIn.isInit = true;
         }
     }
-
+    public static loadProfile(){
+        window.alert(Gusername);
+        ProfilePage.show(Gusername);
+    }
     /**
      * Refresh() doesn't really have much meaning for the navbar, but we'd 
      * rather not have anyone call init(), so we'll have this as a stub that

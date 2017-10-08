@@ -1,57 +1,34 @@
-/**
- * NewEntryForm encapsulates all of the code for the form for adding an entry
- */
-var loggedIn = false;
 var Handlebars: any;
-var username = "";
+var tUsername: String;
 class LoginWindow {
-        
-        /**
-         * The name of the DOM entry associated with NewEntryForm
-         */
         private static readonly NAME = "LoginWindow";
-    
-        /**
-         * Track if the Singleton has been initialized
-         */
+
         private static isInit = false;
-    
-        /**
-         * Initialize the NewEntryForm by creating its element in the DOM and 
-         * configuring its buttons.  This needs to be called from any public static 
-         * method, to ensure that the Singleton is initialized before use
-         */
+
         private static init() {
             if (!LoginWindow.isInit) {
-                if(username != ""){
+                if(Gusername != null){
                     //window.alert("already logged in");
-                    loggedIn = true;
+                    GloggedIn = true;
                 }
-                if(loggedIn == false){
+                if(GloggedIn == false){
                     $("body").append(Handlebars.templates[LoginWindow.NAME + ".hb"]());
                     $("#" + LoginWindow.NAME + "-Submit").click(LoginWindow.submitForm);
                     $("#" + LoginWindow.NAME + "-Close").click(LoginWindow.hide);
                     //window.alert(loggedIn);
                     LoginWindow.isInit = true;
-                    loggedIn = true;
+                    GloggedIn = true;
                     LoginWindow.refresh();                
                 }else{
-                    window.alert("Already Logged In as :"+username);
+                    window.alert("Already Logged In as :"+Gusername);
                 }
             }
         }
     
-        /**
-         * Refresh() doesn't really have much meaning, but just like in sNavbar, we
-         * have a refresh() method so that we don't have front-end code calling
-         * init().
-         */
         public static refresh() {
             LoginWindow.init();
         }
-        /**
-         * Hide the NewEntryForm.  Be sure to clear its fields first
-         */
+
         private static hide() {
             $("#" + LoginWindow.NAME + "-user").val("");
             $("#" + LoginWindow.NAME + "-pass").val("");
@@ -70,9 +47,9 @@ class LoginWindow {
         private static submitForm() {
             // get the values of the two fields, force them to be strings, and check 
             // that neither is empty
-            let username = "" + $("#" + LoginWindow.NAME + "-user").val();
-            let password = "" + $("#" + LoginWindow.NAME + "-pass").val();
-            loggedIn == true;
+            let tUsername = "" + $("#" + LoginWindow.NAME + "-user").val();
+            let Gpassword = "" + $("#" + LoginWindow.NAME + "-pass").val();
+            GloggedIn == true;
             // if(msg.length >= 500)
             // {
             //     window.alert("Error: Message exceeds 500");
@@ -87,21 +64,26 @@ class LoginWindow {
             //     window.alert("Error: title or message is not valid");
             //     return;
             // }
-            
+            if(tUsername != null || tUsername != undefined){
+                Gusername = tUsername;
+            }
             LoginWindow.hide();
-            window.alert(username+" "+password);
+            window.alert(Gusername+" "+Gpassword);
             LoginWindow.refresh();
-            Navbar.refresh();
+
+            $("nav.navbar-default").hide();
+            window.alert(Gusername+" , "+GuserKey+" , "+Gpassword);
             // // set up an AJAX post.  When the server replies, the result will go to
 
             $.ajax({
                 type: "GET",
                 url: "/users",
                 dataType: "json",
-                data: JSON.stringify({ mUsername: username, mPassword: password }),
+                data: JSON.stringify({ mUsername: Gusername, mPassword: Gpassword }),
                 success: LoginWindow.onLoginResponse
             });
-            userKey = "abc";
+            GuserKey = 1;
+            NavbarLoggedIn.refresh();
         }
     
         /**

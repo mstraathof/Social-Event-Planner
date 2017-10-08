@@ -1,9 +1,8 @@
 /**
  * NewEntryForm encapsulates all of the code for the form for adding an entry
  */
-var loggedIn = false;
 var Handlebars: any;
-var username = "";
+
 class CreateAccountForm {
         
         /**

@@ -17,13 +17,15 @@
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
                 <li>
-                    <a class="btn btn-link" id="Navbar-add">
+                    <a class="btn btn-link" id="NavbarLoggedIn-add">
                         Create a Buzz
                         <span class="glyphicon glyphicon-plus"></span><span class="sr-only">Show Trending Posts</span>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="userprofile.html">Profile</a>
+                <li>
+                    <a class="btn btn-link" id="NavbarLoggedIn-profile">
+                        Profile
+                    </a>
                 </li>
 
             </ul>

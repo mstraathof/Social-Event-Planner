@@ -5,6 +5,16 @@
  * NewEntryForm
  */
 var Handlebars: any;
+var $: any;
+// var Gusername:string;
+// var Gpassword:string;
+// var GuserKey:number;
+// var GloggedIn:boolean;
+
+// var editEntryForm: EditEntryForm;
+// var loginWindow: LoginWindow;
+//var createAccountForm: CreateAccountForm;
+
 class Navbar {
     /**
      * Track if the Singleton has been initialized
@@ -37,12 +47,6 @@ class Navbar {
      * is configured.
      */
     public static refresh() {
-        if(loggedIn == true){
-            $("nav.navbar-default").hide();
-            NavbarLoggedIn.refresh();
-        }else{
-            $("nav.navbar-default").hide();         
-            Navbar.init();
-        }
+        Navbar.init();
     }
 }

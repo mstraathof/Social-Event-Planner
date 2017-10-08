@@ -5,15 +5,21 @@
 /// <reference path="ts/NavbarLoggedIn.ts"/>
 /// <reference path="ts/LoginWindow.ts"/>
 /// <reference path="ts/CreateAccountForm.ts"/>
+/// <reference path="ts/ProfilePage.ts"/>
 
 // Prevent compiler errors when using jQuery.  "$" will be given a type of 
 // "any", so that we can use it anywhere, and assume it has any fields or
 // methods, without the compiler producing an error.
 var $: any;
-var userKey;
+
 // Prevent compiler errors when using Handlebars
+//declare var GloggedIn:any;
 var Handlebars: any;
-var loggedIn=false;
+var GloggedIn=false;
+var Gusername:string;
+var Gpassword = "";
+var GuserKey = -1;
+window.alert("hit this");
 // a global for the EditEntryForm of the program.  See newEntryForm for 
 // explanation
 var editEntryForm: EditEntryForm;
@@ -23,15 +29,16 @@ var createAccountForm: CreateAccountForm;
 
 // Run some configuration code when the web page loads
 $(document).ready(function () {
-    if(loggedIn == false){
+    if(GloggedIn == false){
         Navbar.refresh();
     }else{
+        window.alert("HITTT");
         NavbarLoggedIn.refresh();
     }
     NewEntryForm.refresh();
     CreateAccountForm.refresh();
     LoginWindow.refresh();
-    ElementList.refresh();
+    //ElementList.refresh();
     EditEntryForm.refresh();
     // Create the object that controls the "Edit Entry" form
     editEntryForm = new EditEntryForm();
