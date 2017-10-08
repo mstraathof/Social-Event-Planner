@@ -19,30 +19,13 @@ public class Database {
     private Connection mConnection;
 
     /**
-     * A prepared statement for getting all data in the database
-     */
-    //private PreparedStatement mSelectAll;
-
-    /**
-     * A prepared statement for getting one row from the database
-     */
-   // private PreparedStatement mSelectOne;
-
-    /**
-     * A prepared statement for deleting a row from the database
-     */
-    //private PreparedStatement mDeleteOne;
-
-    /**
      * A prepared statement for inserting into the database
      */
     private PreparedStatement mInsertOne;
 
     /**
-     * A prepared statement for updating a single row in the database
+     * A prepared statement for creating the unauthorized user table in the database
      */
-    //private PreparedStatement mUpdateOne;
-
     private PreparedStatement mCreateUnauthorizedUserTable;
 
     /**
@@ -74,59 +57,7 @@ public class Database {
      * A prepared statement for creating the up-vote table in the database
      */
     private PreparedStatement mCreateUpVoteTable;
-
-    /**
-     * A prepared statement for dropping the table in our database
-     */
-    //private PreparedStatement mDropTable;
-
-    /**
-     * RowData is like a struct in C: we use it to hold data, and we allow 
-     * direct access to its fields.  In the context of this Database, RowData 
-     * represents the data we'd see in a row.
-     * 
-     * We make RowData a static class of Database because we don't really want
-     * to encourage users to think of RowData as being anything other than an
-     * abstract representation of a row of the database.  RowData and the 
-     * Database are tightly coupled: if one changes, the other should too.
-     */
  
-    //public static class RowData {
-        /**
-         * The ID of this row of the database
-         */
-        //int mId;
-        /**
-         * The subject stored in this row
-         */
-       // String mSubject;
-        /**
-         * The message stored in this row
-         */
-        //String mMessage;
-        /**
-         * The votes stored in this row
-         */
-        //int mVotes;
-        /**
-         * The date created stored in this row
-         */
-       // String mCreateTime;
-        /**
-         * The time modified stored in this row
-         */
-        //String mModifyTime;
-        /**
-         * Construct a RowData object by providing values for its fields
-         */
-         /*
-        public RowData(int id, String subject, String message) {
-            mId = id;
-            mSubject = subject;
-            mMessage = message;
-        }
-    }
-*/
     /**
      * The Database constructor is private: we only create Database objects 
      * through the getDatabase() method.
@@ -179,6 +110,7 @@ public class Database {
                 "CREATE TABLE tblUnauthorizedUser ("
                 +"user_id SERIAL PRIMARY KEY,"
                 +"username VARCHAR(255) UNIQUE,"
+                +"realname VARCHAR(255),"
                 +"email VARCHAR(255))"
             );
             db.mCreateUserTable = db.mConnection.prepareStatement(
@@ -233,17 +165,8 @@ public class Database {
                 +"FOREIGN KEY (message_id) REFERENCES tblMessage (message_id),"
                 +"PRIMARY KEY (user_id, message_id))"
             );
-            //db.mDropTable = db.mConnection.prepareStatement("DROP TABLE ?");
-
-            // Standard CRUD operations
             db.mInsertOne = db.mConnection.prepareStatement("INSERT INTO tblUser VALUES (default, ?, ?, ?, ?, ?)");
-            /*
-            db.mDeleteOne = db.mConnection.prepareStatement("DELETE FROM tblData WHERE id = ?");
-            db.mInsertOne = db.mConnection.prepareStatement("INSERT INTO tblData VALUES (default, ?, ?)");
-            db.mSelectAll = db.mConnection.prepareStatement("SELECT id, subject, votes FROM tblData");
-            db.mSelectOne = db.mConnection.prepareStatement("SELECT * from tblData WHERE id=?");
-            db.mUpdateOne = db.mConnection.prepareStatement("UPDATE tblData SET message = ? WHERE id = ?");
-            */
+            
         } catch (SQLException e) {
             System.err.println("Error creating prepared statement");
             e.printStackTrace();
@@ -360,110 +283,22 @@ public class Database {
             }
         return true;
     }
+
+    boolean authorizedUser(String username, String realname, String email) {
+        try {
+            mInsertOne.setString(1, username);
+            mInsertOne.setString(2, realname);
+            mInsertOne.setString(3, email);
+            // TODO: need to get the salt from JavaPasswordSecurity.java
+            mInsertOne.setBytes(4,salt);
+            // TODO: salt the password
+            mInsertOne.setBytes(5, password);
+            mInsertOne.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
 }
-
-    /**
-     * Insert a row into the database
-     * 
-     * @param subject The subject for this new row
-     * @param message The message body for this new row
-     * 
-     * @return The number of rows that were inserted
-     */
-     /*
-    int insertRow(String subject, String message) {
-        int count = 0;
-        try {
-            mInsertOne.setString(1, subject);
-            mInsertOne.setString(2, message);
-            count += mInsertOne.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return count;
-    }
-    */
-    /**
-     * Query the database for a list of all subjects and their IDs
-     * 
-     * @return All rows, as an ArrayList
-     */
-     /*
-    ArrayList<RowData> selectAll() {
-        ArrayList<RowData> res = new ArrayList<RowData>();
-        try {
-            ResultSet rs = mSelectAll.executeQuery();
-            while (rs.next()) {
-                res.add(new RowData(rs.getInt("id"), rs.getString("subject"), null));
-            }
-            rs.close();
-            return res;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }*/
-
-    /**
-     * Get all data for a specific row, by ID
-     * 
-     * @param id The id of the row being requested
-     * 
-     * @return The data for the requested row, or null if the ID was invalid
-     */
-     /*
-    RowData selectOne(int id) {
-        RowData res = null;
-        try {
-            mSelectOne.setInt(1, id);
-            ResultSet rs = mSelectOne.executeQuery();
-            if (rs.next()) {
-                res = new RowData(rs.getInt("id"), rs.getString("subject"), rs.getString("message"));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return res;
-    }
-*/
-    /**
-     * Delete a row by ID
-     * 
-     * @param id The id of the row to delete
-     * 
-     * @return The number of rows that were deleted.  -1 indicates an error.
-     */
-     /*
-    int deleteRow(int id) {
-        int res = -1;
-        try {
-            mDeleteOne.setInt(1, id);
-            res = mDeleteOne.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return res;
-    }
-*/
-    /**
-     * Update the message for a row in the database
-     * 
-     * @param id The id of the row to update
-     * @param message The new message contents
-     * 
-     * @return The number of rows that were updated.  -1 indicates an error.
-     */
-     /*
-    int updateOne(int id, String message) {
-        int res = -1;
-        try {
-            mUpdateOne.setString(1, message);
-            mUpdateOne.setInt(2, id);
-            res = mUpdateOne.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return res;
-    }
-*/
   
