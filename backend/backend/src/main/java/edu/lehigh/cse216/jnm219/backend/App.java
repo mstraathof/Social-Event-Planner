@@ -47,6 +47,8 @@ public class App {
         }
         return defaultVal;
     }
+    // Enables CORS on requests. This method is an initialization method and should be called once.
+
     private static byte [] encryptPw (String password,byte [] salt) throws NoSuchAlgorithmException, InvalidKeySpecException
     {
         int iterations= 1000;
@@ -124,17 +126,16 @@ public class App {
             return "";
         });
 
-     
-
         // GET route that returns all message titles and Ids.  All we do is get 
         // the data, embed it in a StructuredResponse, turn it into JSON, and 
         // return it.  If there's no data, we return "[]", so there's no need 
         // for error handling.
+        
         Spark.get("/messages", (request, response) -> {
             // ensure status 200 OK, with a MIME type of JSON
             response.status(200);
             response.type("application/json"); 
-            return gson.toJson(new StructuredResponse("ok", null, db.selectAllMessage()));
+            return gson.toJson(new StructuredMessage("ok", null, db.selectAllMessage()));
         });
 
         // GET route that returns everything for a single row in the DataStore.
@@ -148,17 +149,74 @@ public class App {
             // ensure status 200 OK, with a MIME type of JSON
             response.status(200);
             response.type("application/json");
-            RowData data = db.selectOneMessage(idx);
+            RowMessage data = db.selectOneMessage(idx);
             if (data == null) {
-                return gson.toJson(new StructuredResponse("error", idx + " not found", null));
+                return gson.toJson(new StructuredMessage("error", idx + " not found", null));
             } else {
-                return gson.toJson(new StructuredResponse("ok", null, data));
+                return gson.toJson(new StructuredMessage("ok", null, data));
+            }
+        });
+         // POST route for adding a new element to the DataStore.  This will read
+        // JSON from the body of the request, turn it into a SimpleRequest 
+        // object, extract the title and message, insert them, and return the 
+        // ID of the newly created row.
+        
+        Spark.post("/messages", (request, response) -> {
+            // NB: if gson.Json fails, Spark will reply with status 500 Internal 
+            // Server Error
+            SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
+            //String  user = request.params("username");
+            // ensure status 200 OK, with a MIME type of JSON
+            // NB: even on error, we return 200, but with a JSON object that
+            //     describes the error.
+            response.status(200);
+            response.type("application/json");
+            //int userId=db.getUserId(req.mUsername);
+            // NB: createEntry checks for null title and message
+            int newId = db.insertOneMessage(req.mSubject, req.mMessage,req.mUsername); // mSubject vs mTitle?
+            if (newId == -1) {
+                return gson.toJson(new StructuredMessage("error", "error performing insertion", null));
+            } else {
+                return gson.toJson(new StructuredMessage("ok", "" + newId, null));
+            }
+        });
+        Spark.get("/comments", (request, response) -> {
+            // ensure status 200 OK, with a MIME type of JSON
+            SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
+            response.status(200);
+            response.type("application/json"); 
+            return gson.toJson(new StructuredMessage("ok", null, db.selectAllComment(req.mMessageId)));
+        });
+
+        Spark.post("/comments", (request, response) -> {
+            // NB: if gson.Json fails, Spark will reply with status 500 Internal 
+            // Server Error
+            SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
+            //String  user = request.params("username");
+            // ensure status 200 OK, with a MIME type of JSON
+            // NB: even on error, we return 200, but with a JSON object that
+            //     describes the error.
+            response.status(200);
+            response.type("application/json");
+            //int userId=db.getUserId(req.mUsername);
+            // NB: createEntry checks for null title and message
+            boolean check = db.insertComment(req.mUsername, req.mMessageId,req.mComment); // mSubject vs mTitle?
+            if (check == false) {
+                return gson.toJson(new StructuredMessage("error", "error performing insertion", null));
+            } else {
+                return gson.toJson(new StructuredMessage("ok", "" + check, null));
             }
         });
 
-       
+
+        Spark.get("/register", (request, response) -> {
+            // ensure status 200 OK, with a MIME type of JSON
+            response.status(200);
+            response.type("application/json"); 
+            return gson.toJson(new StructuredResponse("ok", null, db.selectAllUser()));
+        });
         /**This method is to get the information from user to put into table for registeration */
-         Spark.post("/user", (request, response) -> {
+         Spark.post("/register", (request, response) -> {
             // NB: if gson.Json fails, Spark will reply with status 500 Internal 
             // Server Error
             SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
@@ -170,14 +228,49 @@ public class App {
             byte [] salt = getSalt();
             byte [] password= encryptPw (req.mPassword,salt);
             // NB: createEntry checks for null title and message
-            boolean newUser = db.insertUser(req.mUsername, req.mEmail,req.mRealName,salt, password); // mSubject vs mTitle?
+            boolean newUser = db.insertUser(req.mUsername, req.mRealName, req.mEmail,salt, password); // mSubject vs mTitle?
             if (newUser == false) {
                 return gson.toJson(new StructuredResponse("error", "error performing insertion", null));
             } else {
                 return gson.toJson(new StructuredResponse("ok", "" + newUser, null));
             }
         });
-       
+        /*      
+       Spark.get("/login", (request, response) -> {
+            // ensure status 200 OK, with a MIME type of JSON
+            response.status(200);
+            response.type("application/json"); 
+            return gson.toJson(new StructuredResponse("ok", null, db.selectAllUser()));
+        });
+*/
+        Spark.get("/login", (request, response) -> {
+            // NB: if gson.Json fails, Spark will reply with status 500 Internal 
+            // Server Error
+            SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
+            // ensure status 200 OK, with a MIME type of JSON
+            // NB: even on error, we return 200, but with a JSON object that
+            //     describes the error.
+            response.status(200);
+            response.type("application/json");
+            
+            byte [] salt = db.getUserSalt(req.mUsername);
+            if (salt==null)
+            {
+                 return gson.toJson(new Structured_login("error", "No account under that username or password", null));
+            }
+            byte [] password= encryptPw (req.mPassword,salt);
+            // NB: createEntry checks for null title and message8
+            
+            boolean curUser = db.selectOneUser(req.mUsername, password); // mSubject vs mTitle?
+            if (false) {
+                return gson.toJson(new Structured_login("error", "No account under that username or password", null));
+            } else {
+                int key=252;//keyGenerator();
+                //logged_in.put(req.mUsername,key);
+                return gson.toJson(new Structured_login("ok", "its all good" , key));
+            }
+        });
+/*
         Spark.get ("/log_in/:username", (request, response)->{
             String username=request.params("username");
             response.status(200);
@@ -207,28 +300,8 @@ public class App {
                 logOut(username);
                 return gson.toJson(new StructuredResponse("ok", username + " logged out ", null));
             }
-        });
-        // POST route for adding a new element to the DataStore.  This will read
-        // JSON from the body of the request, turn it into a SimpleRequest 
-        // object, extract the title and message, insert them, and return the 
-        // ID of the newly created row.
-        Spark.post("/messages", (request, response) -> {
-            // NB: if gson.Json fails, Spark will reply with status 500 Internal 
-            // Server Error
-            SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
-            // ensure status 200 OK, with a MIME type of JSON
-            // NB: even on error, we return 200, but with a JSON object that
-            //     describes the error.
-            response.status(200);
-            response.type("application/json");
-            // NB: createEntry checks for null title and message
-            int newId = db.insertRow(req.mSubject, req.mMessage); // mSubject vs mTitle?
-            if (newId == -1) {
-                return gson.toJson(new StructuredResponse("error", "error performing insertion", null));
-            } else {
-                return gson.toJson(new StructuredResponse("ok", "" + newId, null));
-            }
-        });
+        });*/
+       
 
 
 

@@ -17,41 +17,30 @@ import java.text.SimpleDateFormat;
  * abstract representation of a row of the database.  RowData and the 
  * Database are tightly coupled: if one changes, the other should too.
  */
-public class RowData {
-    /**
-     * The ID of this row of the database
-     */
-    int mId;
-    /**
-     * The subject stored in this row
-     */
-    String mSubject;
-    /**
-     * The message stored in this row
-     */
-    String mMessage;
-    /**
-     * The number of votes for this row
-     */
-    int mVotes;
-    /**
-     * The time of row creation
-     */
-    String mCreateTime;
+public class RowUser{
+
     /**
      * The most recent time of row modification
      */
+    int mUserId;
     String mUsername;
     String mRealName;
     String mEmail;
-    String mPassword;
+    byte [] mSalt;
+    byte [] mPassword;
+
     /**
      * Construct a RowData object by providing values for its fields
      */
-    public RowData(int id, String subject, String message, String createTime) {
-        mId = id;
-        mSubject = subject;
-        mMessage = message;
-        mCreateTime = createTime;
+
+    
+    public RowUser(int id, String username, String realName, String email, byte[] salt, byte[] password)
+    {
+        mUserId=id;
+        mUsername=username;
+        mRealName=realName;
+        mEmail=email;
+        mSalt=salt;
+        mPassword=password;
     }
 }
