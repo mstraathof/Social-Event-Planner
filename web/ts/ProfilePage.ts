@@ -1,5 +1,6 @@
 var $: any;
 var Handlebars: any;
+var usernameToDisplay: string;
 
 class ProfilePage{
     
@@ -33,7 +34,19 @@ class ProfilePage{
             //NavbarLoggedIn.refresh();
             //$("div.panel-default").hide();
             //$("nav.navbar-default").hide();
-            Gusername = username;
+            usernameToDisplay = username;
+            $.ajax({
+                type: "GET",
+                url: "/profile/"+usernameToDisplay,
+                dataType: "json",
+                success: ProfilePage.onDisplayProfile
+            });
+        }
+
+        public static onDisplayProfile(data:any){
+            if(Gusername == usernameToDisplay){
+
+            }else{
             $("#ElementList").remove();
             //ElementList.refreshUser(Gusername);
             $("body").append(Handlebars.templates[ProfilePage.NAME + ".hb"]());
@@ -41,6 +54,7 @@ class ProfilePage{
             ElementList.refresh();
             //ProfilePage.init(Gusername);
             //window.alert(username+" is logged in");
+            }
         }
 
         public static editBio() {

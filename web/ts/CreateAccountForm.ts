@@ -98,7 +98,17 @@ class CreateAccountForm {
                 type: "POST",
                 url: "/register",
                 dataType: "json",
-                data: JSON.stringify({ mUsername: userName, mRealName: userName, mEmail: email, mPassword: password }),
+                data: JSON.stringify({ mUsername: userName, mRealName: realName, mEmail: email, mPassword: password }),
+                success: CreateAccountForm.onCreateResponse
+            });
+
+            var userBio = "Write a bio for your profile here.";
+            
+            $.ajax({
+                type: "POST",
+                url: "/profile",
+                dataType: "json",
+                data: JSON.stringify({ mUsername: userName, mProfile: userBio }),
                 success: CreateAccountForm.onCreateResponse
             });
         }

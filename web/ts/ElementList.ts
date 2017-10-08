@@ -60,6 +60,7 @@ class ElementList {
             success: ElementList.update
         });
     }
+    
 
     /**
     * update() is the private method used by refresh() to update the 

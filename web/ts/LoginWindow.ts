@@ -77,12 +77,12 @@ class LoginWindow {
 
             $.ajax({
                 type: "GET",
-                url: "/users",
+                url: "/login",
                 dataType: "json",
                 data: JSON.stringify({ mUsername: Gusername, mPassword: Gpassword }),
                 success: LoginWindow.onLoginResponse
             });
-            GuserKey = 1;
+            //GuserKey = 1;
             NavbarLoggedIn.refresh();
         }
     
@@ -93,6 +93,8 @@ class LoginWindow {
          * @param data The object returned by the server
          */
         private static onLoginResponse(data: any) {
+            GuserKey = data.mLoginData;
+            window.alert("Key i got: "+GuserKey);
             window.alert("good: "+data);
         }
     }

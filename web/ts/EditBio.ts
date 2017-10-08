@@ -44,6 +44,15 @@ class EditBio {
                 // that neither is empty
                 let newBio = "" + $("#" + EditBio.NAME + "-newBio").val();
                 window.alert(newBio);
+
+                $.ajax({
+                    type: "POST",
+                    url: "/profile",
+                    dataType: "json",
+                    data: JSON.stringify({ mUsername: Gusername, mProfile: newBio }),
+                    success: EditBio.onUpdateResponse
+                });
+
                 EditBio.hideEdit();
                 // set up an AJAX post.  When the server replies, the result will go to
                 // onSubmitResponse
@@ -54,6 +63,10 @@ class EditBio {
                 //     data: JSON.stringify({ mSubject: title, mMessage: msg }),
                 //     success: NewEntryForm.onSubmitResponse
                 // });
+        }
+
+        public static onUpdateResponse(data: any){
+            window.alert("Updated Bio Successfully");
         }
 
         public static hideEdit() {
