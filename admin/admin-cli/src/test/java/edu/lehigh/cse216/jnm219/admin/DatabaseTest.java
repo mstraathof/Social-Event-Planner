@@ -54,7 +54,7 @@ public class DatabaseTest
         db.dropAllTables();
         //db.dropTable("tblUser");
         assertTrue(db.createAllTables());
-        assertFalse(db.createAllTables());
+        //assertFalse(db.createAllTables());    // createAllTables() never fails because sql includes "IF NOT EXISTS"
         db.disconnect();
     }
     /**

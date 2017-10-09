@@ -111,31 +111,29 @@ public class Database {
             // Note: no "IF NOT EXISTS" or "IF EXISTS" checks on table 
             // creation/deletion, so multiple executions will cause an exception
             db.mCreateUnauthUserTable = db.mConnection.prepareStatement(
-                "CREATE TABLE tblUnauthUser ("
-                +"user_id SERIAL PRIMARY KEY,"
-                +"username VARCHAR(255) UNIQUE,"
-                +"realname VARCHAR(255),"
-                +"email VARCHAR(255))"
+                "CREATE TABLE IF NOT EXISTS tblUnauthUser ("
+                +"username VARCHAR(255) PRIMARY KEY,"
+                +"realname VARCHAR(255) NOT NULL,"
+                +"email VARCHAR(255) NOT NULL)"
             );
             db.mCreateUserTable = db.mConnection.prepareStatement(
-                "CREATE TABLE tblUser ("
-                +"user_id SERIAL PRIMARY KEY,"
-                +"username VARCHAR(255) UNIQUE,"
-                +"realname VARCHAR(255),"
-                +"email VARCHAR(255),"
+                "CREATE TABLE IF NOT EXISTS tblUser ("
+                +"username VARCHAR(255) PRIMARY KEY,"
+                +"realname VARCHAR(255) NOT NULL,"
+                +"email VARCHAR(255) NOT NULL,"
                 +"salt BYTEA,"
                 +"password BYTEA)"
             );
             db.mCreateProfileTable = db.mConnection.prepareStatement(
-                "CREATE TABLE tblProfile ("
-                +"profile_id SERIAL PRIMARY KEY,"
+                "CREATE TABLE IF NOT EXISTS tblProfile ("
+                +"username VARCHAR(255) PRIMARY KEY,"
                 +"profile_text VARCHAR(500),"
-                +"user_id INTEGER,"
-                +"FOREIGN KEY (user_id) REFERENCES tblUser (user_id))"
+                +"FOREIGN KEY (username) REFERENCES tblUser (username))"
             );
             db.mCreateMessageTable = db.mConnection.prepareStatement(
-                "CREATE TABLE tblMessage (message_id SERIAL PRIMARY KEY,"
-                +"subject VARCHAR(50),"
+                "CREATE TABLE IF NOT EXISTS tblMessage ("
+                +"message_id SERIAL PRIMARY KEY,"
+                +"subject VARCHAR(50) NOT NULL,"
                 +"message VARCHAR(500),"
                 +"username VARCHAR(255),"
                 +"createTime VARCHAR(50),"
@@ -148,28 +146,27 @@ public class Database {
                 +"username VARCHAR(255),"
                 +"message_id INTEGER,"
                 +"comment_text VARCHAR(255),"
-                //Need to add creation date/time
                 +"createTime VARCHAR(50),"
                 +"FOREIGN KEY (username) REFERENCES tblUser (username),"
                 +"FOREIGN KEY (message_id) REFERENCES tblMessage (message_id))"
             );
             db.mCreateDownVoteTable = db.mConnection.prepareStatement(
                 "CREATE TABLE IF NOT EXISTS tblDownVote ("
-                +"user_id INTEGER,"
+                +"username VARCHAR(255),"
                 +"message_id INTEGER,"
-                +"FOREIGN KEY (user_id) REFERENCES tblUser (user_id),"
-                +"FOREIGN KEY (message_id) REFERENCES tblMessage (message_id),"
-                +"PRIMARY KEY (user_id, message_id))"
+                +"PRIMARY KEY (username, message_id),"
+                +"FOREIGN KEY (username) REFERENCES tblUser (username),"
+                +"FOREIGN KEY (message_id) REFERENCES tblMessage (message_id))"
             );
             db.mCreateUpVoteTable = db.mConnection.prepareStatement(
                 "CREATE TABLE IF NOT EXISTS tblUpVote ("
-                +"user_id INTEGER,"
+                +"username VARCHAR(255),"
                 +"message_id INTEGER,"
-                +"FOREIGN KEY (user_id) REFERENCES tblUser (user_id),"
-                +"FOREIGN KEY (message_id) REFERENCES tblMessage (message_id),"
-                +"PRIMARY KEY (user_id, message_id))"
+                +"PRIMARY KEY (username, message_id),"
+                +"FOREIGN KEY (username) REFERENCES tblUser (username),"
+                +"FOREIGN KEY (message_id) REFERENCES tblMessage (message_id))"
             );
-            db.mInsertUser = db.mConnection.prepareStatement("INSERT INTO tblUser VALUES (default, ?, ?, ?, ?, ?)");
+            db.mInsertUser = db.mConnection.prepareStatement("INSERT INTO tblUser VALUES (?, ?, ?, ?, ?)");
             db.mSelectUnauthUserOne = db.mConnection.prepareStatement("SELECT * FROM tblUnauthUser WHERE username=?");
             db.mSelectUnauthUserAll = db.mConnection.prepareStatement("SELECT * FROM tblUnauthUser");
             
@@ -323,23 +320,16 @@ public class Database {
             Password pw = new Password();
 
             mSelectUnauthUserOne.setString(1, username);
-            System.out.println(mSelectUnauthUserOne.toString());
             ResultSet rs = mSelectUnauthUserOne.executeQuery();
-            System.out.println("got user");
             
             if (rs.next())
             {
                 mInsertUser.setString(1, username);
-                System.out.println("1");
                 mInsertUser.setString(2, rs.getString("realname"));
-                System.out.println("2");
                 mInsertUser.setString(3, rs.getString("email"));
                 // TODO: need to get the salt from JavaPasswordSecurity.java
-                System.out.println("before salt");
                 byte [] salt = pw.getSalt();
-                System.out.println("salt: "+salt);
                 String password = pw.getPassword();
-                System.out.println("password: "+password);
                 byte [] saltedPassword = pw.encryptPw (password, salt);
                 mInsertUser.setBytes(4,salt);
                 mInsertUser.setBytes(5, saltedPassword);
