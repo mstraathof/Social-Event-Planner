@@ -44,17 +44,15 @@ class ProfilePage{
         }
 
         public static onDisplayProfile(data:any){
-            if(Gusername == usernameToDisplay){
-
-            }else{
             $("#ElementList").remove();
             //ElementList.refreshUser(Gusername);
             $("body").append(Handlebars.templates[ProfilePage.NAME + ".hb"]());
             $("#"+ProfilePage.NAME+"-editBio").click(EditBio.showEdit);
-            ElementList.refresh();
+            if(Gusername == usernameToDisplay){
+                ElementList.refreshUser(Gusername);
+            }
             //ProfilePage.init(Gusername);
             //window.alert(username+" is logged in");
-            }
         }
 
         public static editBio() {

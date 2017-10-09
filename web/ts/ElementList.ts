@@ -72,7 +72,7 @@ class ElementList {
         $("#" + ElementList.NAME).remove();
         // Use a template to re-generate the table, and then insert it
         $("body").append(Handlebars.templates[ElementList.NAME + ".hb"](data));
-        $("."+ElementList.NAME+"-editbtn").click(ElementList.clickEdit);
+        //$("."+ElementList.NAME+"-editbtn").click(ElementList.clickEdit);
         $("."+ElementList.NAME+"-upvote").click(ElementList.upvote);
         $("."+ElementList.NAME+"-downvote").click(ElementList.downvote);
         

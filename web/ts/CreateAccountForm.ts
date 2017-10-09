@@ -14,7 +14,7 @@ class CreateAccountForm {
          * Track if the Singleton has been initialized
          */
         private static isInit = false;
-    
+        
         /**
          * Initialize the NewEntryForm by creating its element in the DOM and 
          * configuring its buttons.  This needs to be called from any public static 
@@ -103,7 +103,7 @@ class CreateAccountForm {
             });
 
             var userBio = "Write a bio for your profile here.";
-            
+
             $.ajax({
                 type: "POST",
                 url: "/profile",

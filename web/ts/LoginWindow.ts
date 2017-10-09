@@ -76,7 +76,7 @@ class LoginWindow {
             // // set up an AJAX post.  When the server replies, the result will go to
 
             $.ajax({
-                type: "GET",
+                type: "POST",
                 url: "/login",
                 dataType: "json",
                 data: JSON.stringify({ mUsername: Gusername, mPassword: Gpassword }),
