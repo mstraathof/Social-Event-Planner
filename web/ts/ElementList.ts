@@ -73,6 +73,7 @@ class ElementList {
         // Use a template to re-generate the table, and then insert it
         $("body").append(Handlebars.templates[ElementList.NAME + ".hb"](data));
         //$("."+ElementList.NAME+"-editbtn").click(ElementList.clickEdit);
+        $("."+ElementList.NAME+"-profile").click(ElementList.getProfile);
         $("."+ElementList.NAME+"-upvote").click(ElementList.upvote);
         $("."+ElementList.NAME+"-downvote").click(ElementList.downvote);
         
@@ -131,6 +132,14 @@ class ElementList {
             success: ElementList.onSubmitResponse
         });
     }
+
+    private static getProfile(){
+        $("#editElement").hide();
+        let user = $(this).data("value");
+        ProfilePage.show(user);
+        //
+    }
+
     /**
      * onSubmitResponse determines if the upvote and downvote was successful
      * mStatus will be 1 upon successfull 

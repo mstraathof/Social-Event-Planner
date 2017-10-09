@@ -46,7 +46,7 @@ class ProfilePage{
         public static onDisplayProfile(data:any){
             $("#ElementList").remove();
             //ElementList.refreshUser(Gusername);
-            $("body").append(Handlebars.templates[ProfilePage.NAME + ".hb"]());
+            $("body").append(Handlebars.templates[ProfilePage.NAME + ".hb"](data));
             $("#"+ProfilePage.NAME+"-editBio").click(EditBio.showEdit);
             if(Gusername == usernameToDisplay){
                 ElementList.refreshUser(Gusername);
