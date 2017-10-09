@@ -2,6 +2,7 @@ package edu.lehigh.cse216.jnm219.admin;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.sql.SQLException;
 import java.io.IOException;
 
 import java.util.ArrayList;
@@ -38,6 +39,8 @@ public class App {
         System.out.println("  [Y] Drop upvote table");
         System.out.println("  [Z] Drop downvote table");
         System.out.println();
+        System.out.println("  [r] Print unauthorized users");
+        System.out.println("  [+] Authorize user");
         System.out.println("  [q] Quit Program");
         System.out.println("  [?] Help (this message)");
         /* 
@@ -59,7 +62,7 @@ public class App {
     static char prompt(BufferedReader in) {
         // The valid actions:
         String mainActions = "TDq?";
-        String allActions = "TDaUpmcudAXPMCYZq?";
+        String allActions = "TDaUpmcudAXPMCYZq?r+";
         // We repeat until a valid single-character option is selected        
         while (true) {
             System.out.print("[" + mainActions + "] :> ");
@@ -151,8 +154,9 @@ public class App {
             char action = prompt(in);
             if (action == '?') {
                 menu();
-            //get disconnected to database
-            } else if (action == 'q') {
+            }
+            // disconnect from database
+            else if (action == 'q') {
                 break;
             } else if (action == 'T') {
                 db.createAllTables();
@@ -177,7 +181,7 @@ public class App {
             } 
             // Individual table drops
             else if (action == 'A') {
-                db.dropTable("tblUnauthorizedUser");
+                db.dropTable("tblUnauthUser");
             } else if (action == 'X') {   
                 db.dropTable("tblUser");
             } else if (action == 'P') {       
@@ -190,23 +194,60 @@ public class App {
                 db.dropTable("tblUpVote");
             } else if (action == 'Z') {       
                 db.dropTable("tblDownVote");
+            } 
+            // misc.
+            else if (action == 'r') {
+                db.selectUnauthUserAll();
+                /*
+                try {
+                    db.mSelectUnauthUserAll.execute();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                */
+            } else if (action == '+') {
+                String username = getString(in, "Enter username");
+                if (!username.equals("")) {
+                    db.authorizeUser(username);
+                } 
             }
         }
          db.disconnect();
     }
-        /**
-         * Get an integer environment varible if it exists, and otherwise return the
-         * default value.
-         * 
-         * @envar      The name of the environment variable to get.
-         * @defaultVal The integer value to use as the default if envar isn't found
-         * 
-         * @returns The best answer we could come up with for a value for envar
-         */
-        static String getDBURLFromEnv() {
-            ProcessBuilder processBuilder = new ProcessBuilder();
-            return processBuilder.environment().get("JDBC_DATABASE_URL");
+
+    /**
+     * Get an integer environment varible if it exists, and otherwise return the
+     * default value.
+     * 
+     * @envar      The name of the environment variable to get.
+     * @defaultVal The integer value to use as the default if envar isn't found
+     * 
+     * @returns The best answer we could come up with for a value for envar
+     */
+    static String getDBURLFromEnv() {
+        ProcessBuilder processBuilder = new ProcessBuilder();
+        return processBuilder.environment().get("JDBC_DATABASE_URL");
+    }
+
+    /**
+     * Ask the user to enter a String message
+     * 
+     * @param in A BufferedReader, for reading from the keyboard
+     * @param message A message to display when asking for input
+     * 
+     * @return The string that the user provided.  May be "".
+     */
+    static String getString(BufferedReader in, String message) {
+        String s;
+        try {
+            System.out.print(message + " :> ");
+            s = in.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "";
         }
+        return s;
+    }
 }
             /*
             else if (action == '1') {

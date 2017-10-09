@@ -1,6 +1,13 @@
 package edu.lehigh.cse216.jnm219.admin;
 
-import java.util.*;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.Hashtable;
+import java.util.Random;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.SecretKeyFactory;
+import java.math.BigInteger;
+import java.security.SecureRandom;
 
 public class Password
 {
@@ -38,7 +45,17 @@ public class Password
 
     // How the backend creates and salts the password
 
-    private static byte [] getSalt() throws NoSuchAlgorithmException
+    public static byte [] encryptPw (String password,byte [] salt) throws NoSuchAlgorithmException, InvalidKeySpecException
+    {
+        int iterations= 1000;
+        char[] chars = password.toCharArray();
+        PBEKeySpec spec = new PBEKeySpec(chars, salt, iterations, 64 * 8);
+        SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+        byte [] securedPw= skf.generateSecret(spec).getEncoded();
+        return securedPw;
+    } 
+
+    public static byte [] getSalt() throws NoSuchAlgorithmException
     {
         SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
         byte[] salt = new byte[16];
@@ -46,7 +63,7 @@ public class Password
         return salt;
     }
  
-    private static String toHex(byte[] array) throws NoSuchAlgorithmException
+    public static String toHex(byte[] array) throws NoSuchAlgorithmException
     {
         BigInteger bi = new BigInteger(1, array);
         String hex = bi.toString(16);
@@ -60,10 +77,11 @@ public class Password
     }
     
     static Hashtable<String,Integer> logged_in=new Hashtable<String,Integer>();
-    public static int keyGenerator (){
+    public static int keyGenerator ()
+    {
         Random rand = new Random();
         int  random = rand.nextInt(10000) + 1000;
         return random;
-    };
+    }
  
 }

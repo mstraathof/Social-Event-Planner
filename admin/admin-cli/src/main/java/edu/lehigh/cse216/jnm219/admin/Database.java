@@ -9,6 +9,8 @@ import java.sql.Statement;
 import java.net.URISyntaxException;
 import java.util.logging.Logger;
 import java.util.ArrayList;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 
 public class Database {
  
@@ -19,14 +21,16 @@ public class Database {
     private Connection mConnection;
 
     /**
-     * A prepared statement for inserting into the database
+     * A prepared statement for inserting into the tblUser
      */
-    private PreparedStatement mInsertOne;
+    private PreparedStatement mInsertUser;
+    private PreparedStatement mSelectUnauthUserOne; // from the tblUnauthorizedUser table
+    public PreparedStatement mSelectUnauthUserAll; // public so App.java can execute() this.
 
     /**
      * A prepared statement for creating the unauthorized user table in the database
      */
-    private PreparedStatement mCreateUnauthorizedUserTable;
+    private PreparedStatement mCreateUnauthUserTable;
 
     /**
      * A prepared statement for creating the user table in the database
@@ -106,8 +110,8 @@ public class Database {
 
             // Note: no "IF NOT EXISTS" or "IF EXISTS" checks on table 
             // creation/deletion, so multiple executions will cause an exception
-            db.mCreateUnauthorizedUserTable = db.mConnection.prepareStatement(
-                "CREATE TABLE tblUnauthorizedUser ("
+            db.mCreateUnauthUserTable = db.mConnection.prepareStatement(
+                "CREATE TABLE tblUnauthUser ("
                 +"user_id SERIAL PRIMARY KEY,"
                 +"username VARCHAR(255) UNIQUE,"
                 +"realname VARCHAR(255),"
@@ -165,7 +169,9 @@ public class Database {
                 +"FOREIGN KEY (message_id) REFERENCES tblMessage (message_id),"
                 +"PRIMARY KEY (user_id, message_id))"
             );
-            db.mInsertOne = db.mConnection.prepareStatement("INSERT INTO tblUser VALUES (default, ?, ?, ?, ?, ?)");
+            db.mInsertUser = db.mConnection.prepareStatement("INSERT INTO tblUser VALUES (default, ?, ?, ?, ?, ?)");
+            db.mSelectUnauthUserOne = db.mConnection.prepareStatement("SELECT * FROM tblUnauthUser WHERE username=?");
+            db.mSelectUnauthUserAll = db.mConnection.prepareStatement("SELECT * FROM tblUnauthUser");
             
         } catch (SQLException e) {
             System.err.println("Error creating prepared statement");
@@ -206,7 +212,7 @@ public class Database {
      */
     boolean createAllTables() {
         try {
-            mCreateUnauthorizedUserTable.execute();
+            mCreateUnauthUserTable.execute();
             mCreateUserTable.execute();
             mCreateProfileTable.execute();
             mCreateMessageTable.execute();
@@ -226,12 +232,20 @@ public class Database {
         try {
             if (action == 'U') {            // tblUser
                 mCreateUserTable.execute();
+                mCreateProfileTable.execute();  // following tables rely on tblUser
+                mCreateMessageTable.execute();
+                mCreateCommentTable.execute();
+                mCreateUpVoteTable.execute();
+                mCreateDownVoteTable.execute();
             } else if (action == 'a') {
-                mCreateUnauthorizedUserTable.execute();
+                mCreateUnauthUserTable.execute();
             } else if (action == 'p') {     // tblProfile
                 mCreateProfileTable.execute();
             } else if (action == 'm') {     // tblMessage
                 mCreateMessageTable.execute();
+                mCreateCommentTable.execute(); // following tables rely on tblMessage
+                mCreateUpVoteTable.execute();
+                mCreateDownVoteTable.execute();
             } else if (action == 'c') {     // tblComment
                 mCreateCommentTable.execute();
             } else if (action == 'u') {     // tblUpVote
@@ -259,7 +273,7 @@ public class Database {
         Statement stmt = null;        
         try {
             stmt = mConnection.createStatement();
-            String sql = "DROP TABLE " + table;
+            String sql = "DROP TABLE " + table + " CASCADE";
             stmt.executeUpdate(sql);
             //mDropTable.setString(1, table);
             //mDropTable.execute();
@@ -274,7 +288,7 @@ public class Database {
     boolean dropAllTables() {
        // try {
             boolean result;
-            String[] tables = {"tblUpVote", "tblDownVote", "tblComment", "tblProfile", "tblMessage", "tblUser", "tblUnauthorizedUser"};
+            String[] tables = {"tblUpVote", "tblDownVote", "tblComment", "tblProfile", "tblMessage", "tblUser", "tblUnauthUser"};
             for (int i = 0; i < tables.length; i++) {
                 result = dropTable(tables[i]);
                 if (result == false) {
@@ -284,17 +298,65 @@ public class Database {
         return true;
     }
 
-    boolean authorizedUser(String username, String realname, String email) {
+    public boolean selectUnauthUserAll() {
         try {
-            mInsertOne.setString(1, username);
-            mInsertOne.setString(2, realname);
-            mInsertOne.setString(3, email);
-            // TODO: need to get the salt from JavaPasswordSecurity.java
-            mInsertOne.setBytes(4,salt);
-            // TODO: salt the password
-            mInsertOne.setBytes(5, password);
-            mInsertOne.executeUpdate();
+            ResultSet rs = mSelectUnauthUserAll.executeQuery();
+            int columnsNumber = 4;
+            while (rs.next()) {
+                for (int i = 1; i <= columnsNumber; i++) {
+                    if (i > 1) System.out.print("   ");
+                    String columnValue = rs.getString(i);
+                    System.out.print(columnValue);
+                }
+                System.out.println("");
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    boolean authorizeUser(String username) {
+        try {
+            Password pw = new Password();
+
+            mSelectUnauthUserOne.setString(1, username);
+            System.out.println(mSelectUnauthUserOne.toString());
+            ResultSet rs = mSelectUnauthUserOne.executeQuery();
+            System.out.println("got user");
+            
+            if (rs.next())
+            {
+                mInsertUser.setString(1, username);
+                System.out.println("1");
+                mInsertUser.setString(2, rs.getString("realname"));
+                System.out.println("2");
+                mInsertUser.setString(3, rs.getString("email"));
+                // TODO: need to get the salt from JavaPasswordSecurity.java
+                System.out.println("before salt");
+                byte [] salt = pw.getSalt();
+                System.out.println("salt: "+salt);
+                String password = pw.getPassword();
+                System.out.println("password: "+password);
+                byte [] saltedPassword = pw.encryptPw (password, salt);
+                mInsertUser.setBytes(4,salt);
+                mInsertUser.setBytes(5, saltedPassword);
+                mInsertUser.executeUpdate();
+                // TODO: send email with username and unsalted password
+            }
+            else
+            {
+                System.out.println("username not found");
+            }
         } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return false;
+        } catch (InvalidKeySpecException e) {
             e.printStackTrace();
             return false;
         }
