@@ -9,7 +9,7 @@ public class Message {
     /**
      * mMessgeId is what is used to distinguish different messages
      */
-    int mMessageId;
+    int mId;
 
     /**
      * mSubject  is the text for the subject of a message
@@ -30,12 +30,6 @@ public class Message {
     String mCreateTime;
 
     /**
-     * mUserId is used to link a message to a specific user, same as the mUserId in user
-     */
-
-    int mUserId;
-
-    /**
      * mUsername is used to hold data for the posters username
      */
 
@@ -52,14 +46,13 @@ public class Message {
      * @param subject
      * @param message
      * @param createTime
-     * @param userId
      * @param votes
      * @param username
      */
 
-    Message(int messageId, String subject,String message, String createTime, int userId,int votes, String username){
+    Message(int messageId, String subject,String message, String createTime, int votes, String username){
 
-        mMessageId = messageId;
+        mId = messageId;
 
         mSubject = subject;
 
@@ -67,7 +60,6 @@ public class Message {
 
         mCreateTime = createTime;
 
-        mUserId = userId;
 
         mVotes = votes;
 

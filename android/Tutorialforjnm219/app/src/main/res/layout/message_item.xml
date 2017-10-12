@@ -6,6 +6,12 @@
     android:orientation="vertical">
 
 
+    <TextView
+        android:id="@+id/messageItemId"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="invisible"
+        android:text = ""/>
     <RelativeLayout
         android:orientation="horizontal"
         android:layout_width="wrap_content"
@@ -66,7 +72,7 @@
             android:textAllCaps="false"
             android:textSize="14sp" />
         <Button
-            android:id="@+id/messageComment"
+            android:id="@+id/messageCommentButton"
             style="@style/Widget.AppCompat.Button.Small"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

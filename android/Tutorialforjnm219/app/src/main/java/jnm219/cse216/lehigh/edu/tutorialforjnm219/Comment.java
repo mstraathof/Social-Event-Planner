@@ -35,7 +35,22 @@ public class Comment {
 
     String mCreateTime;
 
-    Comment(int commentId, int userId, int messageId, String comment, String createTime)
+    /**
+     * mUsername holds the data for the username of the person who wrote the comment
+     */
+    String mUsername;
+
+    /**
+     *
+     * @param commentId
+     * @param userId
+     * @param messageId
+     * @param comment
+     * @param createTime
+     * @param username
+     */
+
+    Comment(int commentId, int userId, int messageId, String comment, String createTime, String username)
     {
         mCommentId = commentId;
 
@@ -46,5 +61,7 @@ public class Comment {
         mComment = comment;
 
         mCreateTime = createTime;
+
+        mUsername = username;
     }
 }

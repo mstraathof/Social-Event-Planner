@@ -10,21 +10,22 @@ public class LoginInfo {
     /**
      * User Id for the person logging in
      */
-    int mUserId;
+    String mUsername;
 
     /**
      * Unique key to confirm that someone is logged in
      */
     int mKey;
 
-    LoginInfo(int userId, int key){
-        mUserId = userId;
+    LoginInfo(String username, int key){
+        mUsername = username;
 
         mKey = key;
     }
 
     LoginInfo(){
-        mUserId = 0;
+
+        mUsername = null;
 
         mKey = 0;
     }

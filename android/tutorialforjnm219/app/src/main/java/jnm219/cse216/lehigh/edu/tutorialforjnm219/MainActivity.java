@@ -1,6 +1,7 @@
 package jnm219.cse216.lehigh.edu.tutorialforjnm219;
 
 import android.app.Activity;
+import android.app.Application;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -43,10 +44,8 @@ public class MainActivity extends AppCompatActivity{
      * mMessageData holds data for all the message objects
      */
     ArrayList<Message> mMessageData = new ArrayList<>();
-    /**
-     * mCommentData holds data for all the comments, this probably has to be put within the declaration of a new message
-     */
-    ArrayList<Comment> mCommentData = new ArrayList<>();
+
+    int keySave = 0;
 
     /**
      * Global for the loginInfo object, key and id will be 0 when not logged in
@@ -63,11 +62,42 @@ public class MainActivity extends AppCompatActivity{
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
+        String username = ApplicationWithGlobals.getUsername();
+        int key = ApplicationWithGlobals.getKey();
         getMenuInflater().inflate(R.menu.menu_main, menu);
         optionsMenu = menu;
+        //case if the user is not logged in yet
+        if(username == "error" || key == 0) {
+            MenuItem login = (MenuItem) menu.findItem(R.id.login_settings);
+            login.setVisible(true);
 
-        MenuItem buzz = (MenuItem) menu.findItem(R.id.create_buzz_settings);
-        buzz.setVisible(false);
+            MenuItem register = (MenuItem) menu.findItem(R.id.register_settings);
+            register.setVisible(true);
+
+            MenuItem buzz = (MenuItem) menu.findItem(R.id.create_buzz_settings);
+            buzz.setVisible(false);
+
+            //Finds the logout button and makes it hidden
+            MenuItem logout = (MenuItem) optionsMenu.findItem(R.id.logout_settings);
+            logout.setVisible(false);
+        }
+        //Case if the user is logged in
+        else{
+            MenuItem login = (MenuItem) menu.findItem(R.id.login_settings);
+            login.setVisible(false);
+
+            MenuItem register = (MenuItem) menu.findItem(R.id.register_settings);
+            register.setVisible(false);
+
+            MenuItem buzz = (MenuItem) menu.findItem(R.id.create_buzz_settings);
+            buzz.setVisible(true);
+
+            //Finds the logout button and makes it hidden
+            MenuItem logout = (MenuItem) optionsMenu.findItem(R.id.logout_settings);
+            logout.setVisible(true);
+        }
+        Toast.makeText(MainActivity.this, "Username: "+username+" Key: "+key, Toast.LENGTH_LONG).show();
+
         return true;
     }
 
@@ -77,28 +107,21 @@ public class MainActivity extends AppCompatActivity{
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        // Create the recycler view.
-        RecyclerView rv = (RecyclerView) findViewById(R.id.datum_list_view);
+
+        RecyclerView rv = (RecyclerView) findViewById(R.id.message_list_view);
         rv.setLayoutManager(new LinearLayoutManager(this));
         rv.addItemDecoration(new SimpleDividerItemDecoration(this));
-        adapter = new DatumRecyclerAdapter(mData);
+        adapter = new MessageRecyclerAdapter(mMessageData);
         rv.setAdapter(adapter);
 
-        rv.addOnItemTouchListener(
-                new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View view, int position) {
-                        // onItemClick() is called when user clicks anywhere in an adapter row.
-                        // do nothing here.
-                        Log.d("click", "" + position);
-                    }
-                })
-        );
-        //Sets the loginInfo object to its default value of user Id and key to 0
-        //A user will not be able to comment, post a buzz, or upvote when they are not logged in
-        mLoginInfo = new LoginInfo();
-        refreshList();      // populate RecyclerView with initial set of buzzes.
-        //VolleySingleton.getInstance(this).addToRequestQueue(stringRequest); // add request to queue.
+        String username = ApplicationWithGlobals.getUsername();
+        int key  = ApplicationWithGlobals.getKey();
+
+        //If a user is logged in, the List of all the messages are displayed on the main page, other wise it is empty
+        if(username != "Error" && key != 0) {
+            refreshList();      // populate RecyclerView with initial set of buzzes.
+        }
+            //VolleySingleton.getInstance(this).addToRequestQueue(stringRequest); // add request to queue.
     }
 
     /**
@@ -114,21 +137,22 @@ public class MainActivity extends AppCompatActivity{
         int id = item.getItemId();
 
         if (id == R.id.create_buzz_settings) {
-            int userId = mLoginInfo.mUserId;
-            int key = mLoginInfo.mKey;
-            if(userId != 0 && key != 0){
+
+            if(ApplicationWithGlobals.getUsername() != "error" && ApplicationWithGlobals.getKey() !=0){
                 Intent i = new Intent(getApplicationContext(), CreateBuzzActivity.class);
                 i.putExtra("topLabel", "Create a buzz:");
                 startActivityForResult(i, 789); // 789 is the number that will come back to us
                 return true;
             }
             else{
-                Toast.makeText(MainActivity.this, userId + " --> " + key, Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, "Error: User not Logged In", Toast.LENGTH_LONG).show();
             }
         }
         if (id == R.id.login_settings){
             Intent i = new Intent(getApplicationContext(), login.class);
             i.putExtra("topLabel","Log In:");
+            i.putExtra("username","Enter Username:");
+            i.putExtra("password","Enter Password");
             startActivityForResult(i, 666);
             return true;
         }
@@ -136,8 +160,17 @@ public class MainActivity extends AppCompatActivity{
         if(id == R.id.register_settings){
             Intent i = new Intent(getApplicationContext(), Register.class);
             i.putExtra("topLabel","Register for The Buzz");
+            i.putExtra("username","Enter Username:");
+            i.putExtra("password","Enter Password");
             startActivityForResult(i, 667);
             return true;
+        }
+
+        if(id == R.id.logout_settings)
+        {
+            Intent i = new Intent(getApplicationContext(), logout.class);
+            i.putExtra("topLabel","Are you sure you want to logout?");
+            startActivityForResult(i,4);
         }
 
         return super.onOptionsItemSelected(item);
@@ -181,12 +214,11 @@ public class MainActivity extends AppCompatActivity{
                 String mTitle = json.getJSONObject(i).getString("mSubject");
                 String mMessage = json.getJSONObject(i).getString("mMessage");
                 String mCreateTime = json.getJSONObject(i).getString("mCreateTime");
-                int mMessageId = json.getJSONObject(i).getInt("mMessageId");
                 int mVotes = json.getJSONObject(i).getInt("mVotes");
-                String mUsername = json.getJSONObject(i).getString("mUsername");
-
-                mMessageData.add(new Message(mUserId, mTitle, mMessage, mCreateTime,mMessageId,mVotes,mUsername));
-                Log.d("Liger", mUserId + ":" + mTitle + ":" + mMessage + ":" + mMessageId);
+                Log.d("Liger", mUserId + ":" + mTitle + ":" + mMessage + ":");
+                //String mUsername = json.getJSONObject(i).getString("mUsername");
+                String mUsername = "Jack";
+                mMessageData.add(new Message(mUserId, mTitle, mMessage, mCreateTime,mVotes,mUsername));
             }
             adapter.notifyDataSetChanged();
         } catch (final JSONException e) {
@@ -196,48 +228,38 @@ public class MainActivity extends AppCompatActivity{
         Log.d("Liger", "Successfully parsed JSON file.");
     }
 
-    /**
-     *populate Comments from volley parses the response string and extracts the necessary data for the comment objects
-     * @param response is a string returned from a GET request
-     */
-    private void populateCommentFromVolley(String response){
-        try{
-            JSONObject jsonObject = new JSONObject(response);
-            JSONArray json = new JSONArray(jsonObject.getString("mCommentData"));
+    //Calls login user to refresh the login
+    private void refreshLogin()
+    {
+        //This finds the menuItem for creating a buzz and makes it visible
+        MenuItem buzz = (MenuItem) optionsMenu.findItem(R.id.create_buzz_settings);
+        buzz.setVisible(true);
 
-            mCommentData.clear(); //Clears all of the existing messages
-            for(int i = 0; i < json.length(); ++i){
-                int mCommentId = json.getJSONObject(i).getInt("mCommentId");
-                int mUserId = json.getJSONObject(i).getInt("mUserId");
-                int mMessageId = json.getJSONObject(i).getInt("mMessageId");
-                String mComment = json.getJSONObject(i).getString("mComment");
-                String mCreateTime = json.getJSONObject(i).getString("mCreateTime");
+        //This finds the menuItem for login and makes it hidden
+        MenuItem login = (MenuItem) optionsMenu.findItem(R.id.login_settings);
+        login.setVisible(false);
 
-                mCommentData.add(new Comment(mCommentId,mUserId,mMessageId,mComment,mCreateTime));
-                Log.d("Liger",mCommentId + ":" + mUserId + ":" + mMessageId +":" + mComment+ ":" + mCreateTime);
-            }
-        adapter.notifyDataSetChanged();
-        } catch(final JSONException e){
-            Log.d("Liger","Error Parsing JSON file: "+ e.getMessage());
-            return;
-        }
+        //This finds the menuItem for registering and makes it hidden
+        MenuItem register = (MenuItem) optionsMenu.findItem(R.id.register_settings);
+        register.setVisible(false);
+
+        //Finds the logout button and makes it hidden
+        MenuItem logout = (MenuItem) optionsMenu.findItem(R.id.logout_settings);
+        logout.setVisible(true);
+
     }
     /**
      * This Route holds the data for a logged in user
      */
     private void loginUser(String response){
         try{
-            JSONObject jsonObject = new JSONObject(response);
-            JSONArray json = new JSONArray(jsonObject.getString("mLoginInfo"));
-
-            int mUserId = json.getJSONObject(0).getInt("mUserId");
-            int mKey = json.getJSONObject(0).getInt ("mKey");
-
-            mLoginInfo = new LoginInfo(mUserId,mKey);
-            Log.d("Liger",mUserId+":"+mKey);
-
+            JSONObject jsonObject = new JSONObject(response);;
+            int key = jsonObject.getInt("mLoginData");
+            keySave = key;
+            Toast.makeText(MainActivity.this,"Key2: "+key, Toast.LENGTH_LONG).show();
+            mLoginInfo.mKey = keySave;
         } catch(final JSONException e){
-            Log.d("Liger","Error Parsing JSON file: "+e.getMessage());
+            Log.d("Liger","Error Parsing JSONN file: "+e.getMessage());
             return;
         }
     }
@@ -249,6 +271,7 @@ public class MainActivity extends AppCompatActivity{
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent intent) {
+        //Toast.makeText(MainActivity.this,"RequestCode: "+ requestCode+ "ResultCode: "+resultCode, Toast.LENGTH_LONG).show();
         // Json request for Create Buzz
         if (requestCode == 789) {
             // Make sure the request was successful
@@ -264,6 +287,7 @@ public class MainActivity extends AppCompatActivity{
                 // add the data collected from user into map which gets made into a JSONObject
                 jsonParams.put("mSubject", resultSubject);
                 jsonParams.put("mMessage", resultMessage);
+                jsonParams.put("mUsername",mLoginInfo.mUsername);
                 JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, url,
                         new JSONObject(jsonParams),
                         new Response.Listener<JSONObject>() {
@@ -289,7 +313,11 @@ public class MainActivity extends AppCompatActivity{
                 VolleySingleton.getInstance(this).addToRequestQueue(postRequest);
                 refreshList();
             }
+            else{
+                Toast.makeText(MainActivity.this,"Error Creating Buzz", Toast.LENGTH_LONG).show();
+            }
         }
+
         //Json Request for the Login Screen
         if (requestCode == 666)
         {
@@ -307,8 +335,18 @@ public class MainActivity extends AppCompatActivity{
                         new Response.Listener<JSONObject>() {
                             @Override
                             public void onResponse(JSONObject response){
+                                int key = 0;
+                                try {
+                                    key = response.getInt("mLoginData");
+                                    ApplicationWithGlobals.setUsername(resultUsername);
+                                    ApplicationWithGlobals.setKey(key);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                keySave = key;
+                                Toast.makeText(MainActivity.this,"Key2: "+key, Toast.LENGTH_LONG).show();
+                                mLoginInfo.mKey = keySave;
                                 Log.e("Liger","got response");
-
                             }
                         },
                         new Response.ErrorListener() {
@@ -326,25 +364,13 @@ public class MainActivity extends AppCompatActivity{
                         return headers;
                     }
                 };
-                mLoginInfo.mUserId = 1;
-                mLoginInfo.mKey = 2;
 
-                //This finds the menuItem for creating a buzz and makes it visible
-                MenuItem buzz = (MenuItem) optionsMenu.findItem(R.id.create_buzz_settings);
-                buzz.setVisible(true);
-
-                //This finds the menuItem for login and makes it hidden
-                MenuItem login = (MenuItem) optionsMenu.findItem(R.id.login_settings);
-                login.setVisible(false);
-
-                //This finds the menuItem for registering and makes it hidden
-                MenuItem register = (MenuItem) optionsMenu.findItem(R.id.register_settings);
-                register.setVisible(false);
-
-                VolleySingleton.getInstance(this).addToRequestQueue(postRequest);
+                refreshLogin();
                 refreshList();
+                VolleySingleton.getInstance(this).addToRequestQueue(postRequest);
             }
         }
+
         //Json Request for the Register Screen
         if(requestCode == 667)
         {
@@ -354,9 +380,13 @@ public class MainActivity extends AppCompatActivity{
                 Map<String, String> jsonParams = new HashMap<String, String>();
                 final String resultUsername = intent.getStringExtra("resultUserName");
                 final String resultPassword = intent.getStringExtra("resultPassword");
+                final String resultRealName = intent.getStringExtra("resultRealName");
+                final String resultEmail = intent.getStringExtra("resultEmail");
 
                 jsonParams.put("mUsername",resultUsername);
                 jsonParams.put("mPassword",resultPassword);
+                jsonParams.put("mRealName",resultRealName);
+                jsonParams.put("mEmail",resultEmail);
                 JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, url,
                         new JSONObject(jsonParams),
                         new Response.Listener<JSONObject>() {
@@ -386,6 +416,45 @@ public class MainActivity extends AppCompatActivity{
             }
         }
 
+        //Json request for the logout functionality
+        if(requestCode == 4) {
+            if(resultCode == RESULT_OK) {
+                refreshLogout();
+            }
+            else{
+                Toast.makeText(MainActivity.this,"Logout Cancelled", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    private void refreshLogout() {
+
+        //This finds the menuItem for creating a buzz and makes it visible
+        MenuItem buzz = (MenuItem) optionsMenu.findItem(R.id.create_buzz_settings);
+        buzz.setVisible(false);
+
+        //This finds the menuItem for login and makes it visible
+        MenuItem login = (MenuItem) optionsMenu.findItem(R.id.login_settings);
+        login.setVisible(true);
+
+        //This finds the menuItem for registering and makes it visible
+        MenuItem register = (MenuItem) optionsMenu.findItem(R.id.register_settings);
+        register.setVisible(true);
+
+        //Finds the logout button and makes it hidden
+        MenuItem logout = (MenuItem) optionsMenu.findItem(R.id.logout_settings);
+
+        logout.setVisible(false);
+
+        ApplicationWithGlobals.setKey(0);
+        ApplicationWithGlobals.setUsername("Error");
+
+
+        Toast.makeText(MainActivity.this,"Logout Successful", Toast.LENGTH_LONG).show();
+        //These two lines reload the MainActivity from itself, essentially calling OnCreate again
+        //necessary in order to get rid of all the messages from the main activity
+        finish();
+        startActivity(getIntent());
     }
 
 }

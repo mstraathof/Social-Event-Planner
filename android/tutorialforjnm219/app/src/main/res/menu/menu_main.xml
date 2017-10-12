@@ -22,5 +22,12 @@
         android:title="Log In"
         app:showAsAction="never"
         app:actionViewClass = "android.widget.SearchView"/>
+    //Creates a Log In button in the drop down menu
+    <item
+        android:id="@+id/logout_settings"
+        android:orderInCategory="2"
+        android:title="Log Out"
+        app:showAsAction="never"
+        app:actionViewClass = "android.widget.SearchView"/>
 
 </menu>

@@ -46,6 +46,7 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
     public void onBindViewHolder(CommentViewHolder holder, int position) {
         final Comment Comment = CommentList.get(position);
         holder.CommentTextView.setText("Comment: " + Comment.mComment);
+        holder.usernameTextView.setText("Username: "+ Comment.mUsername);
     }
 
     @Override
@@ -60,10 +61,12 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
     public class CommentViewHolder extends RecyclerView.ViewHolder {
         //private final RecyclerItemClickListener mListenerInternal;
         private TextView CommentTextView;
+        private TextView usernameTextView;
 
         public CommentViewHolder(View itemView) {
             super(itemView);
             CommentTextView = (TextView) itemView.findViewById(R.id.commentItemComment);
+            usernameTextView = (TextView) itemView.findViewById(R.id.messageItemUsername);
 
         }
         void onRecyclerItemClick(){

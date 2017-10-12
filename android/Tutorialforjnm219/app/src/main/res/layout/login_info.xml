@@ -19,8 +19,19 @@
             android:layout_width="383dp"
             android:layout_height="52dp"
             android:text=""
+            tools:layout_editor_absoluteY="8dp"
+            tools:layout_editor_absoluteX="0dp" />
+        <TextView
+            android:id="@+id/userName"
+            android:layout_width="383dp"
+            android:layout_height="52dp"
+            android:text=""
+            tools:layout_editor_absoluteY="8dp"
             tools:layout_editor_absoluteX="0dp"
-            tools:layout_editor_absoluteY="8dp" />
+            android:layout_below="@+id/topLabel"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="14dp" />
 
         <EditText
             android:id="@+id/enterUserName"
@@ -31,10 +42,19 @@
             android:text=""
             tools:layout_editor_absoluteX="0dp"
             tools:layout_editor_absoluteY="62dp"
-            android:layout_below="@+id/topLabel"
+            android:layout_above="@+id/password"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true" />
-
+        <TextView
+            android:id="@+id/password"
+            android:layout_width="383dp"
+            android:layout_height="52dp"
+            android:text=""
+            tools:layout_editor_absoluteY="8dp"
+            tools:layout_editor_absoluteX="0dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
         <EditText
             android:id="@+id/enterPassword"
             android:layout_width="384dp"
@@ -44,35 +64,34 @@
             android:text=""
             tools:layout_editor_absoluteX="0dp"
             tools:layout_editor_absoluteY="62dp"
-            android:layout_above="@+id/buttonCancel"
+            android:layout_below="@+id/password"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginBottom="22dp" />
+            android:layout_alignParentStart="true" />
 
         <Button
             android:id="@+id/buttonCancel"
             android:layout_width="191dp"
             android:layout_height="50dp"
+            android:text="Cancel"
+            tools:layout_editor_absoluteY="371dp"
+            tools:layout_editor_absoluteX="0dp"
+            android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:layout_alignTop="@+id/buttonOk"
-            android:layout_toLeftOf="@+id/buttonOk"
-            android:layout_toStartOf="@+id/buttonOk"
-            android:text="Cancel"
-            tools:layout_editor_absoluteX="0dp"
-            tools:layout_editor_absoluteY="371dp" />
+            android:layout_marginBottom="71dp" />
 
         <Button
             android:id="@+id/buttonOk"
             android:layout_width="191dp"
             android:layout_height="50dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginBottom="162dp"
             android:text="OK"
+            tools:layout_editor_absoluteY="371dp"
             tools:layout_editor_absoluteX="191dp"
-            tools:layout_editor_absoluteY="371dp" />
+            android:layout_alignBaseline="@+id/buttonCancel"
+            android:layout_alignBottom="@+id/buttonCancel"
+            android:layout_toRightOf="@+id/buttonCancel"
+            android:layout_toEndOf="@+id/buttonCancel" />
+
 
     </RelativeLayout>
 </android.support.constraint.ConstraintLayout>

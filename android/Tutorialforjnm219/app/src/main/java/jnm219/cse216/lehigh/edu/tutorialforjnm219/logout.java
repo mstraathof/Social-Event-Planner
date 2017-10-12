@@ -9,44 +9,27 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 /**
- * Created by Jack on 10/1/2017.
+ * Created by Jack on 10/7/2017.
  */
 
-public class login extends Activity {
+public class logout extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.login_layout);
-
-        // Get top label from the calling activity, and put it in TextView
+        setContentView(R.layout.logout_layout);
+        
         Intent input = getIntent();
         String topLabel = input.getStringExtra("topLabel");
-        String tvUsername = input.getStringExtra("username");
-        String tvPassword = input.getStringExtra("password");
         final TextView tv = (TextView) findViewById(R.id.topLabel);
-        final TextView us = (TextView) findViewById(R.id.userName);
-        final TextView ps = (TextView) findViewById(R.id.password);
         tv.setText(topLabel);
-        us.setText(tvUsername);
-        ps.setText(tvPassword);
-
-
-        final EditText username = (EditText) findViewById(R.id.enterUserName);
-        final EditText password = (EditText) findViewById(R.id.enterPassword);
 
         // The OK button gets the text from the input box and returns it to the calling activity
         Button bOk = (Button) findViewById(R.id.buttonOk);
         bOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Create an intent only when the user entered text in both fields
-                if (!password.getText().toString().equals("") && !username.getText().toString().equals("")) {
-                    Intent i = new Intent();
-                    i.putExtra("resultUserName", username.getText().toString());
-                    i.putExtra("resultPassword", password.getText().toString());
-                    setResult(Activity.RESULT_OK, i);
-                    finish();
-                }
+                setResult(Activity.RESULT_OK);
+                finish();
             }
         });
 
@@ -60,5 +43,4 @@ public class login extends Activity {
             }
         });
     }
-
 }
