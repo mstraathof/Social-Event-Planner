@@ -90,7 +90,7 @@ class NewEntryForm {
                 type: "POST",
                 url: "/messages",
                 dataType: "json",
-                data: JSON.stringify({ mSubject: title, mMessage: msg }),
+                data: JSON.stringify({ mSubject: title, mMessage: msg, mUsername: Gusername }),
                 success: NewEntryForm.onSubmitResponse
             });
         }

@@ -1,7 +1,7 @@
 var $: any;
 var Handlebars: any;
 var usernameToDisplay: string;
-
+var successProfile = false;
 class ProfilePage{
     
     private static isInit = false;
@@ -30,6 +30,7 @@ class ProfilePage{
         }
 
         public static show(username: string) {
+            window.alert("hit profile show");
             ProfilePage.init();
             //NavbarLoggedIn.refresh();
             //$("div.panel-default").hide();
@@ -41,6 +42,9 @@ class ProfilePage{
                 dataType: "json",
                 success: ProfilePage.onDisplayProfile
             });
+            if(successProfile==false){
+                window.alert("Trouble with login. Please log out and back in");
+            }
         }
 
         public static onDisplayProfile(data:any){
@@ -48,6 +52,7 @@ class ProfilePage{
             //ElementList.refreshUser(Gusername);
             $("body").append(Handlebars.templates[ProfilePage.NAME + ".hb"](data));
             $("#"+ProfilePage.NAME+"-editBio").click(EditBio.showEdit);
+            successProfile = true;
             if(Gusername == usernameToDisplay){
                 ElementList.refreshUser(Gusername);
             }
