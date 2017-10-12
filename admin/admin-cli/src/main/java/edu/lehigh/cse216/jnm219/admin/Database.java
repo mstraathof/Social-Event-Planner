@@ -24,8 +24,9 @@ public class Database {
      * A prepared statement for inserting into the tblUser
      */
     private PreparedStatement mInsertUser;
-    private PreparedStatement mSelectUnauthUserOne; // from the tblUnauthorizedUser table
+    private PreparedStatement mSelectUnauthUserOne; // from the tblUnauthUser table
     public PreparedStatement mSelectUnauthUserAll; // public so App.java can execute() this.
+    private PreparedStatement mRemoveUnauthUserOne; // from the tblUnauthUser table
 
     /**
      * A prepared statement for creating the unauthorized user table in the database
@@ -118,7 +119,8 @@ public class Database {
             );
             db.mCreateUserTable = db.mConnection.prepareStatement(
                 "CREATE TABLE IF NOT EXISTS tblUser ("
-                +"username VARCHAR(255) PRIMARY KEY,"
+                +"user_id Serial PRIMARY KEY,"
+                +"username VARCHAR(255) UNIQUE,"
                 +"realname VARCHAR(255) NOT NULL,"
                 +"email VARCHAR(255) NOT NULL,"
                 +"salt BYTEA,"
@@ -166,9 +168,10 @@ public class Database {
                 +"FOREIGN KEY (username) REFERENCES tblUser (username),"
                 +"FOREIGN KEY (message_id) REFERENCES tblMessage (message_id))"
             );
-            db.mInsertUser = db.mConnection.prepareStatement("INSERT INTO tblUser VALUES (?, ?, ?, ?, ?)");
+            db.mInsertUser = db.mConnection.prepareStatement("INSERT INTO tblUser VALUES (default, ?, ?, ?, ?, ?)");
             db.mSelectUnauthUserOne = db.mConnection.prepareStatement("SELECT * FROM tblUnauthUser WHERE username=?");
             db.mSelectUnauthUserAll = db.mConnection.prepareStatement("SELECT * FROM tblUnauthUser");
+            db.mRemoveUnauthUserOne = db.mConnection.prepareStatement("DELETE FROM tblUnauthUser WHERE username=?");
             
         } catch (SQLException e) {
             System.err.println("Error creating prepared statement");
@@ -210,7 +213,9 @@ public class Database {
     boolean createAllTables() {
         try {
             mCreateUnauthUserTable.execute();
+            System.err.println("ready created");
             mCreateUserTable.execute();
+            System.err.println("ready created");
             mCreateProfileTable.execute();
             mCreateMessageTable.execute();
             mCreateCommentTable.execute();
@@ -298,7 +303,7 @@ public class Database {
     public boolean selectUnauthUserAll() {
         try {
             ResultSet rs = mSelectUnauthUserAll.executeQuery();
-            int columnsNumber = 4;
+            int columnsNumber = rs.getMetaData().getColumnCount();
             while (rs.next()) {
                 for (int i = 1; i <= columnsNumber; i++) {
                     if (i > 1) System.out.print("   ");
@@ -315,8 +320,10 @@ public class Database {
         return true;
     }
 
-    boolean authorizeUser(String username) {
+    //boolean authorizeUser(String username, String password, String email, String realname) {
+    boolean authorizeUser(String[] credentials) {   
         try {
+            String username = credentials[0];
             Password pw = new Password();
 
             mSelectUnauthUserOne.setString(1, username);
@@ -324,17 +331,23 @@ public class Database {
             
             if (rs.next())
             {
+                String realname = rs.getString("realname");
+                credentials[1] = realname;
+                String email = rs.getString("email");
+                credentials[2] = email;
                 mInsertUser.setString(1, username);
-                mInsertUser.setString(2, rs.getString("realname"));
-                mInsertUser.setString(3, rs.getString("email"));
+                mInsertUser.setString(2, realname);
+                mInsertUser.setString(3, email);
                 // TODO: need to get the salt from JavaPasswordSecurity.java
                 byte [] salt = pw.getSalt();
                 String password = pw.getPassword();
+                credentials[3] = password;
                 byte [] saltedPassword = pw.encryptPw (password, salt);
                 mInsertUser.setBytes(4,salt);
                 mInsertUser.setBytes(5, saltedPassword);
                 mInsertUser.executeUpdate();
-                // TODO: send email with username and unsalted password
+                mRemoveUnauthUserOne.setString(1, username);    // remove the authorized user from the unauthuser table
+                mRemoveUnauthUserOne.executeUpdate();
             }
             else
             {
@@ -352,5 +365,6 @@ public class Database {
         }
         return true;
     }
+
 }
   

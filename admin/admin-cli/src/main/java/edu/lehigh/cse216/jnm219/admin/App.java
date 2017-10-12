@@ -208,7 +208,18 @@ public class App {
             } else if (action == '+') {
                 String username = getString(in, "Enter username");
                 if (!username.equals("")) {
-                    db.authorizeUser(username);
+                    String[] credentials = new String[4];
+                    credentials[0] = username;
+                    //String realname = new String();
+                    //String email = new String();
+                    //String password = new String();
+                    //if (db.authorizeUser(username, password, email, realname)) {
+                    if (db.authorizeUser(credentials)) {
+                        System.out.println(credentials[0] + " " + credentials[1] + " " + credentials[2] + " " + credentials[3]);
+                    }
+                    else {
+                        System.out.println("Unable to authorize user");
+                    }
                 } 
             }
         }
