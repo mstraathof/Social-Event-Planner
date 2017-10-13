@@ -21,63 +21,77 @@ import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.closeSoftKeyboard;
+import static android.support.test.espresso.action.ViewActions.pressImeActionButton;
 import static android.support.test.espresso.action.ViewActions.replaceText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public class UpvoteTest {
+public class Add_Comment_Returns_To_Comment_View {
 
     @Rule
     public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class);
 
     @Test
-    public void upvoteTest() {
+    public void add_Comment_Returns_To_Comment_View() {
         openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
 
         ViewInteraction appCompatTextView = onView(
-                allOf(withId(R.id.title), withText("BUZZ"), isDisplayed()));
+                allOf(withId(R.id.title), withText("Log In"), isDisplayed()));
         appCompatTextView.perform(click());
 
-        ViewInteraction appCompatEditText = onView(
-                allOf(withId(R.id.enterSubject), isDisplayed()));
-        appCompatEditText.perform(replaceText("A"), closeSoftKeyboard());
+        ViewInteraction editText = onView(
+                allOf(withId(R.id.enterUserName), isDisplayed()));
+        editText.perform(click());
 
-        ViewInteraction appCompatEditText2 = onView(
-                allOf(withId(R.id.enterMessage), isDisplayed()));
-        appCompatEditText2.perform(replaceText("B"), closeSoftKeyboard());
+        ViewInteraction editText2 = onView(
+                allOf(withId(R.id.enterUserName), isDisplayed()));
+        editText2.perform(replaceText("jack"), closeSoftKeyboard());
+
+        ViewInteraction editText3 = onView(
+                allOf(withId(R.id.enterPassword), isDisplayed()));
+        editText3.perform(replaceText("Grandma831"), closeSoftKeyboard());
+
+        ViewInteraction editText4 = onView(
+                allOf(withId(R.id.enterPassword), withText("Grandma831"), isDisplayed()));
+        editText4.perform(pressImeActionButton());
+
+        ViewInteraction button = onView(
+                allOf(withId(R.id.buttonOk), withText("OK"), isDisplayed()));
+        button.perform(click());
 
         ViewInteraction appCompatButton = onView(
-                allOf(withId(R.id.buttonOk), withText("OK"), isDisplayed()));
+                allOf(withId(R.id.messageCommentButton), withText("Comments"), isDisplayed()));
         appCompatButton.perform(click());
 
-        ViewInteraction textView = onView(
-                allOf(withId(R.id.listItemVotes), withText("Votes: 0"),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(R.id.datum_list_view),
-                                        0),
-                                2),
-                        isDisplayed()));
-        textView.check(matches(withText("Votes: 0")));
+        openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
+
+        ViewInteraction appCompatTextView2 = onView(
+                allOf(withId(R.id.title), withText("New Comment"), isDisplayed()));
+        appCompatTextView2.perform(click());
+
+        ViewInteraction appCompatEditText = onView(
+                allOf(withId(R.id.enterComment), isDisplayed()));
+        appCompatEditText.perform(replaceText("apple"), closeSoftKeyboard());
 
         ViewInteraction appCompatButton2 = onView(
-                allOf(withId(R.id.listLikeButton), withText("Upvote"), isDisplayed()));
+                allOf(withId(R.id.buttonOk), withText("OK"), isDisplayed()));
         appCompatButton2.perform(click());
 
-        ViewInteraction textView2 = onView(
-                allOf(withId(R.id.listItemVotes), withText("Votes: 1"),
+        ViewInteraction imageView = onView(
+                allOf(withContentDescription("More options"),
                         childAtPosition(
                                 childAtPosition(
-                                        withId(R.id.datum_list_view),
-                                        0),
-                                2),
+                                        withId(R.id.toolbar),
+                                        1),
+                                0),
                         isDisplayed()));
-        textView2.check(matches(withText("Votes: 1")));
+        imageView.check(matches(isDisplayed()));
 
     }
 

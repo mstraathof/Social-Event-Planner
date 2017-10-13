@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="jnm219.cse216.lehigh.edu.tutorialforjnm219.login"
+    tools:showIn="@layout/login_layout">
+
+    <RelativeLayout
+        android:layout_width="368dp"
+        android:layout_height="439dp"
+        tools:layout_editor_absoluteX="8dp"
+        tools:layout_editor_absoluteY="1dp">
+
+        <TextView
+            android:id="@+id/topLabel"
+            android:layout_width="383dp"
+            android:layout_height="52dp"
+            android:text=""
+            tools:layout_editor_absoluteY="8dp"
+            tools:layout_editor_absoluteX="0dp" />
+        <TextView
+            android:id="@+id/userName"
+            android:layout_width="383dp"
+            android:layout_height="52dp"
+            android:text=""
+            tools:layout_editor_absoluteY="8dp"
+            tools:layout_editor_absoluteX="0dp"
+            android:layout_below="@+id/topLabel"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="14dp" />
+
+        <EditText
+            android:id="@+id/enterUserName"
+            android:layout_width="384dp"
+            android:layout_height="52dp"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:text=""
+            tools:layout_editor_absoluteX="0dp"
+            tools:layout_editor_absoluteY="62dp"
+            android:layout_above="@+id/password"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+        <TextView
+            android:id="@+id/password"
+            android:layout_width="383dp"
+            android:layout_height="52dp"
+            android:text=""
+            tools:layout_editor_absoluteY="8dp"
+            tools:layout_editor_absoluteX="0dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+        <EditText
+            android:id="@+id/enterPassword"
+            android:layout_width="384dp"
+            android:layout_height="52dp"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:text=""
+            tools:layout_editor_absoluteX="0dp"
+            tools:layout_editor_absoluteY="62dp"
+            android:layout_below="@+id/password"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <Button
+            android:id="@+id/buttonCancel"
+            android:layout_width="191dp"
+            android:layout_height="50dp"
+            android:text="Cancel"
+            tools:layout_editor_absoluteY="371dp"
+            tools:layout_editor_absoluteX="0dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="71dp" />
+
+        <Button
+            android:id="@+id/buttonOk"
+            android:layout_width="191dp"
+            android:layout_height="50dp"
+            android:text="OK"
+            tools:layout_editor_absoluteY="371dp"
+            tools:layout_editor_absoluteX="191dp"
+            android:layout_alignBaseline="@+id/buttonCancel"
+            android:layout_alignBottom="@+id/buttonCancel"
+            android:layout_toRightOf="@+id/buttonCancel"
+            android:layout_toEndOf="@+id/buttonCancel" />
+
+
+    </RelativeLayout>
+</android.support.constraint.ConstraintLayout>

@@ -10,15 +10,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 /**
- * Is called when the user clicks the three dots on the main page, then clicks Create a Buzz.
- * The purpose of this class is to allow the user to create a new buzz/entry.
+ * Is called when the user clicks the three dots on the main page, then clicks change passsword
+ * The purpose of this class is to allow the user to change their password
  */
-public class CreateBuzzActivity extends AppCompatActivity {
+public class changePassword extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.createbuzz_layout);
+        setContentView(R.layout.change_password_layout);
 
         // Get top label from the calling activity, and put it in TextView
         Intent input = getIntent();
@@ -26,8 +26,8 @@ public class CreateBuzzActivity extends AppCompatActivity {
         final TextView tv = (TextView) findViewById(R.id.topLabel);
         tv.setText(topLabel);
 
-        final EditText et = (EditText) findViewById(R.id.enterSubject);
-        final EditText em = (EditText) findViewById(R.id.enterMessage);
+        final EditText et = (EditText) findViewById(R.id.enterCurrentPassword);
+        final EditText em = (EditText) findViewById(R.id.enterNewPassword);
 
         // The OK button gets the text from the input box and returns it to the calling activity
         Button bOk = (Button) findViewById(R.id.buttonOk);
@@ -37,8 +37,8 @@ public class CreateBuzzActivity extends AppCompatActivity {
                 // Create an intent only when the user entered text in both fields
                 if (!et.getText().toString().equals("") && !em.getText().toString().equals("")) {
                     Intent i = new Intent();
-                    i.putExtra("resultSubject", et.getText().toString());
-                    i.putExtra("resultMessage", em.getText().toString());
+                    i.putExtra("resultCurrentPassword", et.getText().toString());
+                    i.putExtra("resultNewPassword", em.getText().toString());
                     setResult(Activity.RESULT_OK, i);
                     finish();
                 }

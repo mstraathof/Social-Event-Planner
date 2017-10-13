@@ -10,9 +10,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 public class RecyclerItemClickListener implements RecyclerView.OnItemTouchListener {
     private OnItemClickListener mListener;
+
 
     public interface OnItemClickListener {
         public void onItemClick(View view, int position);
@@ -29,13 +31,13 @@ public class RecyclerItemClickListener implements RecyclerView.OnItemTouchListen
             }
         });
     }
-
+    ApplicationWithGlobals mApp;
     @Override
     public boolean onInterceptTouchEvent(RecyclerView view, MotionEvent e) {
         View childView = view.findChildViewUnder(e.getX(), e.getY());
 
         // stash adapter position so listener for like-button knows which buzz was liked.
-        ApplicationWithGlobals mApp = (ApplicationWithGlobals)view.getContext().getApplicationContext();
+        mApp = (ApplicationWithGlobals)view.getContext().getApplicationContext();
         mApp.setPosition(view.getChildAdapterPosition(childView));
 
         // call onItemClick() only if something must be done if anywhere in row is clicked.
@@ -51,6 +53,9 @@ public class RecyclerItemClickListener implements RecyclerView.OnItemTouchListen
 
     @Override
     public void onTouchEvent(RecyclerView view, MotionEvent motionEvent) {
+        CharSequence text = "Hello toast!";
+        int duration = Toast.LENGTH_SHORT;
+        Toast toast = Toast.makeText(mApp,text,duration);
     }
 
     @Override

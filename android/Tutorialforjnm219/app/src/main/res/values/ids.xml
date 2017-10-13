@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="listviewChanger" type="id" />
+    <item name="listDislikeButton" type="id" />
+    <item name="register_settings" type="id" />
+    <item name="messageCommentButton" type="id" />
+    <item name="enterEmail" type="id" />
+    <item name="enterRealName" type="id" />
+    <item name="comment_list_view" type="id" />
+    <item name="messageItemId" type="id" />
+    <item name="add_comment_settings" type="id" />
+    <item name="enterCurrentPassword" type="id" />
+    <item name="enterNewPassword" type="id" />
+    <item name="messageItemCreateTime" type="id" />
+</resources>

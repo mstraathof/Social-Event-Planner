@@ -12,7 +12,6 @@ import android.view.ViewParent;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.hamcrest.core.IsInstanceOf;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,6 +20,8 @@ import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
 import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.action.ViewActions.closeSoftKeyboard;
+import static android.support.test.espresso.action.ViewActions.replaceText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
@@ -29,78 +30,74 @@ import static org.hamcrest.Matchers.allOf;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public class CorrectUIinCreateBuzzActivtyTest {
+public class Add_new_comment_test {
 
     @Rule
     public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class);
 
     @Test
-    public void correctUIinCreateBuzzActivtyTest() {
+    public void add_new_comment_test() {
+        openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
+
         openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
 
         ViewInteraction appCompatTextView = onView(
-                allOf(withId(R.id.title), withText("BUZZ"), isDisplayed()));
+                allOf(withId(R.id.title), withText("Log In"), isDisplayed()));
         appCompatTextView.perform(click());
 
-        ViewInteraction button = onView(
-                allOf(withId(R.id.buttonCancel),
-                        childAtPosition(
-                                childAtPosition(
-                                        IsInstanceOf.<View>instanceOf(android.view.ViewGroup.class),
-                                        0),
-                                3),
-                        isDisplayed()));
-        button.check(matches(isDisplayed()));
-
-        ViewInteraction button2 = onView(
-                allOf(withId(R.id.buttonOk),
-                        childAtPosition(
-                                childAtPosition(
-                                        IsInstanceOf.<View>instanceOf(android.view.ViewGroup.class),
-                                        0),
-                                4),
-                        isDisplayed()));
-        button2.check(matches(isDisplayed()));
-
         ViewInteraction editText = onView(
-                allOf(withId(R.id.enterSubject),
-                        childAtPosition(
-                                childAtPosition(
-                                        IsInstanceOf.<View>instanceOf(android.view.ViewGroup.class),
-                                        0),
-                                1),
-                        isDisplayed()));
-        editText.check(matches(isDisplayed()));
+                allOf(withId(R.id.enterUserName), isDisplayed()));
+        editText.perform(replaceText("jack"), closeSoftKeyboard());
 
         ViewInteraction editText2 = onView(
-                allOf(withId(R.id.enterSubject),
-                        childAtPosition(
-                                childAtPosition(
-                                        IsInstanceOf.<View>instanceOf(android.view.ViewGroup.class),
-                                        0),
-                                1),
-                        isDisplayed()));
-        editText2.check(matches(isDisplayed()));
+                allOf(withId(R.id.enterPassword), isDisplayed()));
+        editText2.perform(replaceText("Grandma"), closeSoftKeyboard());
 
         ViewInteraction editText3 = onView(
-                allOf(withId(R.id.enterMessage),
-                        childAtPosition(
-                                childAtPosition(
-                                        IsInstanceOf.<View>instanceOf(android.view.ViewGroup.class),
-                                        0),
-                                2),
-                        isDisplayed()));
-        editText3.check(matches(isDisplayed()));
+                allOf(withId(R.id.enterPassword), withText("Grandma"), isDisplayed()));
+        editText3.perform(click());
+
+        ViewInteraction editText4 = onView(
+                allOf(withId(R.id.enterPassword), withText("Grandma"), isDisplayed()));
+        editText4.perform(replaceText("Grandma831"), closeSoftKeyboard());
+
+        ViewInteraction appCompatButton = onView(
+                allOf(withId(R.id.messageCommentButton), withText("Comments"), isDisplayed()));
+        appCompatButton.perform(click());
+
+        openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
+
+        ViewInteraction appCompatTextView2 = onView(
+                allOf(withId(R.id.title), withText("New Comment"), isDisplayed()));
+        appCompatTextView2.perform(click());
+
+        ViewInteraction appCompatEditText = onView(
+                allOf(withId(R.id.enterComment), isDisplayed()));
+        appCompatEditText.perform(replaceText("comment ts"), closeSoftKeyboard());
+
+        ViewInteraction appCompatButton2 = onView(
+                allOf(withId(R.id.buttonOk), withText("OK"), isDisplayed()));
+        appCompatButton2.perform(click());
 
         ViewInteraction textView = onView(
-                allOf(withId(R.id.topLabel), withText("Create a buzz:"),
+                allOf(withId(R.id.commentItemComment), withText("Comment: comment ts"),
                         childAtPosition(
                                 childAtPosition(
-                                        IsInstanceOf.<View>instanceOf(android.view.ViewGroup.class),
-                                        0),
+                                        withId(R.id.comment_list_view),
+                                        4),
+                                1),
+                        isDisplayed()));
+        textView.check(matches(withText("Comment: comment ts")));
+
+        ViewInteraction textView2 = onView(
+                allOf(withId(R.id.commentItemUsername), withText("Username: jack"),
+                        childAtPosition(
+                                childAtPosition(
+                                        withId(R.id.comment_list_view),
+                                        4),
                                 0),
                         isDisplayed()));
-        textView.check(matches(withText("Create a buzz:")));
+        textView2.check(matches(withText("Username: jack")));
 
     }
 

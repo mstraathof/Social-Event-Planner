@@ -21,36 +21,85 @@ import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
 import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.action.ViewActions.closeSoftKeyboard;
+import static android.support.test.espresso.action.ViewActions.replaceText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public class PressBUZZtoCreateBuzzActivityTest {
+public class Register_Returns_To_Main_Page {
 
     @Rule
     public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class);
 
     @Test
-    public void pressBUZZtoCreateBuzzActivityTest() {
+    public void register_Returns_To_Main_Page() {
         openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
 
         ViewInteraction appCompatTextView = onView(
-                allOf(withId(R.id.title), withText("BUZZ"), isDisplayed()));
+                allOf(withId(R.id.title), withText("Register"), isDisplayed()));
         appCompatTextView.perform(click());
 
-        ViewInteraction textView = onView(
-                allOf(withId(R.id.topLabel), withText("Create a buzz:"),
+        ViewInteraction editText = onView(
+                allOf(withId(R.id.enterUserName), isDisplayed()));
+        editText.perform(replaceText("gary216"), closeSoftKeyboard());
+
+        ViewInteraction editText2 = onView(
+                allOf(withId(R.id.enterRealName), isDisplayed()));
+        editText2.perform(replaceText("Gary Smith"), closeSoftKeyboard());
+
+        ViewInteraction editText3 = onView(
+                allOf(withId(R.id.enterEmail), isDisplayed()));
+        editText3.perform(replaceText("gary216@gmail.com"), closeSoftKeyboard());
+
+        ViewInteraction button = onView(
+                allOf(withId(R.id.buttonOk), withText("OK"), isDisplayed()));
+        button.perform(click());
+
+        ViewInteraction recyclerView = onView(
+                allOf(withId(R.id.message_list_view),
+                        childAtPosition(
+                                childAtPosition(
+                                        IsInstanceOf.<View>instanceOf(android.view.ViewGroup.class),
+                                        1),
+                                0),
+                        isDisplayed()));
+        recyclerView.check(matches(isDisplayed()));
+
+        ViewInteraction viewGroup = onView(
+                allOf(withId(R.id.toolbar),
                         childAtPosition(
                                 childAtPosition(
                                         IsInstanceOf.<View>instanceOf(android.view.ViewGroup.class),
                                         0),
                                 0),
                         isDisplayed()));
-        textView.check(matches(withText("Create a buzz:")));
+        viewGroup.check(matches(isDisplayed()));
+
+        ViewInteraction imageView = onView(
+                allOf(withContentDescription("More options"),
+                        childAtPosition(
+                                childAtPosition(
+                                        withId(R.id.toolbar),
+                                        1),
+                                0),
+                        isDisplayed()));
+        imageView.check(matches(isDisplayed()));
+
+        ViewInteraction imageView2 = onView(
+                allOf(withContentDescription("More options"),
+                        childAtPosition(
+                                childAtPosition(
+                                        withId(R.id.toolbar),
+                                        1),
+                                0),
+                        isDisplayed()));
+        imageView2.check(matches(isDisplayed()));
 
     }
 

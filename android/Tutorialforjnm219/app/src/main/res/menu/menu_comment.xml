@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="jnm219.cse216.lehigh.edu.tutorialforjnm219.CommentActivity">
+    <item
+        android:id="@+id/add_comment_settings"
+        android:orderInCategory="1"
+        android:title="New Comment"
+        app:showAsAction="never" />
+
+</menu>

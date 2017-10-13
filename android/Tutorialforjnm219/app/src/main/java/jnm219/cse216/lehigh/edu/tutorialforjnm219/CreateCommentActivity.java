@@ -13,12 +13,12 @@ import android.widget.TextView;
  * Is called when the user clicks the three dots on the main page, then clicks Create a Buzz.
  * The purpose of this class is to allow the user to create a new buzz/entry.
  */
-public class CreateBuzzActivity extends AppCompatActivity {
+public class CreateCommentActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.createbuzz_layout);
+        setContentView(R.layout.createcomment_layout);
 
         // Get top label from the calling activity, and put it in TextView
         Intent input = getIntent();
@@ -26,8 +26,7 @@ public class CreateBuzzActivity extends AppCompatActivity {
         final TextView tv = (TextView) findViewById(R.id.topLabel);
         tv.setText(topLabel);
 
-        final EditText et = (EditText) findViewById(R.id.enterSubject);
-        final EditText em = (EditText) findViewById(R.id.enterMessage);
+        final EditText et = (EditText) findViewById(R.id.enterComment);
 
         // The OK button gets the text from the input box and returns it to the calling activity
         Button bOk = (Button) findViewById(R.id.buttonOk);
@@ -35,10 +34,9 @@ public class CreateBuzzActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Create an intent only when the user entered text in both fields
-                if (!et.getText().toString().equals("") && !em.getText().toString().equals("")) {
+                if (!et.getText().toString().equals("")) {
                     Intent i = new Intent();
-                    i.putExtra("resultSubject", et.getText().toString());
-                    i.putExtra("resultMessage", em.getText().toString());
+                    i.putExtra("resultComment", et.getText().toString());
                     setResult(Activity.RESULT_OK, i);
                     finish();
                 }

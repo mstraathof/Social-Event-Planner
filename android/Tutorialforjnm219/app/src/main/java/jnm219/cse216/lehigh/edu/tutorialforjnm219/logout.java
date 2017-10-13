@@ -3,45 +3,33 @@ package jnm219.cse216.lehigh.edu.tutorialforjnm219;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
 /**
- * Is called when the user clicks the three dots on the main page, then clicks Create a Buzz.
- * The purpose of this class is to allow the user to create a new buzz/entry.
+ * Created by Jack on 10/7/2017.
  */
-public class CreateBuzzActivity extends AppCompatActivity {
 
+public class logout extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.createbuzz_layout);
-
-        // Get top label from the calling activity, and put it in TextView
+        setContentView(R.layout.logout_layout);
+        
         Intent input = getIntent();
         String topLabel = input.getStringExtra("topLabel");
         final TextView tv = (TextView) findViewById(R.id.topLabel);
         tv.setText(topLabel);
-
-        final EditText et = (EditText) findViewById(R.id.enterSubject);
-        final EditText em = (EditText) findViewById(R.id.enterMessage);
 
         // The OK button gets the text from the input box and returns it to the calling activity
         Button bOk = (Button) findViewById(R.id.buttonOk);
         bOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Create an intent only when the user entered text in both fields
-                if (!et.getText().toString().equals("") && !em.getText().toString().equals("")) {
-                    Intent i = new Intent();
-                    i.putExtra("resultSubject", et.getText().toString());
-                    i.putExtra("resultMessage", em.getText().toString());
-                    setResult(Activity.RESULT_OK, i);
-                    finish();
-                }
+                setResult(Activity.RESULT_OK);
+                finish();
             }
         });
 

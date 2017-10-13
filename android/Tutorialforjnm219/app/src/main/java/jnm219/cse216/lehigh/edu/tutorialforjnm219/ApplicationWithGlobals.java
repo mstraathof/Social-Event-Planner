@@ -12,11 +12,28 @@ public class ApplicationWithGlobals extends Application {
 
     private int mPosition;   // current position in adapter, likely (pun) because a like-button was pressed.
 
+    private static String mLoggedInUser = "error";
+    private static int mKey = 0;
+
     public int getPosition() {
         return mPosition;
     }
 
     public void setPosition(int position) {
         mPosition = position;
+    }
+
+    public static String getUsername(){
+        return mLoggedInUser;
+    }
+
+    public static int getKey(){
+        return mKey;
+    }
+
+    public static void setUsername(String username){ mLoggedInUser = username;}
+
+    public static void setKey(int key){
+        mKey = key;
     }
 }

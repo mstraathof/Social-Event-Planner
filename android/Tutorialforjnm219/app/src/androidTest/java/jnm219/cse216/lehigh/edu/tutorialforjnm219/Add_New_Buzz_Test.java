@@ -31,90 +31,88 @@ import static org.hamcrest.Matchers.allOf;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public class EnterANewBuzzTest {
+public class Add_New_Buzz_Test {
 
     @Rule
     public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class);
 
     @Test
-    public void enterANewBuzzTest() {
+    public void add_New_Buzz_Test() {
         openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
 
         ViewInteraction appCompatTextView = onView(
-                allOf(withId(R.id.title), withText("BUZZ"), isDisplayed()));
+                allOf(withId(R.id.title), withText("Log In"), isDisplayed()));
         appCompatTextView.perform(click());
+
+        ViewInteraction editText = onView(
+                allOf(withId(R.id.enterUserName), isDisplayed()));
+        editText.perform(replaceText("jack"), closeSoftKeyboard());
+
+        ViewInteraction editText2 = onView(
+                allOf(withId(R.id.enterPassword), isDisplayed()));
+        editText2.perform(replaceText("pass"), closeSoftKeyboard());
+
+        ViewInteraction button = onView(
+                allOf(withId(R.id.buttonOk), withText("OK"), isDisplayed()));
+        button.perform(click());
+
+        openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
+
+        ViewInteraction appCompatTextView2 = onView(
+                allOf(withId(R.id.title), withText("Create a Buzz"), isDisplayed()));
+        appCompatTextView2.perform(click());
 
         ViewInteraction appCompatEditText = onView(
                 allOf(withId(R.id.enterSubject), isDisplayed()));
-        appCompatEditText.perform(replaceText("Hello"), closeSoftKeyboard());
+        appCompatEditText.perform(replaceText("Subject"), closeSoftKeyboard());
 
         ViewInteraction appCompatEditText2 = onView(
                 allOf(withId(R.id.enterMessage), isDisplayed()));
-        appCompatEditText2.perform(replaceText("World"), closeSoftKeyboard());
-
-        ViewInteraction editText = onView(
-                allOf(withId(R.id.enterSubject), withText("Hello"),
-                        childAtPosition(
-                                childAtPosition(
-                                        IsInstanceOf.<View>instanceOf(android.view.ViewGroup.class),
-                                        0),
-                                1),
-                        isDisplayed()));
-        editText.check(matches(withText("Hello")));
-
-        ViewInteraction editText2 = onView(
-                allOf(withId(R.id.enterMessage), withText("World"),
-                        childAtPosition(
-                                childAtPosition(
-                                        IsInstanceOf.<View>instanceOf(android.view.ViewGroup.class),
-                                        0),
-                                2),
-                        isDisplayed()));
-        editText2.check(matches(withText("World")));
+        appCompatEditText2.perform(replaceText("Message"), closeSoftKeyboard());
 
         ViewInteraction appCompatButton = onView(
                 allOf(withId(R.id.buttonOk), withText("OK"), isDisplayed()));
         appCompatButton.perform(click());
 
         ViewInteraction textView = onView(
-                allOf(withId(R.id.listItemSubject), withText("Subject: Hello"),
+                allOf(withId(R.id.messageItemSubject), withText("Subject: Subject"),
                         childAtPosition(
                                 childAtPosition(
-                                        withId(R.id.datum_list_view),
+                                        IsInstanceOf.<View>instanceOf(android.widget.LinearLayout.class),
                                         0),
                                 0),
                         isDisplayed()));
-        textView.check(matches(withText("Subject: Hello")));
+        textView.check(matches(withText("Subject: Subject")));
 
         ViewInteraction textView2 = onView(
-                allOf(withId(R.id.listItemMessage), withText("Message: World"),
+                allOf(withId(R.id.messageItemMessage), withText("Message: Message"),
                         childAtPosition(
                                 childAtPosition(
-                                        withId(R.id.datum_list_view),
+                                        withId(R.id.message_list_view),
                                         0),
                                 1),
                         isDisplayed()));
-        textView2.check(matches(withText("Message: World")));
+        textView2.check(matches(withText("Message: Message")));
 
         ViewInteraction textView3 = onView(
-                allOf(withId(R.id.listItemVotes), withText("Votes: 0"),
+                allOf(withId(R.id.messageItemVotes), withText("Votes: 0"),
                         childAtPosition(
                                 childAtPosition(
-                                        withId(R.id.datum_list_view),
-                                        0),
-                                2),
+                                        IsInstanceOf.<View>instanceOf(android.widget.LinearLayout.class),
+                                        2),
+                                0),
                         isDisplayed()));
         textView3.check(matches(withText("Votes: 0")));
 
-        ViewInteraction button = onView(
-                allOf(withId(R.id.listLikeButton),
+        ViewInteraction textView4 = onView(
+                allOf(withId(R.id.messageItemVotes), withText("Votes: 0"),
                         childAtPosition(
                                 childAtPosition(
-                                        withId(R.id.datum_list_view),
-                                        0),
-                                3),
+                                        IsInstanceOf.<View>instanceOf(android.widget.LinearLayout.class),
+                                        2),
+                                0),
                         isDisplayed()));
-        button.check(matches(isDisplayed()));
+        textView4.check(matches(withText("Votes: 0")));
 
     }
 
