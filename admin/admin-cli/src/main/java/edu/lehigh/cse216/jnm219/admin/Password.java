@@ -36,7 +36,7 @@ public class Password
 
         String rtVal = "";
         rtVal = ref.get(rand.nextInt(15));
-        for (int i=0; i<9; i++) 
+        for (int i=0; i<3; i++) 
         {
             rtVal += rand.nextInt(10);
         }

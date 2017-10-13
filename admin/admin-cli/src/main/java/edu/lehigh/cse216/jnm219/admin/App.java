@@ -208,7 +208,7 @@ public class App {
             } else if (action == '+') {
                 String username = getString(in, "Enter username");
                 if (!username.equals("")) {
-                    String[] credentials = new String[4];
+                    String[] credentials = new String[4];   // username, realname, email, password
                     credentials[0] = username;
                     //String realname = new String();
                     //String email = new String();
@@ -216,6 +216,10 @@ public class App {
                     //if (db.authorizeUser(username, password, email, realname)) {
                     if (db.authorizeUser(credentials)) {
                         System.out.println(credentials[0] + " " + credentials[1] + " " + credentials[2] + " " + credentials[3]);
+                        String subject = "Welcome to The Buzz";
+                        String content = "Thank you, " + credentials[1] + " for joining the Buzz. Your username is: " + credentials[0] + ". Your password is: " + credentials[3];
+                        Mailer mailer = new Mailer(credentials[2], subject, content);   // to, subject, content
+                        mailer.send();
                     }
                     else {
                         System.out.println("Unable to authorize user");
