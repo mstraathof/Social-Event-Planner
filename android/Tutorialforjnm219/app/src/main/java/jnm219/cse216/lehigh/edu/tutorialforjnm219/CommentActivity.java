@@ -39,6 +39,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TimerTask;
 
+/**
+ * This class handles the view for the comment activity
+ * Everytime a user clicks on the comment button for a message, they are brought to a comment activity filled with comments for that message
+ * Menu has an action to create a comment for that message
+ */
 public class CommentActivity extends AppCompatActivity {
 
     /**
@@ -50,6 +55,7 @@ public class CommentActivity extends AppCompatActivity {
     //Adapter for the message object
     RecyclerView.Adapter adapter;
 
+    //On create will fill this with the unique messageId
     String messageIDGlobal = "";
 
 
@@ -57,6 +63,11 @@ public class CommentActivity extends AppCompatActivity {
     // enter into the browser to understand what the android app is parsing in the GET request.
     String urlPost = "";
     String urlGet = "";
+
+    /**
+     * This mehod is called everytime the comment button is pressed, will fill the view with comments
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -178,7 +189,7 @@ public class CommentActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent intent) {
         //Toast.makeText(MainActivity.this,"RequestCode: "+ requestCode+ "ResultCode: "+resultCode, Toast.LENGTH_LONG).show();
-        // Json request for Create Buzz
+        // Json request for Create a comment
         if (requestCode == 789) {
             // Make sure the request was successful
             if (resultCode == RESULT_OK) {
@@ -194,6 +205,7 @@ public class CommentActivity extends AppCompatActivity {
                 jsonParams.put("mUsername",username);
                 jsonParams.put("mMessageId",messageIDGlobal);
                 jsonParams.put("mComment", resultComment);
+                jsonParams.put("mKey",ApplicationWithGlobals.getKey()+"");
 
                 //jsonParams.put("mUsername", mLoginInfo.mUsername);
                 JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, urlPost,

@@ -36,6 +36,11 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Handler;
 
+/**
+ * Main Activity Will handle all the things that the main page ("Message Page") does, like displaying messages,
+ * The menu button for this activity has Register and Login when the user is not logged in yet
+ * When the User is logged in, the menu displays Create Buzz, change password, and logout
+ */
 public class MainActivity extends AppCompatActivity{
 
     /**
@@ -47,10 +52,6 @@ public class MainActivity extends AppCompatActivity{
      */
     ArrayList<Message> mMessageData = new ArrayList<>();
 
-    int keySave = 0;
-
-    boolean check;
-
     Menu optionsMenu;
     //Adapter for the message object
     RecyclerView.Adapter adapter;
@@ -58,6 +59,7 @@ public class MainActivity extends AppCompatActivity{
     // enter into the browser to understand what the android app is parsing in the GET request.
     String url = "https://quiet-taiga-79213.herokuapp.com/messages";
 
+    //This method handles creating the menu icon, it toggles the visibility depending on if they are logged in or not
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -108,13 +110,17 @@ public class MainActivity extends AppCompatActivity{
         return true;
     }
 
+    /**
+     * This method is called first everytime this activity is  called
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        //Sets up the Recycler adapter to display messages
         RecyclerView rv = (RecyclerView) findViewById(R.id.message_list_view);
         rv.setLayoutManager(new LinearLayoutManager(this));
         rv.addItemDecoration(new SimpleDividerItemDecoration(this));
@@ -128,13 +134,6 @@ public class MainActivity extends AppCompatActivity{
         if(username != "Error" && key != 0) {
             refreshList();      // populate RecyclerView with initial set of buzzes.
         }
-        /*
-        new Timer().scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() { checkLogin();}
-        }, 0, 10000);//put here time 1000 milliseconds=1 second
-         */
-            //VolleySingleton.getInstance(this).addToRequestQueue(stringRequest); // add request to queue.
     }
 
     /**
@@ -295,6 +294,7 @@ public class MainActivity extends AppCompatActivity{
                 jsonParams.put("mSubject", resultSubject);
                 jsonParams.put("mMessage", resultMessage);
                 jsonParams.put("mUsername",ApplicationWithGlobals.getUsername());
+                jsonParams.put("mKey",ApplicationWithGlobals.getKey()+"");
                 JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, url,
                         new JSONObject(jsonParams),
                         new Response.Listener<JSONObject>() {
@@ -395,7 +395,6 @@ public class MainActivity extends AppCompatActivity{
         {
             if(resultCode == RESULT_OK) {
                 String url = "https://quiet-taiga-79213.herokuapp.com/register";
-                String urlBio = "https://quiet-taiga-79213.herokuapp.com/profile";
 
                 Map<String, String> jsonParams = new HashMap<String, String>();
                 Map<String, String> jsonParamsProfile = new HashMap<String, String>();
@@ -403,13 +402,10 @@ public class MainActivity extends AppCompatActivity{
                 final String resultPassword = intent.getStringExtra("resultPassword");
                 final String resultRealName = intent.getStringExtra("resultRealName");
                 final String resultEmail = intent.getStringExtra("resultEmail");
-                final String profileCreation = "Enter a New Bio!";
 
                 jsonParams.put("mUsername",resultUsername);
                 jsonParams.put("mRealName",resultRealName);
                 jsonParams.put("mEmail",resultEmail);
-                jsonParamsProfile.put("mUsername",resultUsername);
-                jsonParamsProfile.put("mProfile",profileCreation);
                 JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, url,
                         new JSONObject(jsonParams),
                         new Response.Listener<JSONObject>() {
@@ -433,38 +429,8 @@ public class MainActivity extends AppCompatActivity{
                         return headers;
                     }
                 };
-                /*
-                JsonObjectRequest postProfileRequest = new JsonObjectRequest(Request.Method.POST, urlBio,
-                        new JSONObject(jsonParamsProfile),
-                        new Response.Listener<JSONObject>() {
-                            @Override
-                            public void onResponse(JSONObject response){
-                                Log.e("Liger","got response");
-
-                            }
-                        },
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                Log.e("Liger", "JsonObjectRequest() failed: " + error.getMessage());
-
-                            }
-                        }) {
-                    @Override
-                    public Map<String, String> getHeaders() {
-                        HashMap<String, String> headers = new HashMap<String, String>();
-                        headers.put("Content-Type", "application/json; charset=utf-8");
-                        headers.put("User-agent", System.getProperty("http.agent"));
-                        return headers;
-                    }
-                };
-                */
-                //Volley request to register a new user
+                //Volley request that registers a new user
                 VolleySingleton.getInstance(this).addToRequestQueue(postRequest);
-                //Volley request to make a blank profile for a user
-                //VolleySingleton.getInstance(this).addToRequestQueue(postProfileRequest);
-
-                //refreshList();
             }
         }
 
@@ -549,6 +515,9 @@ public class MainActivity extends AppCompatActivity{
         }
     }
 
+    /**
+     * This method logs out a user by getting rid of the username and key in local storage, and changes the view back to logged out
+     */
     private void refreshLogout() {
 
         //This finds the menuItem for creating a buzz and makes it visible
@@ -580,54 +549,6 @@ public class MainActivity extends AppCompatActivity{
         //necessary in order to get rid of all the messages from the main activity
         finish();
         startActivity(getIntent());
-    }
-
-
-    public boolean checkLogin(){
-        String url = "https://quiet-taiga-79213.herokuapp.com/checkLogin";
-        Map<String, String> jsonParams = new HashMap<String, String>();
-
-        jsonParams.put("mUsername",ApplicationWithGlobals.getUsername());
-        jsonParams.put("mKey",ApplicationWithGlobals.getKey()+"");
-
-        JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, url,
-                new JSONObject(jsonParams),
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response){
-                        Log.e("Liger","got response");
-                        try {
-                            check = response.getBoolean("mCheck");
-                            //Toast.makeText(MainActivity.this,"check "+check, Toast.LENGTH_LONG).show();
-                            Log.d("Liger","Check1: "+check);
-                            if(!check)
-                            {
-                                ApplicationWithGlobals.setUsername("Error");
-                                ApplicationWithGlobals.setKey(0);
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.e("Liger", "JsonObjectRequest() failed: " + error.getMessage());
-
-                    }
-                }) {
-            @Override
-            public Map<String, String> getHeaders() {
-                HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put("Content-Type", "application/json; charset=utf-8");
-                headers.put("User-agent", System.getProperty("http.agent"));
-                return headers;
-            }
-        };
-        VolleySingleton.getInstance(this).addToRequestQueue(postRequest);
-
-        return check;
     }
 
 }

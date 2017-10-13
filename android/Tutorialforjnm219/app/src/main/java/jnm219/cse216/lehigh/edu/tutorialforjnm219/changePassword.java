@@ -10,8 +10,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 /**
- * Is called when the user clicks the three dots on the main page, then clicks Create a Buzz.
- * The purpose of this class is to allow the user to create a new buzz/entry.
+ * Is called when the user clicks the three dots on the main page, then clicks change passsword
+ * The purpose of this class is to allow the user to change their password
  */
 public class changePassword extends AppCompatActivity {
 

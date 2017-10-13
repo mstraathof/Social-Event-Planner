@@ -2,15 +2,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="jnm219.cse216.lehigh.edu.tutorialforjnm219.CommentActivity">
-
-    <item
-        android:id="@+id/action_refresh"
-        android:title="@string/refresh_button"
-
-        android:orderInCategory="1"
-        app:showAsAction="never"
-        />
-
     <item
         android:id="@+id/add_comment_settings"
         android:orderInCategory="1"

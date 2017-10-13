@@ -49,6 +49,11 @@ public class MessageRecyclerAdapter extends RecyclerView.Adapter<MessageRecycler
         return new MessageRecyclerAdapter.MessageViewHolder(itemView);
     }
 
+    /**
+     * This method will fill each respective Textview with their respective values from the message object
+     * @param holder
+     * @param position
+     */
     @Override
     public void onBindViewHolder(MessageViewHolder holder, int position) {
         final Message message = messageList.get(position);
@@ -70,6 +75,9 @@ public class MessageRecyclerAdapter extends RecyclerView.Adapter<MessageRecycler
         void onRecyclerClick(int position);
     }
 
+    /**
+     * This class Creates the text view elements for message, and sets up the like, dislike and comment buttons
+     */
     public class MessageViewHolder extends RecyclerView.ViewHolder {
         //private final RecyclerItemClickListener mListenerInternal;
         private TextView messageId;
@@ -95,7 +103,9 @@ public class MessageRecyclerAdapter extends RecyclerView.Adapter<MessageRecycler
             createTimeTextView = (TextView) itemView.findViewById(R.id.messageItemCreateTime);
             Log.d("Liger", "Username: "+messageId.getText().toString());
 
-
+            /**
+             * On comment button click, the activity will change to that messages comment view
+             */
             commentButton.setOnClickListener(new View.OnClickListener(){
                 public void onClick(View v) {
                     // onClick() for button is called after onInterceptTouchEvent() stashed adapter position in a global variable.
@@ -127,6 +137,7 @@ public class MessageRecyclerAdapter extends RecyclerView.Adapter<MessageRecycler
                     //User sends username and message Id to database, who will toggle the downvotes
                     jsonParams.put("mUsername",ApplicationWithGlobals.getUsername());
                     jsonParams.put("mMessageId",messageId.getText().toString());
+                    jsonParams.put("mKey",ApplicationWithGlobals.getKey()+"");
                     Log.d("jnm219", url);
                     JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, url,
                             new JSONObject(jsonParams),
@@ -177,6 +188,7 @@ public class MessageRecyclerAdapter extends RecyclerView.Adapter<MessageRecycler
                     //User sends username and message Id to database, who will toggle the downvotes
                     jsonParams.put("mUsername",ApplicationWithGlobals.getUsername());
                     jsonParams.put("mMessageId",messageId.getText().toString());
+                    jsonParams.put("mKey",ApplicationWithGlobals.getKey()+"");
                     Log.d("jnm219", url);
                     JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, url,
                             new JSONObject(jsonParams),

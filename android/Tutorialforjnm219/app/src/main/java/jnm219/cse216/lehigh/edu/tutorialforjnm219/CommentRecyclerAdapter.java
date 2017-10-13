@@ -29,9 +29,8 @@ import java.util.Map;
 import static android.support.v4.content.ContextCompat.startActivity;
 
 /**
- * This adapter is a bridge between our RecyclerAdapterView and the underlying data
+ * This adapter is a bridge between our RecyclerAdapterView and the underlying data for comments
  */
-
 public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecyclerAdapter.CommentViewHolder>{
 
     @Override
@@ -42,6 +41,11 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
         return new CommentRecyclerAdapter.CommentViewHolder(itemView);
     }
 
+    /**
+     * Binds the comment data with the text view for all the displayed elements for a comment
+     * @param holder
+     * @param position
+     */
     @Override
     public void onBindViewHolder(CommentViewHolder holder, int position) {
         final Comment Comment = CommentList.get(position);
@@ -58,6 +62,9 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
         void onRecyclerClick(int position);
     }
 
+    /**
+     * Creates a holder for all the text view elements for a comment
+     */
     public class CommentViewHolder extends RecyclerView.ViewHolder {
         //private final RecyclerItemClickListener mListenerInternal;
         private TextView CommentTextView;
