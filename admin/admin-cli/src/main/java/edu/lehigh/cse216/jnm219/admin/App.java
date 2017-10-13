@@ -41,15 +41,9 @@ public class App {
         System.out.println();
         System.out.println("  [r] Print unauthorized users");
         System.out.println("  [+] Authorize user");
+        System.out.println("  [-] Reject user");
         System.out.println("  [q] Quit Program");
         System.out.println("  [?] Help (this message)");
-        /* 
-        System.out.println("  [1] Query for a specific row");
-        System.out.println("  [*] Query for all rows");
-        System.out.println("  [-] Delete a row");
-        System.out.println("  [+] Insert a new row");
-        System.out.println("  [~] Update a row");
-        */
     }
 
     /**
@@ -62,7 +56,7 @@ public class App {
     static char prompt(BufferedReader in) {
         // The valid actions:
         String mainActions = "TDq?";
-        String allActions = "TDaUpmcudAXPMCYZq?r+";
+        String allActions = "TDaUpmcudAXPMCYZq?r+-";
         // We repeat until a valid single-character option is selected        
         while (true) {
             System.out.print("[" + mainActions + "] :> ");
@@ -82,49 +76,6 @@ public class App {
         }
     }
 
-    /**
-     * Ask the user to enter a String message
-     * 
-     * @param in A BufferedReader, for reading from the keyboard
-     * @param message A message to display when asking for input
-     * 
-     * @return The string that the user provided.  May be "".
-     */
-    /*
-    static String getString(BufferedReader in, String message) {
-        String s;
-        try {
-            System.out.print(message + " :> ");
-            s = in.readLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "";
-        }
-        return s;
-    }
-/*
-    /**
-     * Ask the user to enter an integer
-     * 
-     * @param in A BufferedReader, for reading from the keyboard
-     * @param message A message to display when asking for input
-     * 
-     * @return The integer that the user provided.  On error, it will be -1
-     */
-    /*
-    static int getInt(BufferedReader in, String message) {
-        int i = -1;
-        try {
-            System.out.print(message + " :> ");
-            i = Integer.parseInt(in.readLine());
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-        }
-        return i;
-    }
-*/
     /**
      * The main routine runs a loop that gets a request from the user and
      * processes it
@@ -198,24 +149,13 @@ public class App {
             // misc.
             else if (action == 'r') {
                 db.selectUnauthUserAll();
-                /*
-                try {
-                    db.mSelectUnauthUserAll.execute();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-                */
             } else if (action == '+') {
                 String username = getString(in, "Enter username");
                 if (!username.equals("")) {
                     String[] credentials = new String[4];   // username, realname, email, password
                     credentials[0] = username;
-                    //String realname = new String();
-                    //String email = new String();
-                    //String password = new String();
-                    //if (db.authorizeUser(username, password, email, realname)) {
                     if (db.authorizeUser(credentials)) {
-                        System.out.println(credentials[0] + " " + credentials[1] + " " + credentials[2] + " " + credentials[3]);
+                        //System.out.println(credentials[0] + " " + credentials[1] + " " + credentials[2] + " " + credentials[3]);
                         String subject = "Welcome to The Buzz";
                         String content = "Thank you, " + credentials[1] + " for joining the Buzz. Your username is: " + credentials[0] + ". Your password is: " + credentials[3];
                         Mailer mailer = new Mailer(credentials[2], subject, content);   // to, subject, content
@@ -225,7 +165,11 @@ public class App {
                         System.out.println("Unable to authorize user");
                     }
                 } 
+            } else if (action == '-') {
+                String username = getString(in, "Enter username");
+                db.rejectUser(username);
             }
+            
         }
          db.disconnect();
     }
@@ -264,53 +208,4 @@ public class App {
         return s;
     }
 }
-            /*
-            else if (action == '1') {
-                int id = getInt(in, "Enter the row ID");
-                if (id == -1)
-                    continue;
-                Database.RowData res = db.selectOne(id);
-                if (res != null) {
-                    System.out.println("  [" + res.mId + "] " + res.mSubject);
-                    System.out.println("  --> " + res.mMessage);
-                }
-                */
-                /*
-             else if (action == '*') {
-                ArrayList<Database.RowData> res = db.selectAll();
-                if (res == null)
-                    continue;
-                System.out.println("  Current Database Contents");
-                System.out.println("  -------------------------");
-                for (Database.RowData rd : res) {
-                    System.out.println("  [" + rd.mId + "] " + rd.mSubject);
-                }*/
-                /*
-            } else if (action == '-') {
-                int id = getInt(in, "Enter the row ID");
-                if (id == -1)
-                    continue;
-                int res = db.deleteRow(id);
-                if (res == -1)
-                    continue;
-                System.out.println("  " + res + " rows deleted");
-            } else if (action == '+') {
-                String subject = getString(in, "Enter the subject");
-                String message = getString(in, "Enter the message");
-                if (subject.equals("") || message.equals(""))
-                    continue;
-                int res = db.insertRow(subject, message);
-                System.out.println(res + " rows added");
-            } else if (action == '~') {
-                int id = getInt(in, "Enter the row ID :> ");
-                if (id == -1)
-                    continue;
-                String newMessage = getString(in, "Enter the new message");
-                int res = db.updateOne(id, newMessage);
-                if (res == -1)
-                    continue;
-                System.out.println("  " + res + " rows updated");
-            }*/
-        // Always remember to disconnect from the database when the program 
-        // exits
       

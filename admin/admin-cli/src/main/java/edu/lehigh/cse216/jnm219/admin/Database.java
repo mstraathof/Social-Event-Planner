@@ -120,7 +120,7 @@ public class Database {
             db.mCreateUserTable = db.mConnection.prepareStatement(
                 "CREATE TABLE IF NOT EXISTS tblUser ("
                 +"user_id Serial PRIMARY KEY,"
-                +"username VARCHAR(255) UNIQUE,"
+                +"username VARCHAR(255) UNIQUE NOT NULL,"
                 +"realname VARCHAR(255) NOT NULL,"
                 +"email VARCHAR(255) NOT NULL,"
                 +"salt BYTEA,"
@@ -213,9 +213,7 @@ public class Database {
     boolean createAllTables() {
         try {
             mCreateUnauthUserTable.execute();
-            System.err.println("ready created");
             mCreateUserTable.execute();
-            System.err.println("ready created");
             mCreateProfileTable.execute();
             mCreateMessageTable.execute();
             mCreateCommentTable.execute();
@@ -261,7 +259,6 @@ public class Database {
             }    
         } catch (SQLException e) {
             System.err.println("Table is already created. Error: " + e);
-            //e.printStackTrace();
             return false;
         }
         return true;
@@ -277,8 +274,6 @@ public class Database {
             stmt = mConnection.createStatement();
             String sql = "DROP TABLE " + table + " CASCADE";
             stmt.executeUpdate(sql);
-            //mDropTable.setString(1, table);
-            //mDropTable.execute();
         } catch (SQLException e) {
             System.err.println("There is no table to drop");
             e.printStackTrace();
@@ -297,6 +292,17 @@ public class Database {
                     return false;
                 }
             }
+        return true;
+    }
+
+    boolean rejectUser(String username) {
+        try {
+            mRemoveUnauthUserOne.setString(1, username);
+            mRemoveUnauthUserOne.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Failed to reject user: " + e);
+            return false;
+        }
         return true;
     }
 
@@ -338,7 +344,6 @@ public class Database {
                 mInsertUser.setString(1, username);
                 mInsertUser.setString(2, realname);
                 mInsertUser.setString(3, email);
-                // TODO: need to get the salt from JavaPasswordSecurity.java
                 byte [] salt = pw.getSalt();
                 String password = pw.getPassword();
                 credentials[3] = password;
