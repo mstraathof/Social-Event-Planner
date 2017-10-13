@@ -125,6 +125,26 @@ public class App {
             res.redirect("/index.html");
             return "";
         });
+        Spark.post("/checkLogin",(request, response) -> { 
+            SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
+            response.status(200);
+            response.type("application/json"); 
+            boolean checkExist= checkLogin(req.mUsername);
+            int key=0;
+            boolean mCheck=false;
+            System.out.println(checkExist);
+            System.out.println(req.mUsername);
+            if (checkExist)
+            {
+                key=logged_in.get(req.mUsername);
+                if (key==req.mKey)
+                {
+                    mCheck=true;
+                    return  gson.toJson(new StructuredLoginCheck("ok",null,mCheck));
+                }
+            }
+            return  gson.toJson(new StructuredLoginCheck("error",null,mCheck));
+        });
 
         // GET route that returns all message titles and Ids.  All we do is get 
         // the data, embed it in a StructuredResponse, turn it into JSON, and 
@@ -144,8 +164,8 @@ public class App {
         // ":id" isn't a number, Spark will reply with a status 500 Internal
         // Server Error.  Otherwise, we have an integer, and the only possible 
         // error is that it doesn't correspond to a row with data.
-        Spark.get("/messages/:id", (request, response) -> {
-            int idx = Integer.parseInt(request.params("id"));
+        Spark.get("/messages/:messageId", (request, response) -> {
+            int idx = Integer.parseInt(request.params("messageId"));
             // ensure status 200 OK, with a MIME type of JSON
             response.status(200);
             response.type("application/json");
@@ -180,12 +200,12 @@ public class App {
                 return gson.toJson(new StructuredMessage("ok", "" + newId, null));
             }
         });
-        Spark.get("/comments", (request, response) -> {
+        Spark.get("/comments/:messageId", (request, response) -> {
             // ensure status 200 OK, with a MIME type of JSON
-            SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
+            int mId = Integer.parseInt(request.params("messageId"));
             response.status(200);
             response.type("application/json"); 
-            return gson.toJson(new StructuredMessage("ok", null, db.selectAllComment(req.mMessageId)));
+            return gson.toJson(new StructuredComment("ok", null, db.selectAllComment(mId)));
         });
 
         Spark.post("/comments", (request, response) -> {
@@ -200,11 +220,13 @@ public class App {
             response.type("application/json");
             //int userId=db.getUserId(req.mUsername);
             // NB: createEntry checks for null title and message
+            System.out.println(req.mUsername +req.mMessageId+req.mComment);
             boolean check = db.insertComment(req.mUsername, req.mMessageId,req.mComment); // mSubject vs mTitle?
+            System.out.println(check);
             if (check == false) {
-                return gson.toJson(new StructuredMessage("error", "error performing insertion", null));
+                return gson.toJson(new StructuredComment("error", "error performing insertion", null));
             } else {
-                return gson.toJson(new StructuredMessage("ok", "" + check, null));
+                return gson.toJson(new StructuredComment("ok", "" + check, null));
             }
         });
 
@@ -225,25 +247,23 @@ public class App {
             //     describes the error.
             response.status(200);
             response.type("application/json");
-            byte [] salt = getSalt();
-            byte [] password= encryptPw (req.mPassword,salt);
             // NB: createEntry checks for null title and message
-            boolean newUser = db.insertUser(req.mUsername, req.mRealName, req.mEmail,salt, password); // mSubject vs mTitle?
+            boolean newUser = db.insertUser(req.mUsername, req.mRealName, req.mEmail); // mSubject vs mTitle?
             if (newUser == false) {
                 return gson.toJson(new StructuredResponse("error", "error performing insertion", null));
             } else {
                 return gson.toJson(new StructuredResponse("ok", "" + newUser, null));
             }
         });
-        /*      
+         /*
        Spark.get("/login", (request, response) -> {
             // ensure status 200 OK, with a MIME type of JSON
             response.status(200);
             response.type("application/json"); 
             return gson.toJson(new StructuredResponse("ok", null, db.selectAllUser()));
-        });
-*/
-        Spark.get("/login", (request, response) -> {
+        });*/
+
+        Spark.post("/login", (request, response) -> {
             // NB: if gson.Json fails, Spark will reply with status 500 Internal 
             // Server Error
             SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
@@ -252,45 +272,119 @@ public class App {
             //     describes the error.
             response.status(200);
             response.type("application/json");
-            
             byte [] salt = db.getUserSalt(req.mUsername);
             if (salt==null)
             {
-                 return gson.toJson(new Structured_login("error", "No account under that username or password", null));
+                System.out.println("Said salt was null");
+                return gson.toJson(new Structured_login("error", "No account under that username or password", 3));
             }
+            System.out.println("Got passed salt");
             byte [] password= encryptPw (req.mPassword,salt);
             // NB: createEntry checks for null title and message8
             
             boolean curUser = db.selectOneUser(req.mUsername, password); // mSubject vs mTitle?
-            if (false) {
-                return gson.toJson(new Structured_login("error", "No account under that username or password", null));
+            if (curUser==false) {
+                System.out.println("Got NO select one user");
+                return gson.toJson(new Structured_login("error", "No account under that username or password", 2));
             } else {
-                int key=252;//keyGenerator();
-                //logged_in.put(req.mUsername,key);
-                return gson.toJson(new Structured_login("ok", "its all good" , key));
-            }
+                boolean createProfile=db.insertProfile(req.mUsername);
+                int key=keyGenerator();
+                System.out.println("Got YES select one user");
+                logged_in.put(req.mUsername,key);
+                System.out.println(key);
+                System.out.println(logged_in);
+                return gson.toJson(new Structured_login("ok", "returned a key", key));
+           }
         });
-/*
-        Spark.get ("/log_in/:username", (request, response)->{
-            String username=request.params("username");
+        Spark.post("/upVote", (request, response) -> {
+
+            SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
             response.status(200);
             response.type("application/json");
-            int key= keyGenerator(); 
-            if (checkLogin(username)==false)
+            boolean upVote=db.updateUpVote(req.mUsername,req.mMessageId);
+            if (upVote)
             {
-                logged_in.put(username,key);
-                return gson.toJson(new StructuredResponse("ok", username + " has key: "+key, null));
+                return gson.toJson(new StructuredMessage("ok", "upvoted", null));
             }
             else 
             {
-                logOut(username);
-                return gson.toJson(new StructuredResponse("error", "this person is already logged in", null));
+                return gson.toJson(new StructuredMessage("error", "upvote failed", null));
             }
         });
-        Spark.get ("/log_out/:username", (request, response)->{
-            String username=request.params("username");
+
+        Spark.post("/downVote", (request, response) -> {
+
+            SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
             response.status(200);
             response.type("application/json");
+            boolean downVote=db.updateDownVote(req.mUsername,req.mMessageId);
+            if (downVote)
+            {
+                return gson.toJson(new StructuredMessage("ok", "upvoted", null));
+            }
+            else 
+            {
+                return gson.toJson(new StructuredMessage("error", "upvote failed", null));
+            }
+        });
+        
+        Spark.post("/profile", (request, response) -> {
+             SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
+             response.status(200);
+             response.type("application/json");
+             boolean makeProfile=db.updateProfile(req.mUsername,req.mProfile);
+             if (makeProfile)
+             {
+                return gson.toJson(new StructuredProfile("ok", "successfully made a profile", null,null, null, null, null));
+             }
+             else
+             {
+                return gson.toJson(new StructuredProfile("ok", "error making a profile", null, null,null, null, null));
+             }
+        });
+        Spark.get("/profile/:username", (request, response) -> {
+            // ensure status 200 OK, with a MIME type of JSON
+            String user =request.params("username");
+            response.status(200);
+            response.type("application/json"); 
+            return gson.toJson(new StructuredProfile("ok", "passing in user profile", db.selectProfile(user),db.selectUserMessage(user),db.selectUserComment(user),db.selectMessageLiked(user),db.selectMessageDisliked(user)));
+        });
+        Spark.put("/changePassword/:username", (request, response) -> {
+            // If we can't get an ID or can't parse the JSON, Spark will send
+            // a status 500
+            String user =request.params("username");
+            SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
+            // ensure status 200 OK, with a MIME type of JSON
+            response.status(200);
+            response.type("application/json");
+            byte [] salt=db.getUserSalt(user);
+            byte [] newSalt=getSalt();
+            byte [] password= encryptPw (req.mCurrentPassword,salt);
+            if (db.selectOneUser(user,password))
+            {
+                byte [] newPassword= encryptPw (req.mNewPassword,newSalt);
+                boolean check=db.updatePassword(user,newPassword,newSalt);
+                if (check)
+                {
+                    return gson.toJson(new Structured_login("ok", "changed password",1));
+                }
+                else
+                {
+                    return gson.toJson(new Structured_login("error", "change password failed",-1));
+                }
+            }
+            else
+            {
+               return gson.toJson(new Structured_login("error", "current password is wrong",-2));
+            }
+            
+        });
+
+        Spark.post ("/logout/", (request, response)->{
+            SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
+            response.status(200);
+            response.type("application/json");
+            String username=req.mUsername;
             if (checkLogin(username)==false)
             {
                 return gson.toJson(new StructuredResponse("error", "this person is not logged in", null));
@@ -300,70 +394,7 @@ public class App {
                 logOut(username);
                 return gson.toJson(new StructuredResponse("ok", username + " logged out ", null));
             }
-        });*/
+        });
        
-
-
-
-
-
-
-
-
-
-
-
-        /**
-         * PUT route for updating a row in the DataStore.  This is almost 
-         * exactly the same as POST
-         */
-        /*
-        Spark.put("/messages/:id", (request, response) -> {
-            // If we can't get an ID or can't parse the JSON, Spark will send
-            // a status 500
-            int idx = Integer.parseInt(request.params("id"));
-            SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
-            // ensure status 200 OK, with a MIME type of JSON
-            response.status(200);
-            response.type("application/json");
-            int result = -1;
-            // Upvote if mChangeVote equals 1
-            if(req.mChangeVote == 1)
-            {
-                result = db.upVote(idx, 1);
-                return gson.toJson(new StructuredResponse("1", null, result));
-            }
-            // Downvote if mChangevote equals -1
-            else if(req.mChangeVote == -1)
-            {
-                result = db.downVote(idx, -1);
-                return gson.toJson(new StructuredResponse("1", null, result));
-            }
-            if (result == -1) {
-                return gson.toJson(new StructuredResponse("error", "unable to update row " + idx, null));
-            } else {
-                return gson.toJson(new StructuredResponse("error", "invalid mChangeVote value. Must be 1 or -1.", null));
-            }
-        });
-*/
-        /**
-        // DELETE route for removing a row from the DataStore
-        Spark.delete("/messages/:id", (request, response) -> {
-            // If we can't get an ID, Spark will send a status 500
-            int idx = Integer.parseInt(request.params("id"));
-            // ensure status 200 OK, with a MIME type of JSON
-            response.status(200);
-            response.type("application/json");
-            // NB: we won't concern ourselves too much with the quality of the 
-            //     message sent on a successful delete
-            int result = db.deleteRow(idx);
-            if (result != -1) {
-                return gson.toJson(new StructuredResponse("error", "unable to delete row " + idx, null));
-            } else {
-                return gson.toJson(new StructuredResponse("ok", null, null));
-            }
-        });
-        */
-        
     }
 }

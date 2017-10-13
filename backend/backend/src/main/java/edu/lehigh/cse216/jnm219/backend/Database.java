@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Calendar;
 import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 import java.util.ArrayList;
 
@@ -58,14 +59,24 @@ public class Database {
     private PreparedStatement mInsertComment;
     private PreparedStatement mSelectAllComment;
     private PreparedStatement mInsertLikes;
-    private PreparedStatement mUpdateLikes;
+    private PreparedStatement mDeleteLikes;
     private PreparedStatement mCountLikes;
     private PreparedStatement mInsertDislikes;
-    private PreparedStatement mUpdateDislikes;
+    private PreparedStatement mDeleteDislikes;
     private PreparedStatement mCountDislikes;
     private PreparedStatement mGetSalt;
     private PreparedStatement mGetUserId;
-
+    private PreparedStatement mInsertProfile;
+    private PreparedStatement mSelectOneProfile;
+    private PreparedStatement mSelectUserMessage;
+    private PreparedStatement mSelectUserComment;
+    private PreparedStatement mSearchLikes;
+    private PreparedStatement mSearchDislikes;
+    private PreparedStatement mUpdateMessageVote;
+    private PreparedStatement mGetVote;
+    private PreparedStatement mUpdateProfile;
+    private PreparedStatement mGetLikedMessage;
+    private PreparedStatement mGetDisLikedMessage;
     /**
      * The Database constructor is private: we only create Database objects 
      * through the getDatabase() method.
@@ -147,23 +158,34 @@ public class Database {
             //db.mDeleteOne = db.mConnection.prepareStatement("DELETE FROM tblData WHERE id = ?");
             db.mInsertOneMessage = db.mConnection.prepareStatement("INSERT INTO tblMessage VALUES (default, ?, ?, ?, ?, ?)");
             db.mSelectAllMessage = db.mConnection.prepareStatement("SELECT * FROM tblMessage ORDER BY createTime DESC");
-            db.mSelectOneMessage = db.mConnection.prepareStatement("SELECT * from tblMessage WHERE id=?");
+            db.mSelectOneMessage = db.mConnection.prepareStatement("SELECT * from tblMessage WHERE message_id=?");
             //db.mUpdateOneMessage = db.mConnection.prepareStatement("UPDATE tblMessage SET subject = ?, message = ? WHERE id = ?");
-            db.mUpdateVote = db.mConnection.prepareStatement("UPDATE tblMessage SET votes = votes + ? WHERE id = ?");
-            db.mInsertUser = db.mConnection.prepareStatement("Insert into tblUser Values (default, ?, ?, ?, ?, ?)");
+            //db.mUpdateVote = db.mConnection.prepareStatement("UPDATE tblMessage SET votes = votes + ? WHERE id = ?");
+            db.mInsertUser = db.mConnection.prepareStatement("Insert into tblUnauthUser Values (?, ?, ?)");
             db.mSelectOneUser = db.mConnection.prepareStatement("Select * from tblUser where username=? and password=?");
             db.mSelectAllUser = db.mConnection.prepareStatement("Select * from tblUser");
-            db.mUpdateUser = db.mConnection.prepareStatement("Update tblUser Set Password=? where username=? and email=?");
-            db.mInsertComment = db.mConnection.prepareStatement("Insert into tblComment values (defalut, ?, ?, ?, ?");
+            db.mUpdateUser = db.mConnection.prepareStatement("Update tblUser Set Password=?, salt=? where username=?");
+            db.mInsertComment = db.mConnection.prepareStatement("Insert into tblComment values (default, ?, ?, ?, ?)");
             db.mSelectAllComment = db.mConnection.prepareStatement("select * from tblComment where message_id=? ");
-            db.mInsertLikes = db.mConnection.prepareStatement("");
-            db.mUpdateLikes = db.mConnection.prepareStatement("");
-            db.mCountLikes = db.mConnection.prepareStatement("");
-            db.mInsertDislikes = db.mConnection.prepareStatement("");
-            db.mUpdateDislikes = db.mConnection.prepareStatement("");
-            db.mCountDislikes = db.mConnection.prepareStatement("");  
+            db.mInsertLikes = db.mConnection.prepareStatement("Insert into tblUpVote values (?,?)");
+            db.mDeleteLikes = db.mConnection.prepareStatement("Delete from tblUpVote where username=? and message_id=?");
+            db.mCountLikes = db.mConnection.prepareStatement("select count(message_id) from tblUpVote where message_id=?");
+            db.mSearchLikes = db.mConnection.prepareStatement("select * from tblUpVote where username=? and message_id=?");
+            db.mInsertDislikes = db.mConnection.prepareStatement("Insert into tblDownVote values (?,?)");
+            db.mDeleteDislikes = db.mConnection.prepareStatement("Delete from tblDownVote where username=? and message_id=?");
+            db.mCountDislikes = db.mConnection.prepareStatement("select count(message_id) from tblDownVote where message_id=?");
+            db.mSearchDislikes = db.mConnection.prepareStatement("select * from tblDownVote where username=? and message_id=?");
             db.mGetSalt=db.mConnection.prepareStatement("select salt from tblUser where username=?");
             db.mGetUserId=db.mConnection.prepareStatement("select user_id from tblUser where username=?");
+            db.mInsertProfile = db.mConnection.prepareStatement("Insert into tblProfile values (?,?)"); 
+            db.mSelectOneProfile = db.mConnection.prepareStatement("select username, realname, email, profile_text from tblUser natural join tblProfile where username=?");
+            db.mSelectUserMessage = db.mConnection.prepareStatement("select * from tblMessage where username=?");
+            db.mSelectUserComment = db.mConnection.prepareStatement("select * from tblComment where username=?");
+            db.mUpdateMessageVote = db.mConnection.prepareStatement("update tblMessage set vote=? where message_id=?");
+            db.mGetVote = db.mConnection.prepareStatement("select vote from tblMessage where message_id=?");
+            db.mUpdateProfile = db.mConnection.prepareStatement("update tblProfile Set profile_text=? where username=?");
+            db.mGetLikedMessage=db.mConnection.prepareStatement("select message_id from tblUpVote where username=?");
+            db.mGetDisLikedMessage=db.mConnection.prepareStatement("select message_id from tblDownVote where username=?");
         } catch (SQLException e) {
             System.err.println("Error creating prepared statement");
             e.printStackTrace();
@@ -215,7 +237,10 @@ public class Database {
             mInsertOneMessage.setString(2, message);
             //int userId=getUserId(username);
             mInsertOneMessage.setString(3, username);
-            mInsertOneMessage.setString(4, new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(new Date()));
+            SimpleDateFormat date= new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+            Calendar cal = Calendar.getInstance();
+            String strDate=date.format(cal);
+            mInsertOneMessage.setString(4,strDate);
             mInsertOneMessage.setInt(5, votes);// create count votes method
             count += mInsertOneMessage.executeUpdate();
         } catch (SQLException e) {
@@ -225,7 +250,7 @@ public class Database {
                 return -1;
         else
             return count;
-    }/*
+    }
     int getUserId(String username)
     {
         int id=0;
@@ -241,7 +266,7 @@ public class Database {
             e.printStackTrace();
         }
         return id;
-    }*/
+    }
     /**
      * Query the database for a list of all subjects and their IDs
      * 
@@ -284,7 +309,7 @@ public class Database {
             ResultSet rs = mSelectAllUser.executeQuery();
             while (rs.next()) {
 
-                res.add(new RowUser(rs.getInt("user_id"), rs.getString("username"), rs.getString("realname"), rs.getString("email"), rs.getBytes("salt"),rs.getBytes("password")));
+                res.add(new RowUser(rs.getInt("user_id"),rs.getString("username"), rs.getString("realname"), rs.getString("email"), rs.getBytes("salt"),rs.getBytes("password")));
             }
             rs.close();
             return res;
@@ -306,30 +331,134 @@ public class Database {
             mSelectOneMessage.setInt(1, id);
             ResultSet rs = mSelectOneMessage.executeQuery();
             if (rs.next()) {
-                res = new RowMessage(rs.getInt("id"), rs.getString("subject"), rs.getString("message"),rs.getString("username"), rs.getString("createTime"),rs.getInt("vote"));
+                res = new RowMessage(rs.getInt("message_id"), rs.getString("subject"), rs.getString("message"),rs.getString("username"), rs.getString("createTime"),rs.getInt("vote"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return res;
     }
+    RowProfile selectProfile(String username)
+    {
+        RowProfile res=null;
+        try{
+            //int userId=getUserId(username);
+            System.out.println(username);
+            mSelectOneProfile.setString(1,username);
+            ResultSet rs = mSelectOneProfile.executeQuery();
+            if (rs.next()) {
+                System.out.println("got in to sql try");
+                res= new RowProfile(rs.getString("username"),rs.getString("realname"),rs.getString("email"),rs.getString("profile_text"));
+            }
+        } catch (SQLException e) {
+            System.out.println("failed");
+            e.printStackTrace();
+        }
+        return res;
+    }
+    ArrayList <RowMessage> selectMessageLiked(String username)
+    {
+        ArrayList<RowMessage> res = new ArrayList<RowMessage>();
+        int mId=0;
+        try {
+            mGetLikedMessage.setString(1,username);
+            ResultSet rs = mGetLikedMessage.executeQuery();
+            while (rs.next())
+            {
+                mId=rs.getInt("message_id");
+                mSelectOneMessage.setInt(1,mId);
+                ResultSet rs2=mSelectOneMessage.executeQuery();
+                if (rs2.next())
+                {
+                    res.add(new RowMessage(rs.getInt("message_id"), rs.getString("subject"), rs.getString("message"), rs.getString("username"), rs.getString("createTime"),rs.getInt("vote")));
+                }
+            }
+        }catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return res;
+    }
+    ArrayList <RowMessage> selectMessageDisliked(String username)
+    {
+        ArrayList<RowMessage> res = new ArrayList<RowMessage>();
+        int mId=0;
+        try{
+            mGetDisLikedMessage.setString(1,username);
+            ResultSet rs = mGetDisLikedMessage.executeQuery();
+            while (rs.next())
+            {
+                mId=rs.getInt("message_id");
+                mSelectOneMessage.setInt(1,mId);
+                ResultSet rs2=mSelectOneMessage.executeQuery();
+                if (rs2.next())
+                {
+                    res.add(new RowMessage(rs.getInt("message_id"), rs.getString("subject"), rs.getString("message"), rs.getString("username"), rs.getString("createTime"),rs.getInt("vote")));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return res;
+    }
+    ArrayList <RowMessage> selectUserMessage(String username)
+    {
+        ArrayList<RowMessage> res = new ArrayList<RowMessage>();
+        try{
+            mSelectUserMessage.setString(1,username);
+            ResultSet rs = mSelectUserMessage.executeQuery();
+            while (rs.next()) 
+            {
+                res.add(new RowMessage(rs.getInt("message_id"), rs.getString("subject"), rs.getString("message"), rs.getString("username"), rs.getString("createTime"),rs.getInt("vote")));
+            }
+            rs.close();
+            return res;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    ArrayList <RowComment> selectUserComment(String username)
+    {
+        ArrayList<RowComment> res = new ArrayList<RowComment>();
+        try{
+            mSelectUserComment.setString(1,username);
+            ResultSet rs = mSelectUserComment.executeQuery();
+             while (rs.next()) {
+                res.add(new RowComment(rs.getInt("comment_id"), rs.getString("username"), rs.getInt("message_id"), rs.getString("comment_text"), rs.getString("createTime")));
+            }
+            rs.close();
+            return res;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
     byte [] getUserSalt (String username)
     {
+        System.err.println("HELLO!");
         byte [] salt = null;
+        int i=0;
         try {
+            System.out.println(username);
             mGetSalt.setString (1,username);
             ResultSet rs=mGetSalt.executeQuery();
             if (rs.next())
             {
+                System.out.println("check 1");
                 salt= rs.getBytes("salt");
             }
+            System.out.println("Check 2");
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        System.out.println(salt);
         return salt;
     }
     boolean selectOneUser(String username, byte [] password) 
     {
+        System.out.println("Got into select one user");
         boolean check=false;
         try {
             mSelectOneUser.setString(1, username);
@@ -337,27 +466,29 @@ public class Database {
             ResultSet rs = mSelectOneUser.executeQuery();
             if (!rs.next()) 
             {
+                System.out.println("this didn't find a user");
                 check=false;
             }
             else
             {
+                System.out.println("found a user");
                 check= true;
             }
         } catch (SQLException e) {
+            System.out.println("Error");
             e.printStackTrace();
             return false;
         }
         return check;
     }
-    boolean insertUser(String username,String realname,String email,byte[] salt, byte [] pw )
+    boolean insertUser(String username,String realname,String email)
     {
+        int rs=0;
         try {
             mInsertUser.setString(1,username);
             mInsertUser.setString(2,realname);
             mInsertUser.setString(3,email);
-            mInsertUser.setBytes(4,salt);
-            mInsertUser.setBytes(5,pw);
-            ResultSet rs = mInsertUser.executeQuery();
+            rs += mInsertUser.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -366,14 +497,19 @@ public class Database {
     }
     boolean insertComment (String username, int mId, String comment)
     {
+        int rs=0;
         try {
             mInsertComment.setString(1,username);
             mInsertComment.setInt(2,mId);
             mInsertComment.setString(3,comment);
-            mInsertComment.setString(4,new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(new Date()));
-            ResultSet rs=mInsertComment.executeQuery();
+            SimpleDateFormat date= new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+            Calendar cal = Calendar.getInstance();
+            String strDate=date.format(cal);
+            mInsertComment.setString(4,strDate);
+            rs +=mInsertComment.executeUpdate();
         } catch (SQLException e)
         {
+            System.out.println("execute query failed");
             e.printStackTrace();
             return false;
         }
@@ -386,16 +522,46 @@ public class Database {
      * 
      * @return The data of the newly altered row, or null if the ID was invalid
      */
-    int upVote(int id, int voteChange) {
-        int res = -1;
+    boolean updateUpVote(String username, int messageId) 
+    {
+       int rsVote=0;
+       int rsMesage=0;
+       ResultSet count=null;
+       int voteCount=0;
+       ResultSet res=null;
         try {
-            mUpdateVote.setInt(1, voteChange);
-            mUpdateVote.setInt(2, id);
-           res = mUpdateVote.executeUpdate();
-        } catch (SQLException e) {
+            mGetVote.setInt(1,messageId);
+            count=mGetVote.executeQuery();
+            if (count.next())
+            {
+                voteCount=count.getInt("vote");
+            }
+            mSearchLikes.setString(1,username);
+            mSearchLikes.setInt(2,messageId);
+            res =mSearchLikes.executeQuery();
+            if (res.next())
+            {
+                mDeleteLikes.setString(1,username);
+                mDeleteLikes.setInt(2,messageId);
+                rsVote =mDeleteLikes.executeUpdate();
+                voteCount-=1;
+            }
+            else
+            {
+                mInsertLikes.setString(1,username);
+                mInsertLikes.setInt(2,messageId);
+                rsVote =mInsertLikes.executeUpdate();
+                voteCount+=1;
+            }
+            mUpdateMessageVote.setInt(1,voteCount);
+            mUpdateMessageVote.setInt(2,messageId);
+            rsMesage +=mUpdateMessageVote.executeUpdate();
+        }catch(SQLException e) {
             e.printStackTrace();
+            return false;
         }
-        return res;
+        
+        return true;
     }
 
     /**
@@ -405,17 +571,101 @@ public class Database {
      * 
      * @return The data of the newly altered row, or null if the ID was invalid
      */
-    int downVote(int id, int voteChange) {
-        int res = -1;
+    boolean updateDownVote(String username, int messageId) {
+       
+       int rsVote=0;
+       int rsMesage=0;
+       int voteCount=0;
+       ResultSet count=null;
+       ResultSet res=null;
         try {
-            //mUpdateVote.setInt(1, voteChange);
-            //mUpdateVote.setInt(2, id);
-            res = mUpdateVote.executeUpdate();
-        } catch (SQLException e) {
+            mGetVote.setInt(1,messageId);
+            count=mGetVote.executeQuery();
+            if (count.next())
+            {
+                voteCount=count.getInt("vote");
+            }
+            mSearchDislikes.setString(1,username);
+            mSearchDislikes.setInt(2,messageId);
+            res =mSearchDislikes.executeQuery();
+            if (res.next())
+            {
+                mDeleteDislikes.setString(1,username);
+                mDeleteDislikes.setInt(2,messageId);
+                rsVote =mDeleteDislikes.executeUpdate();
+                voteCount+=1;
+
+            }
+            else
+            {
+                mInsertDislikes.setString(1,username);
+                mInsertDislikes.setInt(2,messageId);
+                rsVote =mInsertDislikes.executeUpdate();
+                voteCount-=1;
+            }
+            mUpdateMessageVote.setInt(1,voteCount);
+            mUpdateMessageVote.setInt(2,messageId);
+            rsMesage +=mUpdateMessageVote.executeUpdate();
+        }catch(SQLException e) {
             e.printStackTrace();
+            return false;
         }
-        return res;
+        
+        return true;
+
     }
+    boolean insertProfile(String username)
+    {
+        int rs=0;
+        String profile="You can edit your profile here";
+        try {
+            //int userId=getUserId(username);
+            mInsertProfile.setString(1,username);
+            mInsertProfile.setString(2,profile);
+            rs+=mInsertProfile.executeUpdate();
+        }catch(SQLException e) {
+            //e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+    boolean updateProfile(String username, String profile)
+    {
+        int rs=0;
+        try {
+            //int userId=getUserId(username);
+            mUpdateProfile.setString(1,profile);
+            mUpdateProfile.setString(2,username);
+            rs+=mUpdateProfile.executeUpdate();
+        }catch(SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+    boolean updatePassword (String username, byte [] password, byte [] salt)
+    {
+        int rs=0;
+        try {
+            mUpdateUser.setBytes(1,password);
+            mUpdateUser.setBytes(2,salt);
+            mUpdateUser.setString(3,username);
+            rs+=mUpdateUser.executeUpdate();
+        }catch(SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+
+    }
+
+
+
+
+
+
+
+
 
     /**
      * Delete a row by ID

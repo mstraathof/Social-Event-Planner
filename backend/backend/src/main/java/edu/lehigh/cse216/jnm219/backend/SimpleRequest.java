@@ -17,11 +17,9 @@ public class SimpleRequest {
      * The message being provided by the client.
      */
     public String mMessage;
-    public int mVote;
     /**
      * An indicator for whether the backend should call upVote or downVote functionality.
      */
-    public int mChangeVote;
     public String mUsername;
     public String mRealName;
     public String mEmail;
@@ -29,5 +27,7 @@ public class SimpleRequest {
     public int mKey;
     public int mMessageId;
     public String mComment;
-    
+    public String mProfile;
+    public String mCurrentPassword;
+    public String mNewPassword;
 }
