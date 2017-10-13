@@ -7,13 +7,16 @@
 /// <reference path="ts/CreateAccountForm.ts"/>
 /// <reference path="ts/ProfilePage.ts"/>
 /// <reference path="ts/EditBio.ts"/>
+/// <reference path="ts/ViewComments.ts"/>
+/// <reference path="ts/NewCommentForm.ts"/>
+
 
 
 // Prevent compiler errors when using jQuery.  "$" will be given a type of 
 // "any", so that we can use it anywhere, and assume it has any fields or
 // methods, without the compiler producing an error.
 var $: any;
-
+var mesID = 1;
 // Prevent compiler errors when using Handlebars
 //declare var GloggedIn:any;
 var Handlebars: any;
@@ -29,6 +32,7 @@ var loginWindow: LoginWindow;
 var createAccountForm: CreateAccountForm;
 //var loggedIn = false;
 var editBio: EditBio;
+var mesID:number;
 // Run some configuration code when the web page loads
 $(document).ready(function () {
     if(GloggedIn == false){
@@ -38,6 +42,7 @@ $(document).ready(function () {
         NavbarLoggedIn.refresh();
     }
     NewEntryForm.refresh();
+    NewCommentForm.refresh();
     CreateAccountForm.refresh();
     LoginWindow.refresh();
     //ElementList.refresh();

@@ -36,6 +36,7 @@ class ProfilePage{
             //$("div.panel-default").hide();
             //$("nav.navbar-default").hide();
             usernameToDisplay = username;
+            window.alert(usernameToDisplay);
             $.ajax({
                 type: "GET",
                 url: "/profile/"+usernameToDisplay,
@@ -48,11 +49,13 @@ class ProfilePage{
         }
 
         public static onDisplayProfile(data:any){
+            ProfilePage.init();
+            successProfile = true;
             $("#ElementList").remove();
             //ElementList.refreshUser(Gusername);
             $("body").append(Handlebars.templates[ProfilePage.NAME + ".hb"](data));
             $("#"+ProfilePage.NAME+"-editBio").click(EditBio.showEdit);
-            successProfile = true;
+            
             if(Gusername == usernameToDisplay){
                 ElementList.refreshUser(Gusername);
             }

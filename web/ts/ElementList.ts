@@ -73,6 +73,7 @@ class ElementList {
         // Use a template to re-generate the table, and then insert it
         $("body").append(Handlebars.templates[ElementList.NAME + ".hb"](data));
         //$("."+ElementList.NAME+"-editbtn").click(ElementList.clickEdit);
+        $("."+ElementList.NAME+"-comments").click(ElementList.viewComments);
         $("."+ElementList.NAME+"-profile").click(ElementList.getProfile);
         $("."+ElementList.NAME+"-upvote").click(ElementList.upvote);
         $("."+ElementList.NAME+"-downvote").click(ElementList.downvote);
@@ -173,5 +174,32 @@ class ElementList {
         //$("."+ElementList.NAME+"-editbtn").click(EditEntryForm.init);
         $("."+ElementList.NAME+"-editbtn").click(EditEntryForm.show);
     }
-    
+
+    public static viewComments() {
+
+        var msgToView = $(this).data("value");
+        mesID = msgToView;
+        window.alert(msgToView);
+        $.ajax({
+            type: "GET",
+            url: "/comments/"+msgToView,
+            dataType: "json",
+            success: ElementList.showComments
+        });        
+
+    }
+    public static viewCommentsGivenID(messageid: number) {
+        $.ajax({
+            type: "GET",
+            url: "/comments/"+messageid,
+            dataType: "json",
+            success: ElementList.showComments
+        });
+        
+    }
+
+    private static showComments(data: any) {
+        $("#ElementList").remove();
+        ViewComments.update(data);
+    }
 }

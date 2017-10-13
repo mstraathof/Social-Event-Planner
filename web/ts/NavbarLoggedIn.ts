@@ -35,7 +35,7 @@ class NavbarLoggedIn {
         }
     }
     public static loadProfile(){
-        window.alert("hittt me "+Gusername);
+        //window.alert("hittt "+Gusername);
         ProfilePage.show(Gusername);
     }
     /**

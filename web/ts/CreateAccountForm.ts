@@ -2,7 +2,7 @@
  * NewEntryForm encapsulates all of the code for the form for adding an entry
  */
 var Handlebars: any;
-
+var tUsername: string;
 class CreateAccountForm {
         
         /**
@@ -79,36 +79,37 @@ class CreateAccountForm {
                 window.alert("Error: Name exceeds 50");
                 return;
             }
-            if (email == "" || !email.includes("@") || !email.includes(".com")) {
-                window.alert("Error: Invalid Email");
-                return;
-            }
+            //if (email == "" || !email.includes("@") || !email.includes(".com")) {
+            //    window.alert("Error: Invalid Email");
+            //    return;
+            //}
             //must have seperate includes forpassword
-            if (password.length >= 50 || !password.includes("1234567890")) {
-                window.alert("Error: Password must have a number");
-                return;
-            }
+            //if (password.length >= 50 || !password.includes("1234567890")) {
+            //    window.alert("Error: Password must have a number");
+            //    return;
+            //}
 
             CreateAccountForm.hide();
             //window.alert(username+" "+password);
             CreateAccountForm.refresh();
             // // set up an AJAX post.  When the server replies, the result will go to
-
+            tUsername = userName;
             $.ajax({
                 type: "POST",
                 url: "/register",
                 dataType: "json",
                 data: JSON.stringify({ mUsername: userName, mRealName: realName, mEmail: email, mPassword: password }),
-                success: CreateAccountForm.onCreateResponse
+                success: CreateAccountForm.onCreateResponseMakeProfile
             });
-
+        }
+        private static onCreateResponseMakeProfile(data: any) {
             var userBio = "Write a bio for your profile here.";
 
             $.ajax({
                 type: "POST",
                 url: "/profile",
                 dataType: "json",
-                data: JSON.stringify({ mUsername: userName, mProfile: userBio }),
+                data: JSON.stringify({ mUsername: tUsername, mProfile: userBio }),
                 success: CreateAccountForm.onCreateResponse
             });
         }
