@@ -2,7 +2,8 @@
  * CreateAccountForm encapsulates all of the code for the form for Creating an account
  */
 var Handlebars: any;
-var tUsername: string;
+//var tUsername: string;
+
 class CreateAccountForm {
         
         /**
@@ -95,8 +96,9 @@ class CreateAccountForm {
 
             CreateAccountForm.hide();
             CreateAccountForm.refresh();
-            // // set up an AJAX post.  When the server replies, the result will go to
-            tUsername = userName;
+
+            //tUsername = userName;
+
             $.ajax({
                 type: "POST",
                 url: "/register",
