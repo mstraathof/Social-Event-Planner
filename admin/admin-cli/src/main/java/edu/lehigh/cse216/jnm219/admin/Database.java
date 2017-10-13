@@ -24,6 +24,7 @@ public class Database {
      * A prepared statement for inserting into the tblUser
      */
     private PreparedStatement mInsertUser;
+    private PreparedStatement mInsertUserUnauth;
     private PreparedStatement mSelectUnauthUserOne; // from the tblUnauthUser table
     public PreparedStatement mSelectUnauthUserAll; // public so App.java can execute() this.
     private PreparedStatement mRemoveUnauthUserOne; // from the tblUnauthUser table
@@ -169,6 +170,7 @@ public class Database {
                 +"FOREIGN KEY (message_id) REFERENCES tblMessage (message_id))"
             );
             db.mInsertUser = db.mConnection.prepareStatement("INSERT INTO tblUser VALUES (default, ?, ?, ?, ?, ?)");
+            db.mInsertUserUnauth = db.mConnection.prepareStatement("INSERT INTO tblUnauthUser VALUES (?, ?, ?)");
             db.mSelectUnauthUserOne = db.mConnection.prepareStatement("SELECT * FROM tblUnauthUser WHERE username=?");
             db.mSelectUnauthUserAll = db.mConnection.prepareStatement("SELECT * FROM tblUnauthUser");
             db.mRemoveUnauthUserOne = db.mConnection.prepareStatement("DELETE FROM tblUnauthUser WHERE username=?");
@@ -283,15 +285,14 @@ public class Database {
     }
 
     boolean dropAllTables() {
-       // try {
-            boolean result;
-            String[] tables = {"tblUpVote", "tblDownVote", "tblComment", "tblProfile", "tblMessage", "tblUser", "tblUnauthUser"};
-            for (int i = 0; i < tables.length; i++) {
-                result = dropTable(tables[i]);
-                if (result == false) {
-                    return false;
-                }
+        boolean result;
+        String[] tables = {"tblUpVote", "tblDownVote", "tblComment", "tblProfile", "tblMessage", "tblUser", "tblUnauthUser"};
+        for (int i = 0; i < tables.length; i++) {
+            result = dropTable(tables[i]);
+            if (result == false) {
+                return false;
             }
+        }
         return true;
     }
 
@@ -326,8 +327,20 @@ public class Database {
         return true;
     }
 
-    //boolean authorizeUser(String username, String password, String email, String realname) {
-    boolean authorizeUser(String[] credentials) {   
+    boolean addToTblUnauthTable(String username, String realname, String email) {
+        try {
+            mInsertUserUnauth.setString(1, username);
+            mInsertUserUnauth.setString(2, realname);
+            mInsertUserUnauth.setString(3, email);
+            mInsertUserUnauth.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    boolean authorizeUser(String[] credentials) {   // credentials[username, realname, email, password]
         try {
             String username = credentials[0];
             Password pw = new Password();

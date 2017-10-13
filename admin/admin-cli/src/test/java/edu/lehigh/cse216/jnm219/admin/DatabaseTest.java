@@ -70,5 +70,38 @@ public class DatabaseTest
         db.createAllTables();
         db.disconnect();
     }
-    
+
+    public void testAddToTblUnauthTable()
+    {
+        Database db = Database.getDatabase ("jdbc:postgresql://ec2-107-22-211-182.compute-1.amazonaws.com:5432/dd8h04ocdonsvj?user=qcxhljggghpbxa&password=6d462cf3d5d52813f0a69912a10908fad2ff06725737ce41e0cf0750b83d2375&sslmode=require");
+        System.out.println("in testAddToTblUnauthTable");
+        db.dropAllTables();
+        db.createAllTables();
+        assertTrue(db.addToTblUnauthTable("username", "realname", "mts219@lehigh.edu"));
+        // username must be unique
+        assertFalse(db.addToTblUnauthTable("username", "realname", "mts219@lehigh.edu")); 
+    }
+
+    public void testAuthorizeUser()
+    {
+        Database db = Database.getDatabase ("jdbc:postgresql://ec2-107-22-211-182.compute-1.amazonaws.com:5432/dd8h04ocdonsvj?user=qcxhljggghpbxa&password=6d462cf3d5d52813f0a69912a10908fad2ff06725737ce41e0cf0750b83d2375&sslmode=require");
+        System.out.println("in testAuthorizeUser");
+        db.dropAllTables();
+        db.createAllTables();
+        db.addToTblUnauthTable("mira", "Mira Straathof", "mts219@lehigh.edu");
+        String[] credentials = new String[4];   // username, realname, email, password
+        credentials[0] = "mira";
+        assertTrue(db.authorizeUser(credentials));
+    }
+
+    public void testRejectUser()
+    {
+        Database db = Database.getDatabase ("jdbc:postgresql://ec2-107-22-211-182.compute-1.amazonaws.com:5432/dd8h04ocdonsvj?user=qcxhljggghpbxa&password=6d462cf3d5d52813f0a69912a10908fad2ff06725737ce41e0cf0750b83d2375&sslmode=require");
+        System.out.println("in testRejectUser");
+        db.dropAllTables();
+        db.createAllTables();
+        db.addToTblUnauthTable("mira", "Mira Straathof", "mts219@lehigh.edu");
+        assertTrue(db.rejectUser("mira"));
+    }
+
 }

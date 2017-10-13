@@ -23,6 +23,12 @@ public class App {
         System.out.println("  [T] Create all tables");
         System.out.println("  [D] Drop all tables");
         System.out.println();
+        System.out.println("  [r] Print unauthorized users");
+        System.out.println("  [+] Authorize user");
+        System.out.println("  [-] Reject user");
+        System.out.println("  [q] Quit Program");
+        System.out.println("  [?] Help (this message)");
+        System.out.println();
         System.out.println("  [a] Create unauthorized user table");
         System.out.println("  [U] Create user table");
         System.out.println("  [p] Create profile table");        
@@ -38,12 +44,6 @@ public class App {
         System.out.println("  [C] Drop comment table");
         System.out.println("  [Y] Drop upvote table");
         System.out.println("  [Z] Drop downvote table");
-        System.out.println();
-        System.out.println("  [r] Print unauthorized users");
-        System.out.println("  [+] Authorize user");
-        System.out.println("  [-] Reject user");
-        System.out.println("  [q] Quit Program");
-        System.out.println("  [?] Help (this message)");
     }
 
     /**
@@ -146,10 +146,12 @@ public class App {
             } else if (action == 'Z') {       
                 db.dropTable("tblDownVote");
             } 
-            // misc.
+            // to see all the unauthorized users
             else if (action == 'r') {
                 db.selectUnauthUserAll();
-            } else if (action == '+') {
+            } 
+            // the credentials were sufficient, call '+' and enter username
+            else if (action == '+') {
                 String username = getString(in, "Enter username");
                 if (!username.equals("")) {
                     String[] credentials = new String[4];   // username, realname, email, password
@@ -165,7 +167,9 @@ public class App {
                         System.out.println("Unable to authorize user");
                     }
                 } 
-            } else if (action == '-') {
+            } 
+            // the credentials were not sufficient, call '-' and enter username
+            else if (action == '-') {
                 String username = getString(in, "Enter username");
                 db.rejectUser(username);
             }
