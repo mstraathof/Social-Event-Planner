@@ -1,12 +1,12 @@
 /**
- * NewEntryForm encapsulates all of the code for the form for adding an entry
+ * EditBioForm form encapsulates all of the code for the form for adding an entry
  */
 
 var Handlebars: any;
 class EditBio {
     
         /**
-         * The name of the DOM entry associated with NewEntryForm
+         * The name of the DOM entry associated with EditBio
          */
         private static readonly NAME = "EditBio";
     
@@ -16,7 +16,7 @@ class EditBio {
         private static isInit = false;
     
         /**
-         * Initialize the NewEntryForm by creating its element in the DOM and 
+         * Initialize the EditBio form by creating its element in the DOM and 
          * configuring its buttons.  This needs to be called from any public static 
          * method, to ensure that the Singleton is initialized before use
          */
@@ -39,11 +39,11 @@ class EditBio {
             EditBio.init();
         }
 
+        /**
+         * changeBio will take the form and put in AJAX call to upadte your profile
+         */
         public static changeBio() {
-                // get the values of the two fields, force them to be strings, and check 
-                // that neither is empty
                 let newBio = "" + $("#" + EditBio.NAME + "-newBio").val();
-                //window.alert(newBio);
 
                 $.ajax({
                     type: "POST",
@@ -56,30 +56,28 @@ class EditBio {
                 $("#ViewComments").remove();
                 ProfilePage.show(Gusername);
                 EditBio.hideEdit();
-                // set up an AJAX post.  When the server replies, the result will go to
-                // onSubmitResponse
-                // $.ajax({
-                //     type: "POST",
-                //     url: "/messages",
-                //     dataType: "json",
-                //     data: JSON.stringify({ mSubject: title, mMessage: msg }),
-                //     success: NewEntryForm.onSubmitResponse
-                // });
         }
-
+        
+        /**
+         * onUpdateResponse will get the backends response to the updated bio
+         */
         public static onUpdateResponse(data: any){
-
             //window.alert("Updated Bio Successfully");
         }
 
+        /**
+         * Hides the EditBio form
+         */
         public static hideEdit() {
             $("#" + EditBio.NAME + "-newBio").val("");
-            //These lines hide the modal background(the shadow when bringing up a new entry form)
             $("#" + EditBio.NAME).modal("hide");
             //$('body').removeClass('modal-open');
             //$('.modal-backdrop').remove();
         }
         
+        /**
+         * Shows the EditBio form
+         */
         public static showEdit() {
             $("#" + EditBio.NAME + "-newBio").val("");
             $("#" + EditBio.NAME).modal("show");

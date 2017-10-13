@@ -36,10 +36,12 @@ class ElementList {
 
     /**
     * refresh() is the public method for updating the ElementList
+    * it updates the list accordingly if you are viewing all messages, 
+    * or the messages you posted, liked, disliked, and commented 
     */
 
     public static refresh() {
-        window.alert("Username: "+ Gusername);
+        //window.alert("Username: "+ Gusername);
         if(viewingYours==true){
             headers = true;
             ElementList.refreshUser(Gusername);
@@ -48,6 +50,9 @@ class ElementList {
         }
 
     }
+    /**
+    * refreshAll() updates the list of all messages on TheBuzz
+    */
     public static refreshAll() {
         // Make sure the singleton is initialized
         ElementList.init();
@@ -59,7 +64,10 @@ class ElementList {
             success: ElementList.update
         });
     }
-
+    /**
+    * refreshUser() updates the list of all messages you have made,
+    * liked, disliked, and commented
+    */
     public static refreshUser(username:string) {
         // Make sure the singleton is initialized
         ElementList.init();
@@ -75,8 +83,7 @@ class ElementList {
 
     /**
     * update() is the private method used by refresh() to update the 
-    * It initializes the editbtn (window Tied to seeing the title and message)
-    * also initializes the upvote and downvote button 
+    * list and initialize buttons for liking and viewing profiles
     */
     private static update(data: any) {
         
@@ -84,7 +91,6 @@ class ElementList {
         $("#" + ElementList.NAME).remove();
         // Use a template to re-generate the table, and then insert it
         $("body").append(Handlebars.templates[ElementList.NAME + ".hb"](data));
-        //$("."+ElementList.NAME+"-editbtn").click(ElementList.clickEdit);
         if(headers == false){
             $('#yours').hide();
             $('#liked').hide();
@@ -92,15 +98,6 @@ class ElementList {
             $('#commented').hide();  
         }
         headers = false;
-        // if(data.mLikedData == null){
-        //     $('#liked').hide();
-        // }
-        // if(data.mDisikedData == null){
-        //     $('#disliked').hide();
-        // }
-        // if(data.mCommentData == null){
-        //     $('commented').hide();
-        // }
 
         $("."+ElementList.NAME+"-comments").click(ElementList.viewComments);
         $("."+ElementList.NAME+"-profile").click(ElementList.getProfile);
@@ -130,7 +127,7 @@ class ElementList {
     /**
      * Method used for upvoting entries
      * Called when upvote button on Elementlist is pressed
-     * Sends mChangeVote with a value of 1 to the database
+     * Sends mUsername and mMessageId
      */
     private static upvote(){
         $("#editElement").hide();
@@ -147,7 +144,7 @@ class ElementList {
     /**
      * Method used for downvoting entries
      * Called when downvote button on Elementlist is pressed
-     * Sends mChangeVote with a value of -1 to the database
+     * Sends Username and mMessageId
      */
     private static downvote(){
         $("#editElement").hide();
@@ -162,16 +159,21 @@ class ElementList {
         });
     }
 
+    /**
+    * A response from the AJAX call
+    */
     private static onVoteResponse(){
         ElementList.refresh()
     }
 
+    /**
+    * Method to view profile of user. Allows you to see the username, real name, email, 
+    * and bio of the person who posted the buzz.
+    */
     private static getProfile(){
         $("#editElement").hide();
         let user = $(this).data("value");
-        //window.alert("abcdefg"+user);
         ProfilePage.show(user);
-        //
     }
 
     /**
@@ -208,6 +210,9 @@ class ElementList {
         $("."+ElementList.NAME+"-editbtn").click(EditEntryForm.show);
     }
 
+    /**
+     * viewComments allows you to see all the comments tied to a specific message, as well as add a new one. 
+     */
     public static viewComments() {
 
         var msgToView = $(this).data("value");
@@ -221,6 +226,11 @@ class ElementList {
         });        
 
     }
+
+    /**
+     * viewCommentsGivenID lets you view the comments of a message given an id
+     *  @param messageId id of message to see comments ofS
+     */
     public static viewCommentsGivenID(messageid: number) {
         $.ajax({
             type: "GET",
@@ -230,7 +240,10 @@ class ElementList {
         });
         
     }
-
+    /**
+     * showComments will get the data of the AJAX call and actually display the comments of the message
+     * @param data The object returned by the server
+     */
     private static showComments(data: any) {
         $("#ElementList").remove();
         ViewComments.update(data);

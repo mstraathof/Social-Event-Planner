@@ -4,16 +4,10 @@
 var $: any;
 var Handlebars: any;
 var prof: string;
-// a global for the main ElementList of the program.  See newEntryForm for 
-// explanation
 
-/**
- * The ElementList Singleton provides a way of displaying all of the data 
- * stored on the server as an HTML table.
- */
 class ViewComments {
     /**
-     * The name of the DOM entry associated with ElementList
+     * The name of the DOM entry associated with ViewComments
      */
     private static readonly NAME = "ViewComments";
 
@@ -23,7 +17,7 @@ class ViewComments {
     private static isInit = false;
 
     /**
-    * Initialize the ElementList singleton.  
+    * Initialize the ViewComments singleton.  
     * This needs to be called from any public static method, to ensure that the 
     * Singleton is initialized before use.
     */
@@ -42,6 +36,10 @@ class ViewComments {
         
     }
 
+    /**
+     * Method to update the comments list for a message
+     * @param data
+     */
     public static update(data: any) {
         $("#ViewComments").remove();
         $("nav.xyz").remove();
@@ -56,20 +54,13 @@ class ViewComments {
         $("."+ViewComments.NAME+"-addComment").click(NewCommentForm.show);
         
     }
-
-    private static addComment(){
-        //let mesID = $(this).data("value");
-
-
-    }
-
+    /**
+     * Method to get the profile of a user
+     */
     private static getProfile(){
-        ///FIX GET PROFILE HERE
         $("#ViewComments").remove();
         let user = $(this).data("value");
-        //window.alert("WUBALUBADUBDUB"+user);
         ProfilePage.show(user);
-        //
     }
 
     

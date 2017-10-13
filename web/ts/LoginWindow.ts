@@ -1,21 +1,29 @@
 var Handlebars: any;
 var tUsername: String;
 class LoginWindow {
-        private static readonly NAME = "LoginWindow";
-
-        private static isInit = false;
-
+    /**
+    * The name of the DOM entry associated with LoginWindow
+    */
+    private static readonly NAME = "LoginWindow";
+    
+    /**
+     * Track if the Singleton has been initialized
+    */
+    private static isInit = false;
+    /**
+    * Initialize the LoginWindow singleton.  
+    * This needs to be called from any public static method, to ensure that the 
+    * Singleton is initialized before use.
+    */
         private static init() {
             if (!LoginWindow.isInit) {
                 if(Gusername != null){
-                    //window.alert("already logged in");
                     GloggedIn = true;
                 }
                 if(GloggedIn == false){
                     $("body").append(Handlebars.templates[LoginWindow.NAME + ".hb"]());
                     $("#" + LoginWindow.NAME + "-Submit").click(LoginWindow.submitForm);
                     $("#" + LoginWindow.NAME + "-Close").click(LoginWindow.hide);
-                    //window.alert(loggedIn);
                     LoginWindow.isInit = true;
                     GloggedIn = true;
                     LoginWindow.refresh();                
@@ -24,11 +32,15 @@ class LoginWindow {
                 }
             }
         }
-    
+    /**
+     * refresh gives a public method to initialize the LoginWindow
+     */
         public static refresh() {
             LoginWindow.init();
         }
-
+    /**
+     * hide() method hides the login form
+     */
         private static hide() {
             $("#" + LoginWindow.NAME + "-user").val("");
             $("#" + LoginWindow.NAME + "-pass").val("");
@@ -37,13 +49,17 @@ class LoginWindow {
             $('body').removeClass('modal-open');
             $('.modal-backdrop').remove();
         }
-
+    /**
+     * show() method presents the login form
+     */
         public static show() {
             $("#" + LoginWindow.NAME + "-user").val("");
             $("#" + LoginWindow.NAME + "-pass").val("");
             $("#" + LoginWindow.NAME).modal("show");
         }
-
+    /**
+     * submitForm() method submits the login form and sends AJAX call
+     */
         private static submitForm() {
             // get the values of the two fields, force them to be strings, and check 
             // that neither is empty
@@ -51,29 +67,11 @@ class LoginWindow {
             let Gpassword = "" + $("#" + LoginWindow.NAME + "-pass").val();
             GloggedIn == true;
 
-            // if(msg.length >= 500)
-            // {
-            //     window.alert("Error: Message exceeds 500");
-            //     return;
-            // }
-            // if(title.length >= 50)
-            // {
-            //     window.alert("Error: Title exceeds 50");
-            //     return;
-            // }
-            // if (title === "" || msg === "") {
-            //     window.alert("Error: title or message is not valid");
-            //     return;
-            // }
             if(tUsername != null || tUsername != undefined){
                 Gusername = tUsername;
             }
             LoginWindow.hide();
-            //window.alert(Gusername+" "+Gpassword);
             LoginWindow.refresh();
-
-            //window.alert(Gusername+" , "+GuserKey+" , "+Gpassword);
-            // // set up an AJAX post.  When the server replies, the result will go to
 
             $.ajax({
                 type: "POST",
@@ -81,10 +79,7 @@ class LoginWindow {
                 dataType: "json",
                 data: JSON.stringify({ mUsername: Gusername, mPassword: Gpassword }),
                 success: LoginWindow.onLoginResponse
-            });
-
-            //GuserKey = 1;
-            
+            });            
         }
     
         /**
@@ -112,7 +107,7 @@ class LoginWindow {
             //LoginWindow.loginCheck();
         }
 
-
+        /*
         public static loginCheck(){
             $.ajax({
                 type: "POST",
@@ -131,4 +126,5 @@ class LoginWindow {
                 window.alert("NOT logged in");
             }
         }
+        */
     }

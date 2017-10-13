@@ -1,5 +1,5 @@
 /**
- * The Navbar Singleton is the navigation bar at the top of the page.  Through 
+ * The NavbarLoggedIn Singleton is the navigation bar at the top of the page for logged users.  Through 
  * its HTML, it is designed so that clicking the "brand" part will refresh the
  * page.  Apart from that, it has an "add" button, which forwards to 
  * NewEntryForm
@@ -17,7 +17,7 @@ class NavbarLoggedIn {
     private static readonly NAME = "NavbarLoggedIn";
 
     /**
-     * Initialize the Navbar Singleton by creating its element in the DOM and
+     * Initialize the NavbarLoggedIn Singleton by creating its element in the DOM and
      * configuring its button.  This needs to be called from any public static
      * method, to ensure that the Singleton is initialized before use.
      */
@@ -37,7 +37,10 @@ class NavbarLoggedIn {
             //NavbarLoggedIn.isInit = true;
         }
     }
-
+    /**
+     * Method in navbar to allow a user to log out
+     * Sends AJAX call to authenticate logout
+     */
     public static logOut(){
         $.ajax({
             type: "POST",
@@ -48,6 +51,9 @@ class NavbarLoggedIn {
         });
         
     }
+    /**
+     * Method for the response from the AJAX call to log out
+     */
     private static onLogOutResponse(data:any){
         if (data.mStatus === "ok") {
             window.alert("Logged Out Successfully");
@@ -58,7 +64,9 @@ class NavbarLoggedIn {
         }
         location.reload();
     }
-
+    /**
+     * Method in navbar to allow a user to view all message on The Buzz
+     */
     public static viewBuzz(){
         viewingYours=false;
         $("nav.xyz").hide();
@@ -69,8 +77,10 @@ class NavbarLoggedIn {
         $("#ViewComments").remove();
         ElementList.refresh();
     }
+    /**
+     * Method in navbar to allow a user to view their profile page
+     */
     public static loadProfile(){
-        //window.alert("hittt "+Gusername);
         ProfilePage.show(Gusername);
     }
     /**

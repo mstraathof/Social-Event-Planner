@@ -1,12 +1,12 @@
 /**
- * NewEntryForm encapsulates all of the code for the form for adding an entry
+ * CreateAccountForm encapsulates all of the code for the form for Creating an account
  */
 var Handlebars: any;
 var tUsername: string;
 class CreateAccountForm {
         
         /**
-         * The name of the DOM entry associated with NewEntryForm
+         * The name of the DOM entry associated with CreateAccountForm
          */
         private static readonly NAME = "CreateAccountForm";
     
@@ -16,7 +16,7 @@ class CreateAccountForm {
         private static isInit = false;
         
         /**
-         * Initialize the NewEntryForm by creating its element in the DOM and 
+         * Initialize the CreateAccountForm by creating its element in the DOM and 
          * configuring its buttons.  This needs to be called from any public static 
          * method, to ensure that the Singleton is initialized before use
          */
@@ -40,7 +40,7 @@ class CreateAccountForm {
             CreateAccountForm.init();
         }
         /**
-         * Hide the NewEntryForm.  Be sure to clear its fields first
+         * Hide the CreateAccountForm.  Be sure to clear its fields first
          */
         private static hide() {
             $("#" + CreateAccountForm.NAME + "-user").val("");
@@ -52,7 +52,9 @@ class CreateAccountForm {
             $('body').removeClass('modal-open');
             $('.modal-backdrop').remove();
         }
-
+        /**
+         * Show the CreateAccountForm.  Be sure to clear its fields first
+         */
         public static show() {
             $("#" + CreateAccountForm.NAME + "-user").val("");
             $("#" + CreateAccountForm.NAME + "-realname").val("");
@@ -61,6 +63,9 @@ class CreateAccountForm {
             $("#" + CreateAccountForm.NAME).modal("show");
         }
 
+        /**
+         * Submits the CreateAccountForm. Upon completing, hide the form and AJAX call
+         */
         private static submitForm() {
             // get the values of the two fields, force them to be strings, and check 
             // that neither is empty
@@ -71,7 +76,6 @@ class CreateAccountForm {
             if(userName.length >= 500)
             {
                 window.alert("Error: UserName exceeds 500");
-                //check if username exists already or nah
                 return;
             }
             if(realName.length >= 50)
@@ -90,7 +94,6 @@ class CreateAccountForm {
             //}
 
             CreateAccountForm.hide();
-            //window.alert(username+" "+password);
             CreateAccountForm.refresh();
             // // set up an AJAX post.  When the server replies, the result will go to
             tUsername = userName;
@@ -102,20 +105,10 @@ class CreateAccountForm {
                 success: CreateAccountForm.onCreateResponse
             });
         }
-        // private static onCreateResponseMakeProfile(data: any) {
-        //     var userBio = "Write a bio for your profile here.";
 
-        //     $.ajax({
-        //         type: "POST",
-        //         url: "/profile",
-        //         dataType: "json",
-        //         data: JSON.stringify({ mUsername: tUsername, mProfile: userBio }),
-        //         success: CreateAccountForm.onCreateResponse
-        //     });
-        // }
     
         /**
-         * onSubmitResponse runs when the AJAX call in submitForm() returns a 
+         * onCreateResponse runs when the AJAX call in submitForm() returns a 
          * result.
          * 
          * @param data The object returned by the server

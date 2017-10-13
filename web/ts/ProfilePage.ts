@@ -7,12 +7,12 @@ class ProfilePage{
     private static isInit = false;
     
         /**
-         * The name of the DOM entry associated with Navbar
+         * The name of the DOM entry associated with ProfilePage
          */
         private static readonly NAME = "ProfilePage";
 
         /**
-         * Initialize the Navbar Singleton by creating its element in the DOM and
+         * Initialize the ProfilePage Singleton by creating its element in the DOM and
          * configuring its button.  This needs to be called from any public static
          * method, to ensure that the Singleton is initialized before use.
          */
@@ -29,6 +29,9 @@ class ProfilePage{
             }
         }
 
+        /** Method to show the profile of the user passed in
+         * @param username
+         */
         public static show(username: string) {
             
             $("#ViewComments").remove();
@@ -47,7 +50,10 @@ class ProfilePage{
             });
             
         }
-
+        /** Method to show the profile of the user passed in in method show(username)
+         * data will contain all info of the user from the AJAX call
+         * @param data
+         */
         public static onDisplayProfile(data:any){
             ProfilePage.init();
             $("#ElementList").remove();
@@ -70,7 +76,9 @@ class ProfilePage{
             //ProfilePage.init(Gusername);
             //window.alert(username+" is logged in");
         }
-
+        /** 
+         * Method to edit your bio (user logged in)
+         */
         public static editBio() {
             //window.alert("called method");
             if(Gusername == usernameToDisplay){
@@ -82,12 +90,18 @@ class ProfilePage{
             EditBio.refresh();
             
         }
-
+        /** 
+         * Method to change the bio of your profile
+         * @param username
+         */
         public static changeBio(username: string) {
             let newBio = $("#EditBio-newBio").val();
             //window.alert(newBio);
 
         }
+        /** 
+         * Method to hide the edit bio form
+         */
         public static hideEdit() {
             let newBio = "";
             $("#EditBio").modal("hide");

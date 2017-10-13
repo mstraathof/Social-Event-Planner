@@ -1,12 +1,12 @@
 /**
- * NewEntryForm encapsulates all of the code for the form for adding an entry
+ * NewPassForm encapsulates all of the code for the form for adding an entry
  */
 
 var Handlebars: any;
 class NewPassForm {
     
         /**
-         * The name of the DOM entry associated with NewEntryForm
+         * The name of the DOM entry associated with NewPassForm
          */
         private static readonly NAME = "NewPassForm";
     
@@ -16,7 +16,7 @@ class NewPassForm {
         private static isInit = false;
     
         /**
-         * Initialize the NewEntryForm by creating its element in the DOM and 
+         * Initialize the NewPassForm by creating its element in the DOM and 
          * configuring its buttons.  This needs to be called from any public static 
          * method, to ensure that the Singleton is initialized before use
          */
@@ -38,7 +38,7 @@ class NewPassForm {
             NewPassForm.init();
         }
         /**
-         * Hide the NewEntryForm.  Be sure to clear its fields first
+         * Hide the NewPassForm.  Be sure to clear its fields first
          */
         private static hide() {
             $("#" + NewPassForm.NAME + "-oldPass").val("");
@@ -49,7 +49,7 @@ class NewPassForm {
             $('.modal-backdrop').remove();
         }
         /**
-         * Show the NewEntryForm.  Be sure to clear its fields, because there are
+         * Show the NewPassForm.  Be sure to clear its fields, because there are
          * ways of making a Bootstrap modal disapper without clicking Close, and
          * we haven't set up the hooks to clear the fields on the events associated
          * with those ways of making the modal disappear.
@@ -91,6 +91,9 @@ class NewPassForm {
                 success: NewPassForm.onChangeResponse
             });
         }
+        /** Takes the response from a successful AJAX call to create a new password
+         * @param data
+         */
         public static onChangeResponse(data: any){
             window.alert("success");
             if (data.mStatus === "ok") {

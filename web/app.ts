@@ -11,15 +11,11 @@
 /// <reference path="ts/NewCommentForm.ts"/>
 /// <reference path="ts/NewPassForm.ts"/>
 
-
-
 // Prevent compiler errors when using jQuery.  "$" will be given a type of 
 // "any", so that we can use it anywhere, and assume it has any fields or
 // methods, without the compiler producing an error.
 var $: any;
-//var mesID = 1;
-// Prevent compiler errors when using Handlebars
-//declare var GloggedIn:any;
+
 var Handlebars: any;
 var GloggedIn=false;
 var Gusername:string;
@@ -34,10 +30,10 @@ var editEntryForm: EditEntryForm;
 var loginWindow: LoginWindow;
 var createAccountForm: CreateAccountForm;
 var changePass: NewPassForm;
-//var loggedIn = false;
 var editBio: EditBio;
 var mesID:number;
 // Run some configuration code when the web page loads
+
 $(document).ready(function () {
     if(GloggedIn == false){
         Navbar.refresh();
