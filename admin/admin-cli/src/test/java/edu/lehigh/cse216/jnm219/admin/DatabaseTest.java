@@ -60,7 +60,6 @@ public class DatabaseTest
     /**
      * Test dropping the table, if it drops nothing, it should return false
      */
-    
     public void testDropAllTables()
     {
         Database db = Database.getDatabase ("jdbc:postgresql://ec2-107-22-211-182.compute-1.amazonaws.com:5432/dd8h04ocdonsvj?user=qcxhljggghpbxa&password=6d462cf3d5d52813f0a69912a10908fad2ff06725737ce41e0cf0750b83d2375&sslmode=require");
@@ -71,6 +70,10 @@ public class DatabaseTest
         db.disconnect();
     }
 
+    /**
+     * Test adding a user to the unauthorized user table.
+     * If a user tries to create an account with an existing username, add should fail.
+     */
     public void testAddToTblUnauthTable()
     {
         Database db = Database.getDatabase ("jdbc:postgresql://ec2-107-22-211-182.compute-1.amazonaws.com:5432/dd8h04ocdonsvj?user=qcxhljggghpbxa&password=6d462cf3d5d52813f0a69912a10908fad2ff06725737ce41e0cf0750b83d2375&sslmode=require");
@@ -82,6 +85,10 @@ public class DatabaseTest
         assertFalse(db.addToTblUnauthTable("username", "realname", "mts219@lehigh.edu")); 
     }
 
+    /**
+     * Test authorizing a user
+     * If user was in tblUnauthUser, should return true
+     */
     public void testAuthorizeUser()
     {
         Database db = Database.getDatabase ("jdbc:postgresql://ec2-107-22-211-182.compute-1.amazonaws.com:5432/dd8h04ocdonsvj?user=qcxhljggghpbxa&password=6d462cf3d5d52813f0a69912a10908fad2ff06725737ce41e0cf0750b83d2375&sslmode=require");
@@ -94,6 +101,10 @@ public class DatabaseTest
         assertTrue(db.authorizeUser(credentials));
     }
 
+    /**
+     * Test the rejection of a user
+     * If user is rejected, should return true
+     */
     public void testRejectUser()
     {
         Database db = Database.getDatabase ("jdbc:postgresql://ec2-107-22-211-182.compute-1.amazonaws.com:5432/dd8h04ocdonsvj?user=qcxhljggghpbxa&password=6d462cf3d5d52813f0a69912a10908fad2ff06725737ce41e0cf0750b83d2375&sslmode=require");
