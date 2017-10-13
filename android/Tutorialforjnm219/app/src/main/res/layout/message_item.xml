@@ -32,17 +32,31 @@
         android:layout_toEndOf="@+id/messageItemSubject"
         android:layout_toRightOf="@+id/messageItemSubject" />
     </RelativeLayout>
-
     <TextView
         android:id="@+id/messageItemMessage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Message" />
+    <RelativeLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        >
     <TextView
         android:id="@+id/messageItemVotes"
-        android:layout_width="match_parent"
+        android:layout_width="174dp"
         android:layout_height="wrap_content"
         android:text="Votes"/>
+    <TextView
+        android:id="@+id/messageItemCreateTime"
+        android:layout_width="188dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@+id/messageItemVotes"
+        android:layout_toRightOf="@+id/messageItemVotes"
+        android:text="Create Time"/>
+    </RelativeLayout>
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"

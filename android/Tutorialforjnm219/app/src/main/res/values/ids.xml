@@ -11,4 +11,5 @@
     <item name="add_comment_settings" type="id" />
     <item name="enterCurrentPassword" type="id" />
     <item name="enterNewPassword" type="id" />
+    <item name="messageItemCreateTime" type="id" />
 </resources>

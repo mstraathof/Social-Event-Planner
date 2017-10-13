@@ -220,6 +220,10 @@ public class CommentActivity extends AppCompatActivity {
                 };
                 VolleySingleton.getInstance(this).addToRequestQueue(postRequest);
                 refreshList();
+
+                //Calls method from itself to more reliably refill the comment adapter
+                finish();
+                startActivity(getIntent());
             } else {
                 Toast.makeText(CommentActivity.this, "Error Creating Buzz", Toast.LENGTH_LONG).show();
             }

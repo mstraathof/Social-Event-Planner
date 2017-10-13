@@ -51,11 +51,6 @@ public class MainActivity extends AppCompatActivity{
 
     boolean check;
 
-    /**
-     * Global for the loginInfo object, key and id will be 0 when not logged in
-     */
-    LoginInfo mLoginInfo = new LoginInfo();
-
     Menu optionsMenu;
     //Adapter for the message object
     RecyclerView.Adapter adapter;
@@ -239,9 +234,8 @@ public class MainActivity extends AppCompatActivity{
                 String mMessage = json.getJSONObject(i).getString("mMessage");
                 String mCreateTime = json.getJSONObject(i).getString("mCreateTime");
                 int mVotes = json.getJSONObject(i).getInt("mVotes");
-                Log.d("Liger", mUserId + ":" + mTitle + ":" + mMessage + ":");
-                //String mUsername = json.getJSONObject(i).getString("mUsername");
-                String mUsername = "Jack";
+                Log.d("Liger", json.getJSONObject(i).toString());
+                String mUsername = json.getJSONObject(i).getString("mUsername");
                 mMessageData.add(new Message(mUserId, mTitle, mMessage, mCreateTime,mVotes,mUsername));
             }
             adapter.notifyDataSetChanged();
@@ -276,22 +270,6 @@ public class MainActivity extends AppCompatActivity{
         changePassword.setVisible(true);
     }
     /**
-     * This Route holds the data for a logged in user
-     */
-    private void loginUser(String response){
-        try{
-            JSONObject jsonObject = new JSONObject(response);;
-            int key = jsonObject.getInt("mLoginData");
-            keySave = key;
-            Toast.makeText(MainActivity.this,"Key2: "+key, Toast.LENGTH_LONG).show();
-            mLoginInfo.mKey = keySave;
-        } catch(final JSONException e){
-            Log.d("Liger","Error Parsing JSONN file: "+e.getMessage());
-            return;
-        }
-    }
-
-    /**
      * @param requestCode tells you which activity needs to be responded to.
      * @param resultCode holds the result ok if the activity succeed.
      * @param intent gets sent from the activity. The only activity right now is the CreateBuzzActivity.
@@ -316,7 +294,7 @@ public class MainActivity extends AppCompatActivity{
                 // add the data collected from user into map which gets made into a JSONObject
                 jsonParams.put("mSubject", resultSubject);
                 jsonParams.put("mMessage", resultMessage);
-                jsonParams.put("mUsername",mLoginInfo.mUsername);
+                jsonParams.put("mUsername",ApplicationWithGlobals.getUsername());
                 JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, url,
                         new JSONObject(jsonParams),
                         new Response.Listener<JSONObject>() {

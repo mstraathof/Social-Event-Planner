@@ -52,11 +52,13 @@ public class MessageRecyclerAdapter extends RecyclerView.Adapter<MessageRecycler
     @Override
     public void onBindViewHolder(MessageViewHolder holder, int position) {
         final Message message = messageList.get(position);
+        Log.d("Liger", message.toString());
         holder.messageId.setText(message.mId + "");
         holder.subjectTextView.setText("Subject: "+message.mSubject);
         holder.messageTextView.setText("Message: "+message.mMessage);
         holder.usernameTextView.setText("Username: "+message.mUsername);
         holder.votesTextView.setText("Votes: "+message.mVotes);        // setText needs a string
+        holder.createTimeTextView.setText("Time: "+message.mCreateTime);
     }
 
     @Override
@@ -75,6 +77,7 @@ public class MessageRecyclerAdapter extends RecyclerView.Adapter<MessageRecycler
         private TextView messageTextView;
         private TextView votesTextView;
         private TextView usernameTextView;
+        private TextView createTimeTextView;
         private Button likeButton;
         private Button disLikeButton;
         private Button commentButton;
@@ -89,6 +92,8 @@ public class MessageRecyclerAdapter extends RecyclerView.Adapter<MessageRecycler
             disLikeButton = (Button) itemView.findViewById(R.id.messageDislikeButton);
             usernameTextView = (TextView) itemView.findViewById(R.id.messageItemUsername);
             commentButton = (Button) itemView.findViewById(R.id.messageCommentButton);
+            createTimeTextView = (TextView) itemView.findViewById(R.id.messageItemCreateTime);
+            Log.d("Liger", "Username: "+messageId.getText().toString());
 
 
             commentButton.setOnClickListener(new View.OnClickListener(){
@@ -98,7 +103,7 @@ public class MessageRecyclerAdapter extends RecyclerView.Adapter<MessageRecycler
                     ApplicationWithGlobals mApp = (ApplicationWithGlobals)v.getContext().getApplicationContext();
                     //position = mApp.getPosition();
                     Intent i = new Intent(v.getContext(), CommentActivity.class);
-                    Log.d("Liger", "This MessageId1: "+messageId.getText().toString());
+                    Log.d("Liger", "Username: "+messageId.getText().toString());
                     i.putExtra("messageId",messageId.getText().toString());
                     v.getContext().startActivity(i);
                 }
