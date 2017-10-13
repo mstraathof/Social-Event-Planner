@@ -114,17 +114,16 @@ public class MessageRecyclerAdapter extends RecyclerView.Adapter<MessageRecycler
                     ApplicationWithGlobals mApp = (ApplicationWithGlobals)v.getContext().getApplicationContext();
                     position = mApp.getPosition();
 
-                    messageList.get(position).mVotes++;
-                    notifyItemChanged(position);
-
                     // todo: move PUT to main activity implementing an interface to link the two
                     //Log.d("jnm219", "attempting to change vote count of " + datumList.get(position).mId);
-                    String url = "https://quiet-taiga-79213.herokuapp.com/messages";
+                    String url = "https://quiet-taiga-79213.herokuapp.com/upVote";
                     Map<String, String> jsonParams = new HashMap<String, String>();
 
-                    // make a put request to an up-vote
-                    jsonParams.put("mChangeVote", "1");
-                    JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.PUT, url + "/" + messageList.get(position).mId,
+                    //User sends username and message Id to database, who will toggle the downvotes
+                    jsonParams.put("mUsername",ApplicationWithGlobals.getUsername());
+                    jsonParams.put("mMessageId",messageId.getText().toString());
+                    Log.d("jnm219", url);
+                    JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, url,
                             new JSONObject(jsonParams),
                             new Response.Listener<JSONObject>() {
                                 @Override
@@ -149,6 +148,9 @@ public class MessageRecyclerAdapter extends RecyclerView.Adapter<MessageRecycler
                     };
                     VolleySingleton.getInstance(v.getContext()).addToRequestQueue(postRequest);
 
+                    //This will refresh the page so the new vote count can be displayed
+                    Intent i = new Intent(v.getContext(), MainActivity.class);
+                    v.getContext().startActivity(i);
                     //Log.d("button", "click " + position);
                 }
             });
@@ -162,17 +164,16 @@ public class MessageRecyclerAdapter extends RecyclerView.Adapter<MessageRecycler
                     ApplicationWithGlobals mApp = (ApplicationWithGlobals)v.getContext().getApplicationContext();
                     position = mApp.getPosition();
 
-                    messageList.get(position).mVotes--;
-                    notifyItemChanged(position);
-
                     // todo: move PUT to main activity implementing an interface to link the two
                     //Log.d("jnm219", "attempting to change vote count of " + datumList.get(position).mId);
-                    String url = "https://quiet-taiga-79213.herokuapp.com/messages";
+                    String url = "https://quiet-taiga-79213.herokuapp.com/downVote";
                     Map<String, String> jsonParams = new HashMap<String, String>();
 
-                    // make a put request to an up-vote
-                    jsonParams.put("mChangeVote", "-1");
-                    JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.PUT, url + "/" + messageList.get(position).mId,
+                    //User sends username and message Id to database, who will toggle the downvotes
+                    jsonParams.put("mUsername",ApplicationWithGlobals.getUsername());
+                    jsonParams.put("mMessageId",messageId.getText().toString());
+                    Log.d("jnm219", url);
+                    JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, url,
                             new JSONObject(jsonParams),
                             new Response.Listener<JSONObject>() {
                                 @Override
@@ -197,7 +198,10 @@ public class MessageRecyclerAdapter extends RecyclerView.Adapter<MessageRecycler
 
                     };
                     VolleySingleton.getInstance(v.getContext()).addToRequestQueue(postRequest);
-                    //Log.d("button", "click " + position);
+
+                    //This will refresh the page so the new vote count can be displayed
+                    Intent i = new Intent(v.getContext(), MainActivity.class);
+                    v.getContext().startActivity(i);
                 }
             });
 

@@ -29,5 +29,11 @@
         android:title="Log Out"
         app:showAsAction="never"
         app:actionViewClass = "android.widget.SearchView"/>
+    <item
+        android:id="@+id/change_password_settings"
+        android:orderInCategory="2"
+        android:title="Change Password"
+        app:showAsAction="never"
+        app:actionViewClass = "android.widget.SearchView"/>
 
 </menu>

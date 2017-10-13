@@ -66,7 +66,7 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
         public CommentViewHolder(View itemView) {
             super(itemView);
             CommentTextView = (TextView) itemView.findViewById(R.id.commentItemComment);
-            usernameTextView = (TextView) itemView.findViewById(R.id.messageItemUsername);
+            usernameTextView = (TextView) itemView.findViewById(R.id.commentItemUsername);
 
         }
         void onRecyclerItemClick(){

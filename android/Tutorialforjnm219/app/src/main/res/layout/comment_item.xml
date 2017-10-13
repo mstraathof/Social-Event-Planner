@@ -6,6 +6,11 @@
     android:orientation="vertical">
 
     <TextView
+        android:id="@+id/commentItemUsername"
+        android:layout_width="174dp"
+        android:layout_height="wrap_content"
+        android:text="Username" />
+    <TextView
         android:id="@+id/commentItemComment"
         android:layout_width="174dp"
         android:layout_height="wrap_content"

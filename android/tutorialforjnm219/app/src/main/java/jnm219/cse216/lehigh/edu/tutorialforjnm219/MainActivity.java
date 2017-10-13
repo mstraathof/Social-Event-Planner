@@ -32,7 +32,9 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.Handler;
 
 public class MainActivity extends AppCompatActivity{
 
@@ -46,6 +48,8 @@ public class MainActivity extends AppCompatActivity{
     ArrayList<Message> mMessageData = new ArrayList<>();
 
     int keySave = 0;
+
+    boolean check;
 
     /**
      * Global for the loginInfo object, key and id will be 0 when not logged in
@@ -80,6 +84,10 @@ public class MainActivity extends AppCompatActivity{
             //Finds the logout button and makes it hidden
             MenuItem logout = (MenuItem) optionsMenu.findItem(R.id.logout_settings);
             logout.setVisible(false);
+
+            //Makes the change password button hidden
+            MenuItem changePassword = (MenuItem) optionsMenu.findItem(R.id.change_password_settings);
+            changePassword.setVisible(false);
         }
         //Case if the user is logged in
         else{
@@ -95,8 +103,12 @@ public class MainActivity extends AppCompatActivity{
             //Finds the logout button and makes it hidden
             MenuItem logout = (MenuItem) optionsMenu.findItem(R.id.logout_settings);
             logout.setVisible(true);
+
+            //Makes the change password button active
+            MenuItem changePassword = (MenuItem) optionsMenu.findItem(R.id.change_password_settings);
+            changePassword.setVisible(true);
         }
-        Toast.makeText(MainActivity.this, "Username: "+username+" Key: "+key, Toast.LENGTH_LONG).show();
+        //Toast.makeText(MainActivity.this, "Username: "+username+" Key: "+key, Toast.LENGTH_LONG).show();
 
         return true;
     }
@@ -121,6 +133,12 @@ public class MainActivity extends AppCompatActivity{
         if(username != "Error" && key != 0) {
             refreshList();      // populate RecyclerView with initial set of buzzes.
         }
+        /*
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() { checkLogin();}
+        }, 0, 10000);//put here time 1000 milliseconds=1 second
+         */
             //VolleySingleton.getInstance(this).addToRequestQueue(stringRequest); // add request to queue.
     }
 
@@ -172,6 +190,12 @@ public class MainActivity extends AppCompatActivity{
             i.putExtra("topLabel","Are you sure you want to logout?");
             startActivityForResult(i,4);
         }
+        if(id == R.id.change_password_settings)
+        {
+            Intent i = new Intent(getApplicationContext(), changePassword.class);
+            i.putExtra("topLabel","Change Password");
+            startActivityForResult(i,5);
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -179,7 +203,7 @@ public class MainActivity extends AppCompatActivity{
     // refresh the list of buzzes.
     // refreshList() only queues the request to populate.
     // populateMessageFromVolley() does the real work: parsing the server response and updating the adapter.
-    private void refreshList()
+    public void refreshList()
     {
         String url = "https://quiet-taiga-79213.herokuapp.com/messages";
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -247,6 +271,9 @@ public class MainActivity extends AppCompatActivity{
         MenuItem logout = (MenuItem) optionsMenu.findItem(R.id.logout_settings);
         logout.setVisible(true);
 
+        //Makes the change password button hidden
+        MenuItem changePassword = (MenuItem) optionsMenu.findItem(R.id.change_password_settings);
+        changePassword.setVisible(true);
     }
     /**
      * This Route holds the data for a logged in user
@@ -273,6 +300,7 @@ public class MainActivity extends AppCompatActivity{
     protected void onActivityResult(int requestCode, int resultCode, final Intent intent) {
         //Toast.makeText(MainActivity.this,"RequestCode: "+ requestCode+ "ResultCode: "+resultCode, Toast.LENGTH_LONG).show();
         // Json request for Create Buzz
+
         if (requestCode == 789) {
             // Make sure the request was successful
             if (resultCode == RESULT_OK) {
@@ -283,6 +311,7 @@ public class MainActivity extends AppCompatActivity{
                 Map<String, String> jsonParams = new HashMap<String, String>();
                 final String resultSubject = intent.getStringExtra("resultSubject");
                 final String resultMessage = intent.getStringExtra("resultMessage");
+
 
                 // add the data collected from user into map which gets made into a JSONObject
                 jsonParams.put("mSubject", resultSubject);
@@ -310,8 +339,10 @@ public class MainActivity extends AppCompatActivity{
                         return headers;
                     }
                 };
+                //Toast.makeText(MainActivity.this,"Check: "+check, Toast.LENGTH_LONG).show();
                 VolleySingleton.getInstance(this).addToRequestQueue(postRequest);
                 refreshList();
+
             }
             else{
                 Toast.makeText(MainActivity.this,"Error Creating Buzz", Toast.LENGTH_LONG).show();
@@ -338,14 +369,74 @@ public class MainActivity extends AppCompatActivity{
                                 int key = 0;
                                 try {
                                     key = response.getInt("mLoginData");
-                                    ApplicationWithGlobals.setUsername(resultUsername);
-                                    ApplicationWithGlobals.setKey(key);
+                                    //If the key is 3, the persons username or password is wrong, or they are not registered
+                                    //That user is not logged in
+                                    if(key == 3)
+                                    {
+                                        Toast.makeText(MainActivity.this,"No Registered User under "+resultUsername, Toast.LENGTH_LONG).show();
+                                    }
+                                    else if(key == 2)
+                                    {
+                                        Toast.makeText(MainActivity.this,"Username and Password do not match", Toast.LENGTH_LONG).show();
+                                    }
+                                    else {
+                                        ApplicationWithGlobals.setUsername(resultUsername);
+                                        ApplicationWithGlobals.setKey(key);
+                                        refreshLogin();
+                                        refreshList();
+                                    }
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
-                                keySave = key;
-                                Toast.makeText(MainActivity.this,"Key2: "+key, Toast.LENGTH_LONG).show();
-                                mLoginInfo.mKey = keySave;
+                                //Toast.makeText(MainActivity.this,"Key2: "+key, Toast.LENGTH_LONG).show();
+                                Log.e("Liger","got response");
+                            }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Toast.makeText(MainActivity.this,"Login Failed: Please Try Again", Toast.LENGTH_LONG).show();
+                                Log.e("Liger", "JsonObjectRequest() failed: " + error.getMessage());
+
+                            }
+                        }) {
+                    @Override
+                    public Map<String, String> getHeaders() {
+                        HashMap<String, String> headers = new HashMap<String, String>();
+                        headers.put("Content-Type", "application/json; charset=utf-8");
+                        headers.put("User-agent", System.getProperty("http.agent"));
+                        return headers;
+                    }
+                };
+                VolleySingleton.getInstance(this).addToRequestQueue(postRequest);
+            }
+        }
+
+        //Json Request for the Register Screen
+        if(requestCode == 667)
+        {
+            if(resultCode == RESULT_OK) {
+                String url = "https://quiet-taiga-79213.herokuapp.com/register";
+                String urlBio = "https://quiet-taiga-79213.herokuapp.com/profile";
+
+                Map<String, String> jsonParams = new HashMap<String, String>();
+                Map<String, String> jsonParamsProfile = new HashMap<String, String>();
+                final String resultUsername = intent.getStringExtra("resultUserName");
+                final String resultPassword = intent.getStringExtra("resultPassword");
+                final String resultRealName = intent.getStringExtra("resultRealName");
+                final String resultEmail = intent.getStringExtra("resultEmail");
+                final String profileCreation = "Enter a New Bio!";
+
+                jsonParams.put("mUsername",resultUsername);
+                jsonParams.put("mRealName",resultRealName);
+                jsonParams.put("mEmail",resultEmail);
+                jsonParamsProfile.put("mUsername",resultUsername);
+                jsonParamsProfile.put("mProfile",profileCreation);
+                JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, url,
+                        new JSONObject(jsonParams),
+                        new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response){
                                 Log.e("Liger","got response");
                             }
                         },
@@ -364,30 +455,93 @@ public class MainActivity extends AppCompatActivity{
                         return headers;
                     }
                 };
+                /*
+                JsonObjectRequest postProfileRequest = new JsonObjectRequest(Request.Method.POST, urlBio,
+                        new JSONObject(jsonParamsProfile),
+                        new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response){
+                                Log.e("Liger","got response");
 
-                refreshLogin();
-                refreshList();
+                            }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Log.e("Liger", "JsonObjectRequest() failed: " + error.getMessage());
+
+                            }
+                        }) {
+                    @Override
+                    public Map<String, String> getHeaders() {
+                        HashMap<String, String> headers = new HashMap<String, String>();
+                        headers.put("Content-Type", "application/json; charset=utf-8");
+                        headers.put("User-agent", System.getProperty("http.agent"));
+                        return headers;
+                    }
+                };
+                */
+                //Volley request to register a new user
                 VolleySingleton.getInstance(this).addToRequestQueue(postRequest);
+                //Volley request to make a blank profile for a user
+                //VolleySingleton.getInstance(this).addToRequestQueue(postProfileRequest);
+
+                //refreshList();
             }
         }
 
-        //Json Request for the Register Screen
-        if(requestCode == 667)
-        {
+        //Json request for the logout functionality
+        if(requestCode == 4) {
             if(resultCode == RESULT_OK) {
-                String url = "https://quiet-taiga-79213.herokuapp.com/register";
+                String url = "https://quiet-taiga-79213.herokuapp.com/logout";
 
                 Map<String, String> jsonParams = new HashMap<String, String>();
-                final String resultUsername = intent.getStringExtra("resultUserName");
-                final String resultPassword = intent.getStringExtra("resultPassword");
-                final String resultRealName = intent.getStringExtra("resultRealName");
-                final String resultEmail = intent.getStringExtra("resultEmail");
+                jsonParams.put("mUsername", ApplicationWithGlobals.getUsername());
 
-                jsonParams.put("mUsername",resultUsername);
-                jsonParams.put("mPassword",resultPassword);
-                jsonParams.put("mRealName",resultRealName);
-                jsonParams.put("mEmail",resultEmail);
                 JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, url,
+                        new JSONObject(jsonParams),
+                        new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response){
+                                Log.e("Liger","got response");
+                            }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Log.e("Liger", "JsonObjectRequest() failed: " + error.getMessage());
+
+                            }
+                        }) {
+                    @Override
+                    public Map<String, String> getHeaders() {
+                        HashMap<String, String> headers = new HashMap<String, String>();
+                        headers.put("Content-Type", "application/json; charset=utf-8");
+                        headers.put("User-agent", System.getProperty("http.agent"));
+                        return headers;
+                    }
+                };
+                //Volley request to logout a user from the server
+                VolleySingleton.getInstance(this).addToRequestQueue(postRequest);
+                refreshLogout();
+            }
+            else{
+                Toast.makeText(MainActivity.this,"Logout Cancelled", Toast.LENGTH_LONG).show();
+            }
+        }
+        //Json Request for the Change Password screen
+        if(requestCode == 5)
+        {
+            if(resultCode == RESULT_OK) {
+                String url = "https://quiet-taiga-79213.herokuapp.com/changePassword/"+ApplicationWithGlobals.getUsername();
+
+                Map<String, String> jsonParams = new HashMap<String, String>();
+                final String resultCurrentPassword = intent.getStringExtra("resultCurrentPassword");
+                final String resultNewPassword = intent.getStringExtra("resultNewPassword");
+
+                jsonParams.put("mCurrentPassword",resultCurrentPassword);
+                jsonParams.put("mNewPassword",resultNewPassword);
+                JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.PUT, url,
                         new JSONObject(jsonParams),
                         new Response.Listener<JSONObject>() {
                             @Override
@@ -415,16 +569,6 @@ public class MainActivity extends AppCompatActivity{
                 refreshList();
             }
         }
-
-        //Json request for the logout functionality
-        if(requestCode == 4) {
-            if(resultCode == RESULT_OK) {
-                refreshLogout();
-            }
-            else{
-                Toast.makeText(MainActivity.this,"Logout Cancelled", Toast.LENGTH_LONG).show();
-            }
-        }
     }
 
     private void refreshLogout() {
@@ -443,8 +587,11 @@ public class MainActivity extends AppCompatActivity{
 
         //Finds the logout button and makes it hidden
         MenuItem logout = (MenuItem) optionsMenu.findItem(R.id.logout_settings);
-
         logout.setVisible(false);
+
+        //Makes the change password button hidden
+        MenuItem changePassword = (MenuItem) optionsMenu.findItem(R.id.change_password_settings);
+        changePassword.setVisible(false);
 
         ApplicationWithGlobals.setKey(0);
         ApplicationWithGlobals.setUsername("Error");
@@ -455,6 +602,54 @@ public class MainActivity extends AppCompatActivity{
         //necessary in order to get rid of all the messages from the main activity
         finish();
         startActivity(getIntent());
+    }
+
+
+    public boolean checkLogin(){
+        String url = "https://quiet-taiga-79213.herokuapp.com/checkLogin";
+        Map<String, String> jsonParams = new HashMap<String, String>();
+
+        jsonParams.put("mUsername",ApplicationWithGlobals.getUsername());
+        jsonParams.put("mKey",ApplicationWithGlobals.getKey()+"");
+
+        JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, url,
+                new JSONObject(jsonParams),
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response){
+                        Log.e("Liger","got response");
+                        try {
+                            check = response.getBoolean("mCheck");
+                            //Toast.makeText(MainActivity.this,"check "+check, Toast.LENGTH_LONG).show();
+                            Log.d("Liger","Check1: "+check);
+                            if(!check)
+                            {
+                                ApplicationWithGlobals.setUsername("Error");
+                                ApplicationWithGlobals.setKey(0);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e("Liger", "JsonObjectRequest() failed: " + error.getMessage());
+
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/json; charset=utf-8");
+                headers.put("User-agent", System.getProperty("http.agent"));
+                return headers;
+            }
+        };
+        VolleySingleton.getInstance(this).addToRequestQueue(postRequest);
+
+        return check;
     }
 
 }

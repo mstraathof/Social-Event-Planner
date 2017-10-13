@@ -61,7 +61,7 @@ public class CommentActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.comment_layout);
+        setContentView(R.layout.comment_activity_layout);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -126,14 +126,13 @@ public class CommentActivity extends AppCompatActivity {
             mCommentData.clear(); //Clears all of the existing messages
             for(int i = 0; i < json.length(); ++i){
                 int mCommentId = json.getJSONObject(i).getInt("mCommentId");
-                int mUserId = json.getJSONObject(i).getInt("mUserId");
                 int mMessageId = json.getJSONObject(i).getInt("mMessageId");
                 String mComment = json.getJSONObject(i).getString("mComment");
                 String mCreateTime = json.getJSONObject(i).getString("mCreateTime");
                 String mUsername = json.getJSONObject(i).getString("mUsername");
 
-                mCommentData.add(new Comment(mCommentId,mUserId,mMessageId,mComment,mCreateTime,mUsername));
-                Log.d("Liger",mCommentId + ":" + mUserId + ":" + mMessageId +":" + mComment+ ":" + mCreateTime);
+                mCommentData.add(new Comment(mCommentId,mMessageId,mComment,mCreateTime,mUsername));
+                Log.d("Liger",mCommentId + ":" + mMessageId +":" + mComment+ ":" + mCreateTime + ":" + mUsername);
             }
             adapter.notifyDataSetChanged();
         } catch(final JSONException e){

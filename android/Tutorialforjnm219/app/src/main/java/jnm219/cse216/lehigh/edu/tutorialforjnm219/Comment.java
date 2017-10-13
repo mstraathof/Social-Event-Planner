@@ -12,12 +12,6 @@ public class Comment {
     int mCommentId;
 
     /**
-     * mUserId is used to hold the Id of the user who wrote the comment
-     */
-
-    int mUserId;
-
-    /**
      * mMessageId is used to reference the message that this comment came from
      */
 
@@ -43,18 +37,15 @@ public class Comment {
     /**
      *
      * @param commentId
-     * @param userId
      * @param messageId
      * @param comment
      * @param createTime
      * @param username
      */
 
-    Comment(int commentId, int userId, int messageId, String comment, String createTime, String username)
+    Comment(int commentId, int messageId, String comment, String createTime, String username)
     {
         mCommentId = commentId;
-
-        mUserId = userId;
 
         mMessageId = messageId;
 

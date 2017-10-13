@@ -72,6 +72,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intend-filter>
         </activity>
+        <activity
+            android:name=".changePassword"
+            android:label="changePasswordMenu"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intend-filter>
+                <action android:name="android.intent.action.Main" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intend-filter>
+        </activity>
     </application>
 
 </manifest>
