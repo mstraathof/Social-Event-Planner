@@ -5,9 +5,12 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.net.URISyntaxException;
 import java.util.logging.Logger;
 import java.util.ArrayList;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 
 public class Database {
  
@@ -18,87 +21,49 @@ public class Database {
     private Connection mConnection;
 
     /**
-     * A prepared statement for getting all data in the database
+     * A prepared statement for inserting into the tblUser
      */
-    //private PreparedStatement mSelectAll;
+    private PreparedStatement mInsertUser;
+    private PreparedStatement mInsertUserUnauth;
+    private PreparedStatement mSelectUnauthUserOne; // from the tblUnauthUser table
+    public PreparedStatement mSelectUnauthUserAll; // public so App.java can execute() this.
+    private PreparedStatement mRemoveUnauthUserOne; // from the tblUnauthUser table
 
     /**
-     * A prepared statement for getting one row from the database
+     * A prepared statement for creating the unauthorized user table in the database
      */
-   // private PreparedStatement mSelectOne;
+    private PreparedStatement mCreateUnauthUserTable;
 
     /**
-     * A prepared statement for deleting a row from the database
+     * A prepared statement for creating the user table in the database
      */
-    //private PreparedStatement mDeleteOne;
+    private PreparedStatement mCreateUserTable;
 
     /**
-     * A prepared statement for inserting into the database
+     * A prepared statement for creating the user's profile table in the database
      */
-   // private PreparedStatement mInsertOne;
+    private PreparedStatement mCreateProfileTable;
 
     /**
-     * A prepared statement for updating a single row in the database
+     * A prepared statement for creating the message in the database
      */
-    //private PreparedStatement mUpdateOne;
+    private PreparedStatement mCreateMessageTable;
 
     /**
-     * A prepared statement for creating the table in our database
+     * A prepared statement for creating the comment table in the database
      */
-    private PreparedStatement mCreateTable;
+    private PreparedStatement mCreateCommentTable;
 
     /**
-     * A prepared statement for dropping the table in our database
+     * A prepared statement for creating the down-vote table in the database
      */
-    private PreparedStatement mDropTable;
+    private PreparedStatement mCreateDownVoteTable;
 
     /**
-     * RowData is like a struct in C: we use it to hold data, and we allow 
-     * direct access to its fields.  In the context of this Database, RowData 
-     * represents the data we'd see in a row.
-     * 
-     * We make RowData a static class of Database because we don't really want
-     * to encourage users to think of RowData as being anything other than an
-     * abstract representation of a row of the database.  RowData and the 
-     * Database are tightly coupled: if one changes, the other should too.
+     * A prepared statement for creating the up-vote table in the database
      */
+    private PreparedStatement mCreateUpVoteTable;
  
-    //public static class RowData {
-        /**
-         * The ID of this row of the database
-         */
-        //int mId;
-        /**
-         * The subject stored in this row
-         */
-       // String mSubject;
-        /**
-         * The message stored in this row
-         */
-        //String mMessage;
-        /**
-         * The votes stored in this row
-         */
-        //int mVotes;
-        /**
-         * The date created stored in this row
-         */
-       // String mCreateTime;
-        /**
-         * The time modified stored in this row
-         */
-        //String mModifyTime;
-        /**
-         * Construct a RowData object by providing values for its fields
-         */
-         /*
-        public RowData(int id, String subject, String message) {
-            mId = id;
-            mSubject = subject;
-            mMessage = message;
-        }
-    }
-*/
     /**
      * The Database constructor is private: we only create Database objects 
      * through the getDatabase() method.
@@ -111,11 +76,8 @@ public class Database {
         return DriverManager.getConnection(url);
     }
     
-
     /**
      * Get a fully-configured connection to the database
-     * 
-     * 
      * @return A Database object, or null if we cannot connect properly
      */
     static Database getDatabase(String dbUrl)  {
@@ -136,7 +98,7 @@ public class Database {
             return null;
         }
         catch (URISyntaxException e) {
-            System.err.println("Error: DriverManager.getConnection() threw a SQLException");
+            System.err.println("Error: DriverManager.getConnection() threw a URISyntaxException");
             e.printStackTrace();
             return null;
         }
@@ -150,18 +112,69 @@ public class Database {
 
             // Note: no "IF NOT EXISTS" or "IF EXISTS" checks on table 
             // creation/deletion, so multiple executions will cause an exception
-            db.mCreateTable = db.mConnection.prepareStatement(
-                    "CREATE TABLE tblData (id SERIAL PRIMARY KEY, subject VARCHAR(50) "
-                    + "NOT NULL, message VARCHAR(500) NOT NULL, votes INT NOT NULL, "
-                     +"createTime VARCHAR(50) not null, modifyTime VARCHAR(50) not null)");
-            db.mDropTable = db.mConnection.prepareStatement("DROP TABLE tblData");
-
-            // Standard CRUD operations
-            /*db.mDeleteOne = db.mConnection.prepareStatement("DELETE FROM tblData WHERE id = ?");
-            db.mInsertOne = db.mConnection.prepareStatement("INSERT INTO tblData VALUES (default, ?, ?)");
-            db.mSelectAll = db.mConnection.prepareStatement("SELECT id, subject, votes FROM tblData");
-            db.mSelectOne = db.mConnection.prepareStatement("SELECT * from tblData WHERE id=?");
-            db.mUpdateOne = db.mConnection.prepareStatement("UPDATE tblData SET message = ? WHERE id = ?");*/
+            db.mCreateUnauthUserTable = db.mConnection.prepareStatement(
+                "CREATE TABLE IF NOT EXISTS tblUnauthUser ("
+                +"username VARCHAR(255) PRIMARY KEY,"
+                +"realname VARCHAR(255) NOT NULL,"
+                +"email VARCHAR(255) NOT NULL)"
+            );
+            db.mCreateUserTable = db.mConnection.prepareStatement(
+                "CREATE TABLE IF NOT EXISTS tblUser ("
+                +"user_id Serial PRIMARY KEY,"
+                +"username VARCHAR(255) UNIQUE NOT NULL,"
+                +"realname VARCHAR(255) NOT NULL,"
+                +"email VARCHAR(255) NOT NULL,"
+                +"salt BYTEA,"
+                +"password BYTEA)"
+            );
+            db.mCreateProfileTable = db.mConnection.prepareStatement(
+                "CREATE TABLE IF NOT EXISTS tblProfile ("
+                +"username VARCHAR(255) PRIMARY KEY,"
+                +"profile_text VARCHAR(500),"
+                +"FOREIGN KEY (username) REFERENCES tblUser (username))"
+            );
+            db.mCreateMessageTable = db.mConnection.prepareStatement(
+                "CREATE TABLE IF NOT EXISTS tblMessage ("
+                +"message_id SERIAL PRIMARY KEY,"
+                +"subject VARCHAR(50) NOT NULL,"
+                +"message VARCHAR(500),"
+                +"username VARCHAR(255),"
+                +"createTime VARCHAR(50),"
+                +"vote INTEGER,"
+                +"FOREIGN KEY (username) REFERENCES tblUser (username))"
+            );
+            db.mCreateCommentTable = db.mConnection.prepareStatement(
+                "CREATE TABLE IF NOT EXISTS tblComment ("
+                +"comment_id SERIAL PRIMARY KEY,"
+                +"username VARCHAR(255),"
+                +"message_id INTEGER,"
+                +"comment_text VARCHAR(255),"
+                +"createTime VARCHAR(50),"
+                +"FOREIGN KEY (username) REFERENCES tblUser (username),"
+                +"FOREIGN KEY (message_id) REFERENCES tblMessage (message_id))"
+            );
+            db.mCreateDownVoteTable = db.mConnection.prepareStatement(
+                "CREATE TABLE IF NOT EXISTS tblDownVote ("
+                +"username VARCHAR(255),"
+                +"message_id INTEGER,"
+                +"PRIMARY KEY (username, message_id),"
+                +"FOREIGN KEY (username) REFERENCES tblUser (username),"
+                +"FOREIGN KEY (message_id) REFERENCES tblMessage (message_id))"
+            );
+            db.mCreateUpVoteTable = db.mConnection.prepareStatement(
+                "CREATE TABLE IF NOT EXISTS tblUpVote ("
+                +"username VARCHAR(255),"
+                +"message_id INTEGER,"
+                +"PRIMARY KEY (username, message_id),"
+                +"FOREIGN KEY (username) REFERENCES tblUser (username),"
+                +"FOREIGN KEY (message_id) REFERENCES tblMessage (message_id))"
+            );
+            db.mInsertUser = db.mConnection.prepareStatement("INSERT INTO tblUser VALUES (default, ?, ?, ?, ?, ?)");
+            db.mInsertUserUnauth = db.mConnection.prepareStatement("INSERT INTO tblUnauthUser VALUES (?, ?, ?)");
+            db.mSelectUnauthUserOne = db.mConnection.prepareStatement("SELECT * FROM tblUnauthUser WHERE username=?");
+            db.mSelectUnauthUserAll = db.mConnection.prepareStatement("SELECT * FROM tblUnauthUser");
+            db.mRemoveUnauthUserOne = db.mConnection.prepareStatement("DELETE FROM tblUnauthUser WHERE username=?");
+            
         } catch (SQLException e) {
             System.err.println("Error creating prepared statement");
             e.printStackTrace();
@@ -194,15 +207,60 @@ public class Database {
         mConnection = null;
         return true;
     }
-      /**
-     * Create tblData.  If it already exists, this will print an error
+
+    /**
+     * Create all tables: tblUser, tblMessage, tblComment, tblUpVote, tblDownVote.  
+     * If it already exists, this will print an error
      */
-    boolean createTable() {
+    boolean createAllTables() {
         try {
-            mCreateTable.execute();
+            mCreateUnauthUserTable.execute();
+            mCreateUserTable.execute();
+            mCreateProfileTable.execute();
+            mCreateMessageTable.execute();
+            mCreateCommentTable.execute();
+            mCreateDownVoteTable.execute();
+            mCreateUpVoteTable.execute();
         } catch (SQLException e) {
             System.err.println("Table is already created");
             //e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+    
+    /** Create table based on parameter given */
+    boolean createTable(char action) {
+        try {
+            if (action == 'U') {            // tblUser
+                mCreateUserTable.execute();
+                mCreateProfileTable.execute();  // following tables rely on tblUser
+                mCreateMessageTable.execute();
+                mCreateCommentTable.execute();
+                mCreateUpVoteTable.execute();
+                mCreateDownVoteTable.execute();
+            } else if (action == 'a') {
+                mCreateUnauthUserTable.execute();
+            } else if (action == 'p') {     // tblProfile
+                mCreateProfileTable.execute();
+            } else if (action == 'm') {     // tblMessage
+                mCreateMessageTable.execute();
+                mCreateCommentTable.execute(); // following tables rely on tblMessage
+                mCreateUpVoteTable.execute();
+                mCreateDownVoteTable.execute();
+            } else if (action == 'c') {     // tblComment
+                mCreateCommentTable.execute();
+            } else if (action == 'u') {     // tblUpVote
+                mCreateUpVoteTable.execute();
+            } else if (action == 'd') {     // tblDownVote
+                mCreateDownVoteTable.execute();
+            } else {
+                System.err.println("Invalid input for creating table.");
+                System.err.println("Options are: [U]ser, [p]rofile, [m]essage, [c]omment, [d]ownvote, [u]pvote");
+                return false;
+            }    
+        } catch (SQLException e) {
+            System.err.println("Table is already created. Error: " + e);
             return false;
         }
         return true;
@@ -212,120 +270,119 @@ public class Database {
      * Remove tblData from the database.  If it does not exist, this will print
      * an error.
      */
-    boolean dropTable() {
+    boolean dropTable(String table) {
+        Statement stmt = null;        
         try {
-            mDropTable.execute();
+            stmt = mConnection.createStatement();
+            String sql = "DROP TABLE " + table + " CASCADE";
+            stmt.executeUpdate(sql);
         } catch (SQLException e) {
             System.err.println("There is no table to drop");
-           // e.printStackTrace();
+            e.printStackTrace();
             return false;
         }
         return true;
     }
-}
 
-    /**
-     * Insert a row into the database
-     * 
-     * @param subject The subject for this new row
-     * @param message The message body for this new row
-     * 
-     * @return The number of rows that were inserted
-     */
-     /*
-    int insertRow(String subject, String message) {
-        int count = 0;
-        try {
-            mInsertOne.setString(1, subject);
-            mInsertOne.setString(2, message);
-            count += mInsertOne.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
+    boolean dropAllTables() {
+        boolean result;
+        String[] tables = {"tblUpVote", "tblDownVote", "tblComment", "tblProfile", "tblMessage", "tblUser", "tblUnauthUser"};
+        for (int i = 0; i < tables.length; i++) {
+            result = dropTable(tables[i]);
+            if (result == false) {
+                return false;
+            }
         }
-        return count;
+        return true;
     }
-    */
-    /**
-     * Query the database for a list of all subjects and their IDs
-     * 
-     * @return All rows, as an ArrayList
-     */
-     /*
-    ArrayList<RowData> selectAll() {
-        ArrayList<RowData> res = new ArrayList<RowData>();
+
+    boolean rejectUser(String username) {
         try {
-            ResultSet rs = mSelectAll.executeQuery();
+            mRemoveUnauthUserOne.setString(1, username);
+            mRemoveUnauthUserOne.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Failed to reject user: " + e);
+            return false;
+        }
+        return true;
+    }
+
+    public boolean selectUnauthUserAll() {
+        try {
+            ResultSet rs = mSelectUnauthUserAll.executeQuery();
+            int columnsNumber = rs.getMetaData().getColumnCount();
             while (rs.next()) {
-                res.add(new RowData(rs.getInt("id"), rs.getString("subject"), null));
+                for (int i = 1; i <= columnsNumber; i++) {
+                    if (i > 1) System.out.print("   ");
+                    String columnValue = rs.getString(i);
+                    System.out.print(columnValue);
+                }
+                System.out.println("");
             }
-            rs.close();
-            return res;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
         }
-    }*/
+        catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
 
-    /**
-     * Get all data for a specific row, by ID
-     * 
-     * @param id The id of the row being requested
-     * 
-     * @return The data for the requested row, or null if the ID was invalid
-     */
-     /*
-    RowData selectOne(int id) {
-        RowData res = null;
+    boolean addToTblUnauthTable(String username, String realname, String email) {
         try {
-            mSelectOne.setInt(1, id);
-            ResultSet rs = mSelectOne.executeQuery();
-            if (rs.next()) {
-                res = new RowData(rs.getInt("id"), rs.getString("subject"), rs.getString("message"));
+            mInsertUserUnauth.setString(1, username);
+            mInsertUserUnauth.setString(2, realname);
+            mInsertUserUnauth.setString(3, email);
+            mInsertUserUnauth.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    boolean authorizeUser(String[] credentials) {   // credentials[username, realname, email, password]
+        try {
+            String username = credentials[0];
+            Password pw = new Password();
+
+            mSelectUnauthUserOne.setString(1, username);
+            ResultSet rs = mSelectUnauthUserOne.executeQuery();
+            
+            if (rs.next())
+            {
+                String realname = rs.getString("realname");
+                credentials[1] = realname;
+                String email = rs.getString("email");
+                credentials[2] = email;
+                mInsertUser.setString(1, username);
+                mInsertUser.setString(2, realname);
+                mInsertUser.setString(3, email);
+                byte [] salt = pw.getSalt();
+                String password = pw.getPassword();
+                credentials[3] = password;
+                byte [] saltedPassword = pw.encryptPw (password, salt);
+                mInsertUser.setBytes(4,salt);
+                mInsertUser.setBytes(5, saltedPassword);
+                mInsertUser.executeUpdate();
+                mRemoveUnauthUserOne.setString(1, username);    // remove the authorized user from the unauthuser table
+                mRemoveUnauthUserOne.executeUpdate();
+            }
+            else
+            {
+                System.out.println("username not found");
             }
         } catch (SQLException e) {
             e.printStackTrace();
-        }
-        return res;
-    }
-*/
-    /**
-     * Delete a row by ID
-     * 
-     * @param id The id of the row to delete
-     * 
-     * @return The number of rows that were deleted.  -1 indicates an error.
-     */
-     /*
-    int deleteRow(int id) {
-        int res = -1;
-        try {
-            mDeleteOne.setInt(1, id);
-            res = mDeleteOne.executeUpdate();
-        } catch (SQLException e) {
+            return false;
+        } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
-        }
-        return res;
-    }
-*/
-    /**
-     * Update the message for a row in the database
-     * 
-     * @param id The id of the row to update
-     * @param message The new message contents
-     * 
-     * @return The number of rows that were updated.  -1 indicates an error.
-     */
-     /*
-    int updateOne(int id, String message) {
-        int res = -1;
-        try {
-            mUpdateOne.setString(1, message);
-            mUpdateOne.setInt(2, id);
-            res = mUpdateOne.executeUpdate();
-        } catch (SQLException e) {
+            return false;
+        } catch (InvalidKeySpecException e) {
             e.printStackTrace();
+            return false;
         }
-        return res;
+        return true;
     }
-*/
+
+}
   
