@@ -98,21 +98,21 @@ class CreateAccountForm {
                 type: "POST",
                 url: "/register",
                 dataType: "json",
-                data: JSON.stringify({ mUsername: userName, mRealName: realName, mEmail: email, mPassword: password }),
-                success: CreateAccountForm.onCreateResponseMakeProfile
-            });
-        }
-        private static onCreateResponseMakeProfile(data: any) {
-            var userBio = "Write a bio for your profile here.";
-
-            $.ajax({
-                type: "POST",
-                url: "/profile",
-                dataType: "json",
-                data: JSON.stringify({ mUsername: tUsername, mProfile: userBio }),
+                data: JSON.stringify({ mUsername: userName, mRealName: realName, mEmail: email}),
                 success: CreateAccountForm.onCreateResponse
             });
         }
+        // private static onCreateResponseMakeProfile(data: any) {
+        //     var userBio = "Write a bio for your profile here.";
+
+        //     $.ajax({
+        //         type: "POST",
+        //         url: "/profile",
+        //         dataType: "json",
+        //         data: JSON.stringify({ mUsername: tUsername, mProfile: userBio }),
+        //         success: CreateAccountForm.onCreateResponse
+        //     });
+        // }
     
         /**
          * onSubmitResponse runs when the AJAX call in submitForm() returns a 
@@ -121,6 +121,6 @@ class CreateAccountForm {
          * @param data The object returned by the server
          */
         private static onCreateResponse(data: any) {
-            window.alert("good");
+            //window.alert("good");
         }
     }

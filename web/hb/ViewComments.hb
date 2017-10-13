@@ -8,7 +8,7 @@
             <tr>
                 <td>{{this.mComment}}</td>
 
-                <td><button class="ViewComments-profile" data-value="{{this.mUsername}}">{{this.mUsername}}</button></td>
+                <td><button class="ViewComments-viewProfile" data-value="{{this.mUsername}}">{{this.mUsername}}</button></td>
             </tr>
             {{/each}}
         </tbody>

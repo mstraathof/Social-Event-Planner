@@ -23,11 +23,26 @@
                     </a>
                 </li>
                 <li>
+                    <a class="btn btn-link" id="NavbarLoggedIn-viewBuzz">
+                        View Buzz's
+                    </a>
+                </li>
+                <li>
                     <a class="btn btn-link" id="NavbarLoggedIn-profile">
                         Profile
                     </a>
                 </li>
-
+                <li>
+                    <a class="btn btn-link" id="NavbarLoggedIn-changePass">
+                        Change Password
+                    </a>
+                </li>
+                <li>
+                    <a class="btn btn-link" id="NavbarLoggedIn-logOut">
+                        Log Out
+                    </a>
+                </li>
+                
             </ul>
         </div>
     </div>

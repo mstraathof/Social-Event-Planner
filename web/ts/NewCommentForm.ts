@@ -54,7 +54,7 @@ class NewCommentForm {
          * with those ways of making the modal disappear.
          */
         public static show() {
-            window.alert();
+            //window.alert();
             $("#" + NewCommentForm.NAME + "-comment").val("");
             $("#" + NewCommentForm.NAME).modal("show");
         }
@@ -71,7 +71,7 @@ class NewCommentForm {
             NewCommentForm.hide();
             // set up an AJAX post.  When the server replies, the result will go to
             // onSubmitResponse
-            window.alert(mesID+" , "+comment+" , "+Gusername);
+            //window.alert(mesID+" , "+comment+" , "+Gusername);
             $.ajax({
                 type: "POST",
                 url: "/comments",
@@ -93,7 +93,7 @@ class NewCommentForm {
             if (data.mStatus === "ok") {
                 //NewCommentForm.refresh();
                 $("#ViewComments").remove();
-                window.alert(mesID);
+                //window.alert(mesID);
                 ElementList.viewCommentsGivenID(mesID);
             }
             // Handle explicit errors with a detailed popup message

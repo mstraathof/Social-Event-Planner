@@ -9,6 +9,7 @@
 /// <reference path="ts/EditBio.ts"/>
 /// <reference path="ts/ViewComments.ts"/>
 /// <reference path="ts/NewCommentForm.ts"/>
+/// <reference path="ts/NewPassForm.ts"/>
 
 
 
@@ -16,7 +17,7 @@
 // "any", so that we can use it anywhere, and assume it has any fields or
 // methods, without the compiler producing an error.
 var $: any;
-var mesID = 1;
+//var mesID = 1;
 // Prevent compiler errors when using Handlebars
 //declare var GloggedIn:any;
 var Handlebars: any;
@@ -24,12 +25,15 @@ var GloggedIn=false;
 var Gusername:string;
 var Gpassword = "";
 var GuserKey = -1;
-window.alert("hit this");
+var headers = false;
+var viewingYours=false;
+
 // a global for the EditEntryForm of the program.  See newEntryForm for 
 // explanation
 var editEntryForm: EditEntryForm;
 var loginWindow: LoginWindow;
 var createAccountForm: CreateAccountForm;
+var changePass: NewPassForm;
 //var loggedIn = false;
 var editBio: EditBio;
 var mesID:number;
@@ -38,7 +42,6 @@ $(document).ready(function () {
     if(GloggedIn == false){
         Navbar.refresh();
     }else{
-        window.alert("HITTT");
         NavbarLoggedIn.refresh();
     }
     NewEntryForm.refresh();
@@ -47,8 +50,11 @@ $(document).ready(function () {
     LoginWindow.refresh();
     //ElementList.refresh();
     EditEntryForm.refresh();
+    EditBio.refresh();
+    NewPassForm.refresh();
     // Create the object that controls the "Edit Entry" form
     editEntryForm = new EditEntryForm();
+    changePass = new NewPassForm();
     loginWindow = new LoginWindow();
     createAccountForm = new CreateAccountForm();
     editBio = new EditBio();
@@ -57,3 +63,4 @@ $(document).ready(function () {
     $("#editElement").hide();
 
 });
+

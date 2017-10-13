@@ -3,12 +3,12 @@
  */
 
 var Handlebars: any;
-class NewEntryForm {
+class NewPassForm {
     
         /**
          * The name of the DOM entry associated with NewEntryForm
          */
-        private static readonly NAME = "NewEntryForm";
+        private static readonly NAME = "NewPassForm";
     
         /**
          * Track if the Singleton has been initialized
@@ -21,11 +21,11 @@ class NewEntryForm {
          * method, to ensure that the Singleton is initialized before use
          */
         private static init() {
-            if (!NewEntryForm.isInit) {
-                $("body").append(Handlebars.templates[NewEntryForm.NAME + ".hb"]());
-                $("#" + NewEntryForm.NAME + "-OK").click(NewEntryForm.submitForm);
-                $("#" + NewEntryForm.NAME + "-Close").click(NewEntryForm.hide);
-                NewEntryForm.isInit = true;
+            if (!NewPassForm.isInit) {
+                $("body").append(Handlebars.templates[NewPassForm.NAME + ".hb"]());
+                $("#" + NewPassForm.NAME + "-OK").click(NewPassForm.submitForm);
+                $("#" + NewPassForm.NAME + "-Close").click(NewPassForm.hide);
+                NewPassForm.isInit = true;
             }
         }
     
@@ -35,16 +35,16 @@ class NewEntryForm {
          * init().
          */
         public static refresh() {
-            NewEntryForm.init();
+            NewPassForm.init();
         }
         /**
          * Hide the NewEntryForm.  Be sure to clear its fields first
          */
         private static hide() {
-            $("#" + NewEntryForm.NAME + "-title").val("");
-            $("#" + NewEntryForm.NAME + "-message").val("");
+            $("#" + NewPassForm.NAME + "-oldPass").val("");
+            $("#" + NewPassForm.NAME + "-newPass").val("");
             //These lines hide the modal background(the shadow when bringing up a new entry form)
-            $("#" + NewEntryForm.NAME).modal("hide");
+            $("#" + NewPassForm.NAME).modal("hide");
             $('body').removeClass('modal-open');
             $('.modal-backdrop').remove();
         }
@@ -55,9 +55,9 @@ class NewEntryForm {
          * with those ways of making the modal disappear.
          */
         public static show() {
-            $("#" + NewEntryForm.NAME + "-title").val("");
-            $("#" + NewEntryForm.NAME + "-message").val("");
-            $("#" + NewEntryForm.NAME).modal("show");
+            $("#" + NewPassForm.NAME + "-oldPass").val("");
+            $("#" + NewPassForm.NAME + "-newPass").val("");
+            $("#" + NewPassForm.NAME).modal("show");
         }
         /**
          * Send data to submit the form only if the fields are both valid.  
@@ -67,55 +67,37 @@ class NewEntryForm {
         private static submitForm() {
             // get the values of the two fields, force them to be strings, and check 
             // that neither is empty
-            let title = "" + $("#" + NewEntryForm.NAME + "-title").val();
-            let msg = "" + $("#" + NewEntryForm.NAME + "-message").val();
-            if(msg.length >= 500)
+            let oldPass = "" + $("#" + NewPassForm.NAME + "-oldPass").val();
+            let newPass = "" + $("#" + NewPassForm.NAME + "-newPass").val();
+            if(oldPass.length >= 30 || oldPass == "")
             {
-                window.alert("Error: Message exceeds 500");
+                window.alert("Error: Make a reasonable password");
                 return;
             }
-            if(title.length >= 50)
+            if(newPass.length >= 30 || newPass == "")
             {
-                window.alert("Error: Title exceeds 50");
+                window.alert("Error: Make a reasonable password");
                 return;
             }
-            if (title === "" || msg === "") {
-                window.alert("Error: title or message is not valid");
-                return;
-            }
-            NewEntryForm.hide();
+            NewPassForm.hide();
             // set up an AJAX post.  When the server replies, the result will go to
             // onSubmitResponse
+            window.alert("before ajax"+oldPass+","+newPass);
             $.ajax({
-                type: "POST",
-                url: "/messages",
+                type: "PUT",
+                url: "/changePassword/"+Gusername,
                 dataType: "json",
-                data: JSON.stringify({ mSubject: title, mMessage: msg, mUsername: Gusername }),
-                success: NewEntryForm.onSubmitResponse
+                data: JSON.stringify({ mCurrentPassword: oldPass, mNewPassword: newPass}),
+                success: NewPassForm.onChangeResponse
             });
         }
-    
-        /**
-         * onSubmitResponse runs when the AJAX call in submitForm() returns a 
-         * result.
-         * 
-         * @param data The object returned by the server
-         */
-        private static onSubmitResponse(data: any) {
-            
-            // If we get an "ok" message, clear the form and refresh the main 
-            // listing of messages
+        public static onChangeResponse(data: any){
+            window.alert("success");
             if (data.mStatus === "ok") {
-                $("nav.xyz").remove();
-                ElementList.refresh();
-            }
+                window.alert("Changed Successfully");            }
             // Handle explicit errors with a detailed popup message
             else if (data.mStatus === "error") {
                 window.alert("The server replied with an error:\n" + data.mMessage);
-            }
-            // Handle other errors with a less-detailed popup message
-            else {
-                window.alert("Unspecified error");
             }
         }
     }

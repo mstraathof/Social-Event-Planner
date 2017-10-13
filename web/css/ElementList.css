@@ -28,4 +28,4 @@ tr {
 }
 
 /* make the first column of the table wide */
-td:first-child {width: 75%;}
+td:first-child {width: 25%;}

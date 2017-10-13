@@ -3,7 +3,7 @@
 // methods, without the compiler producing an error.
 var $: any;
 var Handlebars: any;
-
+var prof: string;
 // a global for the main ElementList of the program.  See newEntryForm for 
 // explanation
 
@@ -44,14 +44,15 @@ class ViewComments {
 
     public static update(data: any) {
         $("#ViewComments").remove();
+        $("nav.xyz").remove();
         // Remove the table of data, if it exists
         $("#" + ViewComments.NAME).remove();
         // Use a template to re-generate the table, and then insert it
         $("body").append(Handlebars.templates[ViewComments.NAME + ".hb"](data));
         //$("."+ElementList.NAME+"-editbtn").click(ElementList.clickEdit);
-        window.alert("MESSAGE ID IS: "+mesID);
+        //window.alert("MESSAGE ID IS: "+mesID);
         //ViewComments.addComment();
-        $("."+ViewComments.NAME+"-profile").click(ViewComments.getProfile);
+        $("."+ViewComments.NAME+"-viewProfile").click(ViewComments.getProfile);
         $("."+ViewComments.NAME+"-addComment").click(NewCommentForm.show);
         
     }
@@ -66,7 +67,7 @@ class ViewComments {
         ///FIX GET PROFILE HERE
         $("#ViewComments").remove();
         let user = $(this).data("value");
-        window.alert(user);
+        //window.alert("WUBALUBADUBDUB"+user);
         ProfilePage.show(user);
         //
     }

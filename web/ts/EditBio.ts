@@ -23,7 +23,7 @@ class EditBio {
         private static init() {
             if (!EditBio.isInit) {
                 $("body").append(Handlebars.templates[EditBio.NAME + ".hb"]());
-                window.alert("appended");
+                //window.alert("appended");
                 $("#EditBio-OK").click(EditBio.changeBio);
                 $("#EditBio-Close").click(EditBio.hideEdit);
                 EditBio.isInit = true;
@@ -43,7 +43,7 @@ class EditBio {
                 // get the values of the two fields, force them to be strings, and check 
                 // that neither is empty
                 let newBio = "" + $("#" + EditBio.NAME + "-newBio").val();
-                window.alert(newBio);
+                //window.alert(newBio);
 
                 $.ajax({
                     type: "POST",
@@ -52,7 +52,9 @@ class EditBio {
                     data: JSON.stringify({ mUsername: Gusername, mProfile: newBio }),
                     success: EditBio.onUpdateResponse
                 });
-
+                $("nav.xyz").hide();
+                $("#ViewComments").remove();
+                ProfilePage.show(Gusername);
                 EditBio.hideEdit();
                 // set up an AJAX post.  When the server replies, the result will go to
                 // onSubmitResponse
@@ -66,15 +68,16 @@ class EditBio {
         }
 
         public static onUpdateResponse(data: any){
-            window.alert("Updated Bio Successfully");
+
+            //window.alert("Updated Bio Successfully");
         }
 
         public static hideEdit() {
-            $("#" + EditBio.NAME + "-editBio").val("");
+            $("#" + EditBio.NAME + "-newBio").val("");
             //These lines hide the modal background(the shadow when bringing up a new entry form)
             $("#" + EditBio.NAME).modal("hide");
-            $('body').removeClass('modal-open');
-            $('.modal-backdrop').remove();
+            //$('body').removeClass('modal-open');
+            //$('.modal-backdrop').remove();
         }
         
         public static showEdit() {

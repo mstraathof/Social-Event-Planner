@@ -37,7 +37,18 @@ class ElementList {
     /**
     * refresh() is the public method for updating the ElementList
     */
+
     public static refresh() {
+        window.alert("Username: "+ Gusername);
+        if(viewingYours==true){
+            headers = true;
+            ElementList.refreshUser(Gusername);
+        }else{
+            ElementList.refreshAll();
+        }
+
+    }
+    public static refreshAll() {
         // Make sure the singleton is initialized
         ElementList.init();
         // Issue a GET, and then pass the result to update()
@@ -55,7 +66,7 @@ class ElementList {
         // Issue a GET, and then pass the result to update()
         $.ajax({
             type: "GET",
-            url: "/messages/"+username,
+            url: "/profile/"+username,
             dataType: "json",
             success: ElementList.update
         });
@@ -68,11 +79,29 @@ class ElementList {
     * also initializes the upvote and downvote button 
     */
     private static update(data: any) {
+        
         // Remove the table of data, if it exists
         $("#" + ElementList.NAME).remove();
         // Use a template to re-generate the table, and then insert it
         $("body").append(Handlebars.templates[ElementList.NAME + ".hb"](data));
         //$("."+ElementList.NAME+"-editbtn").click(ElementList.clickEdit);
+        if(headers == false){
+            $('#yours').hide();
+            $('#liked').hide();
+            $('#disliked').hide();
+            $('#commented').hide();  
+        }
+        headers = false;
+        // if(data.mLikedData == null){
+        //     $('#liked').hide();
+        // }
+        // if(data.mDisikedData == null){
+        //     $('#disliked').hide();
+        // }
+        // if(data.mCommentData == null){
+        //     $('commented').hide();
+        // }
+
         $("."+ElementList.NAME+"-comments").click(ElementList.viewComments);
         $("."+ElementList.NAME+"-profile").click(ElementList.getProfile);
         $("."+ElementList.NAME+"-upvote").click(ElementList.upvote);
@@ -106,13 +135,13 @@ class ElementList {
     private static upvote(){
         $("#editElement").hide();
         let id = $(this).data("value");
-        let up = 1;
+
         $.ajax({
-            type: "PUT",
-            url: "/messages/"+id,
+            type: "POST",
+            url: "/upVote",
             dataType: "json",
-            data: JSON.stringify({ mChangeVote: up}),
-            success: ElementList.onSubmitResponse
+            data: JSON.stringify({ mUsername: Gusername, mMessageId: id}),
+            success: ElementList.onVoteResponse
         });
     }
     /**
@@ -123,20 +152,24 @@ class ElementList {
     private static downvote(){
         $("#editElement").hide();
         let id = $(this).data("value");
-        let down = -1;
 
         $.ajax({
-            type: "PUT",
-            url: "/messages/"+id,
+            type: "POST",
+            url: "/downVote",
             dataType: "json",
-            data: JSON.stringify({ mChangeVote: down}),
-            success: ElementList.onSubmitResponse
+            data: JSON.stringify({ mUsername: Gusername, mMessageId: id}),
+            success: ElementList.onVoteResponse
         });
+    }
+
+    private static onVoteResponse(){
+        ElementList.refresh()
     }
 
     private static getProfile(){
         $("#editElement").hide();
         let user = $(this).data("value");
+        //window.alert("abcdefg"+user);
         ProfilePage.show(user);
         //
     }
@@ -179,7 +212,7 @@ class ElementList {
 
         var msgToView = $(this).data("value");
         mesID = msgToView;
-        window.alert(msgToView);
+        //window.alert(msgToView);
         $.ajax({
             type: "GET",
             url: "/comments/"+msgToView,

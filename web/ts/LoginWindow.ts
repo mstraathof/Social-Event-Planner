@@ -50,6 +50,7 @@ class LoginWindow {
             let tUsername = "" + $("#" + LoginWindow.NAME + "-user").val();
             let Gpassword = "" + $("#" + LoginWindow.NAME + "-pass").val();
             GloggedIn == true;
+
             // if(msg.length >= 500)
             // {
             //     window.alert("Error: Message exceeds 500");
@@ -68,11 +69,10 @@ class LoginWindow {
                 Gusername = tUsername;
             }
             LoginWindow.hide();
-            window.alert(Gusername+" "+Gpassword);
+            //window.alert(Gusername+" "+Gpassword);
             LoginWindow.refresh();
 
-            $("nav.navbar-default").hide();
-            window.alert(Gusername+" , "+GuserKey+" , "+Gpassword);
+            //window.alert(Gusername+" , "+GuserKey+" , "+Gpassword);
             // // set up an AJAX post.  When the server replies, the result will go to
 
             $.ajax({
@@ -82,8 +82,9 @@ class LoginWindow {
                 data: JSON.stringify({ mUsername: Gusername, mPassword: Gpassword }),
                 success: LoginWindow.onLoginResponse
             });
+
             //GuserKey = 1;
-            NavbarLoggedIn.refresh();
+            
         }
     
         /**
@@ -94,7 +95,40 @@ class LoginWindow {
          */
         private static onLoginResponse(data: any) {
             GuserKey = data.mLoginData;
-            window.alert("Key i got: "+GuserKey);
-            window.alert("good: "+data);
+            if (data.mStatus === "ok") {
+                $("nav.navbar-default").hide();
+                NavbarLoggedIn.refresh();
+            }
+            // Handle explicit errors with a detailed popup message
+            else if (data.mStatus === "error") {
+                window.alert("Failed to Log you in. Please Make sure the credentials are correct.");
+            }
+            // Handle other errors with a less-detailed popup message
+            else {
+                window.alert("Unspecified error");
+            }
+            //window.alert("Key i got: "+GuserKey);
+            //window.alert("good: "+data);
+            //LoginWindow.loginCheck();
+        }
+
+
+        public static loginCheck(){
+            $.ajax({
+                type: "POST",
+                url: "/loginCheck",
+                dataType: "json",
+                data: JSON.stringify({ mUsername: Gusername, mKey: GuserKey }),
+                success: LoginWindow.onLoginCheckResponse
+            });
+
+        }
+        public static onLoginCheckResponse(data: any){
+            var loggedIn = data.mStatus;
+            if(loggedIn == true){
+                window.alert("logged in");
+            }else{
+                window.alert("NOT logged in");
+            }
         }
     }

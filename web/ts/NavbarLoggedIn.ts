@@ -26,6 +26,9 @@ class NavbarLoggedIn {
             $("body").prepend(Handlebars.templates[NavbarLoggedIn.NAME + ".hb"]());
             $("#"+NavbarLoggedIn.NAME+"-add").click(NewEntryForm.show);
             $("#"+NavbarLoggedIn.NAME+"-profile").click(NavbarLoggedIn.loadProfile);
+            $("#"+NavbarLoggedIn.NAME+"-viewBuzz").click(NavbarLoggedIn.viewBuzz);
+            $("#"+NavbarLoggedIn.NAME+"-logOut").click(NavbarLoggedIn.logOut);
+            $("#"+NavbarLoggedIn.NAME+"-changePass").click(NewPassForm.show);
             //$("div.container-fluid well span6").hide();
             //$("div.container-fluid well span6").hide();
             //ProfilePage.show(Gusername);
@@ -33,6 +36,38 @@ class NavbarLoggedIn {
             ElementList.refresh();
             //NavbarLoggedIn.isInit = true;
         }
+    }
+
+    public static logOut(){
+        $.ajax({
+            type: "POST",
+            url: "/logout",
+            dataType: "json",
+            data: JSON.stringify({ mUsername: Gusername }),
+            success: NavbarLoggedIn.onLogOutResponse
+        });
+        
+    }
+    private static onLogOutResponse(data:any){
+        if (data.mStatus === "ok") {
+            window.alert("Logged Out Successfully");
+        }
+        // Handle explicit errors with a detailed popup message
+        else if (data.mStatus === "error") {
+            window.alert("Problem Logging Out");
+        }
+        location.reload();
+    }
+
+    public static viewBuzz(){
+        viewingYours=false;
+        $("nav.xyz").hide();
+        $('body').removeClass('div.container-fluid well span6');
+        $("div.container-fluid well span6").hide();
+        $("#ElementList").remove();
+        $("#ProfilePage").remove();
+        $("#ViewComments").remove();
+        ElementList.refresh();
     }
     public static loadProfile(){
         //window.alert("hittt "+Gusername);
