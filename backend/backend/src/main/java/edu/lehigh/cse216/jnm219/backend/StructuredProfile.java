@@ -1,7 +1,7 @@
 package edu.lehigh.cse216.jnm219.backend;
 
 /**
- * StructuredResponse provides a common format for success and failure messages,
+ * StructuredProfile provides a common format for success and failure messages,
  * with an optional payload of type Object that can be converted into JSON.
  * 
  * NB: since this will be converted into JSON, all fields must be public.
@@ -20,16 +20,27 @@ public class StructuredProfile{
     public String mMessage;
 
     /**
-     * Any JSON-friendly object can be referenced here, so that we can have a
-     * rich reply to the client
+     * mMessageData will contain all the message user made
      */
     public Object mMessageData;
+    /**
+     * mCommentData will contain all the comment user made
+     */
     public Object mCommentData;
+    /**
+     * mProfileData will contain user's profile
+     */
     public Object mProfileData;
+    /**
+     * mLikedData will contain all the message user liked
+     */
     public Object mLikedData;
+    /**
+     * mDislikedData will contain all the message user disliked
+     */
     public Object mDislikedData;
     /**
-     * Construct a StructuredResponse by providing a status, message, and data.
+     * Construct a StructuredProfile by providing a status, message, and data.
      * If the status is not provided, set it to "invalid".
      * 
      * @param status The status of the response, typically "ok" or "error"

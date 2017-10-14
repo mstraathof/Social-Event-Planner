@@ -1,7 +1,7 @@
 package edu.lehigh.cse216.jnm219.backend;
 
 /**
- * StructuredResponse provides a common format for success and failure messages,
+ * StructuredMessage provides a common format for success and failure messages,
  * with an optional payload of type Object that can be converted into JSON.
  * 
  * NB: since this will be converted into JSON, all fields must be public.
@@ -20,13 +20,12 @@ public class StructuredMessage{
     public String mMessage;
 
     /**
-     * Any JSON-friendly object can be referenced here, so that we can have a
-     * rich reply to the client
+     * mMessageData contains all the messages that are being sent back
      */
     public Object mMessageData;
 
     /**
-     * Construct a StructuredResponse by providing a status, message, and data.
+     * Construct a StructuredMessage by providing a status, message, and data.
      * If the status is not provided, set it to "invalid".
      * 
      * @param status The status of the response, typically "ok" or "error"

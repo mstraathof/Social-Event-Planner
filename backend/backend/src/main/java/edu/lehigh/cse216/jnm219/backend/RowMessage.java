@@ -8,26 +8,19 @@ import java.util.Calendar;
 import java.text.SimpleDateFormat;
 
 /**
- * RowData is like a struct in C: we use it to hold data, and we allow 
- * direct access to its fields.  In the context of this Database, RowData 
- * represents the data we'd see in a row.
- * 
- * We make RowData a static class of Database because we don't really want
- * to encourage users to think of RowData as being anything other than an
- * abstract representation of a row of the database.  RowData and the 
- * Database are tightly coupled: if one changes, the other should too.
+ * RowMessage is fields of messages
  */
 public class RowMessage {
     /**
-     * The ID of this row of the database
+     * The id of the message
      */
     int mId;
     /**
-     * The subject stored in this row
+     * The subject of the message
      */
     String mSubject;
     /**
-     * The message stored in this row
+     * The message itself
      */
     String mMessage;
     /**
@@ -39,14 +32,13 @@ public class RowMessage {
      */
     String mCreateTime;
     /**
-     * The most recent time of row modification
+     * The username that created the message
      */
     String mUsername;
 
     /**
-     * Construct a RowData object by providing values for its fields
+     * Construct a RowMessage object by providing values for its fields
      */
-     
     public RowMessage(int id, String subject, String message, String username, String createTime, int votes) {
         mId = id;
         mSubject = subject;

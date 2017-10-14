@@ -8,45 +8,34 @@ import java.util.Calendar;
 import java.text.SimpleDateFormat;
 
 /**
- * RowData is like a struct in C: we use it to hold data, and we allow 
- * direct access to its fields.  In the context of this Database, RowData 
- * represents the data we'd see in a row.
- * 
- * We make RowData a static class of Database because we don't really want
- * to encourage users to think of RowData as being anything other than an
- * abstract representation of a row of the database.  RowData and the 
- * Database are tightly coupled: if one changes, the other should too.
+ * RowComment is fields of comment
  */
 public class RowComment {
     /**
-     * The ID of this row of the database
+     * The ID of comment
      */
     int mCommentId;
     /**
-     * The subject stored in this row
+     * The id of the message
      */
     int mMessageId;
     /**
-     * The message stored in this row
+     * The comment 
      */
     String mComment;
-    /**
-     * The number of votes for this row
-     */
-    //int mVotes;
+
     /**
      * The time of row creation
      */
     String mCreateTime;
     /**
-     * The most recent time of row modification
+     * The username that created the comment
      */
     String mUsername;
 
     /**
-     * Construct a RowData object by providing values for its fields
+     * Construct a RowComment object by providing values for its fields
      */
-     
     public RowComment(int id, String username, int messageId,String comment, String createTime) {
         mCommentId = id;
         mUsername= username;

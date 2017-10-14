@@ -8,40 +8,29 @@ import java.util.Calendar;
 import java.text.SimpleDateFormat;
 
 /**
- * RowData is like a struct in C: we use it to hold data, and we allow 
- * direct access to its fields.  In the context of this Database, RowData 
- * represents the data we'd see in a row.
- * 
- * We make RowData a static class of Database because we don't really want
- * to encourage users to think of RowData as being anything other than an
- * abstract representation of a row of the database.  RowData and the 
- * Database are tightly coupled: if one changes, the other should too.
+ * RowProfile is fields of profile
  */
 public class RowProfile {
     /**
-     * The ID of this row of the database
+     * The username of the profile owner
      */
     String mUsername;
     /**
-     * The subject stored in this row
+     * The real name of the user
      */
     String mRealName;
     /**
-     * The message stored in this row
-     */
-    /**
-     * The number of votes for this row
+     * The email of the user
      */
     String mEmail;
     /**
-     * The time of row creation
+     * The profile_text of the user
      */
     String mProfile;
 
     /**
-     * Construct a RowData object by providing values for its fields
+     * Construct a RowProfile object by providing values for its fields
      */
-     
     public RowProfile(String username, String realname, String email, String profile) {
         mUsername=username;
         System.out.println(mUsername);

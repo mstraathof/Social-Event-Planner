@@ -48,7 +48,11 @@ public class App {
         return defaultVal;
     }
     // Enables CORS on requests. This method is an initialization method and should be called once.
-
+    
+    /**  
+     *This method encrypts the password by taking in the string password from the user
+     *  and randomly generated salt by the getSalt() method using PBKDF
+     */
     private static byte [] encryptPw (String password,byte [] salt) throws NoSuchAlgorithmException, InvalidKeySpecException
     {
         int iterations= 1000;
@@ -58,7 +62,9 @@ public class App {
         byte [] securedPw= skf.generateSecret(spec).getEncoded();
         return securedPw;
     }
-
+    /**
+    * This randomly creates salt which is in byte []
+    */
     private static byte [] getSalt() throws NoSuchAlgorithmException
     {
         SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
@@ -66,33 +72,39 @@ public class App {
         sr.nextBytes(salt);
         return salt;
     }
-
-    private static String toHex(byte[] array) throws NoSuchAlgorithmException
-    {
-        BigInteger bi = new BigInteger(1, array);
-        String hex = bi.toString(16);
-        int paddingLength = (array.length * 2) - hex.length();
-        if(paddingLength > 0)
-        {
-            return String.format("%0"  +paddingLength + "d", 0) + hex;
-        }else{
-            return hex;
-        }
-    }
-    static Hashtable<String,Integer> logged_in=new Hashtable<String,Integer    >();
+    // This static hashtable keeps the log of which users are logged in with their keys
+    static Hashtable<String,Integer> logged_in=new Hashtable<String,Integer>();
+    /** This method randomly creates key to return to the android and web */
     public static int keyGenerator (){
         Random rand = new Random();
         int  random = rand.nextInt(10000) + 1000;
         return random;
     };
+    /** This method checks the hashtable if they are logged in */
     public static boolean checkLogin (String userName)
     {
         return logged_in.containsKey(userName);
     };
+    /** This method removes the user from the hash table, -- logged out */
     public static void logOut(String user)
     {
         logged_in.remove(user);
     };
+    /** This method checks if the key and the username matches in the hashtable */
+    public static boolean checkKey(String mUsername, int mKey)
+    {
+        boolean checkExist= checkLogin(mUsername);
+        int key=0;
+        if (checkExist)
+        {
+            key=logged_in.get(mUsername);
+            if (key==mKey)
+            {
+                return  true;
+            }
+        }
+        return  false;
+    }
     public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException 
     {
 
@@ -125,48 +137,135 @@ public class App {
             res.redirect("/index.html");
             return "";
         });
-        Spark.post("/checkLogin",(request, response) -> { 
+
+        // This is the register/login/logout/changePW section
+
+        /** This route is to get the information from user to put into table for registeration */
+         Spark.post("/register", (request, response) -> {
             SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
             response.status(200);
-            response.type("application/json"); 
-            boolean checkExist= checkLogin(req.mUsername);
-            int key=0;
-            boolean mCheck=false;
-            System.out.println(checkExist);
-            System.out.println(req.mUsername);
-            if (checkExist)
+            response.type("application/json");
+            boolean newUser = db.insertUser(req.mUsername, req.mRealName, req.mEmail); 
+            if (newUser == false) {
+                return gson.toJson(new StructuredResponse("error", "error performing insertion", null));
+            } else {
+                return gson.toJson(new StructuredResponse("ok", "" + newUser, null));
+            }
+        });
+        // this route logs in the user and put them in hash table.
+        // this also creates the profile page for the user if they just got 
+         Spark.post("/login", (request, response) -> {
+            SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
+            response.status(200);
+            response.type("application/json");
+            byte [] salt = db.getUserSalt(req.mUsername);
+            if (salt==null) // No accounts exist under this username
             {
-                key=logged_in.get(req.mUsername);
-                if (key==req.mKey)
+                return gson.toJson(new Structured_login("error", "No account under that username or password", 3));
+                // android uses the value 3 -- discuss with android before changing the data value
+            }
+            byte [] password= encryptPw (req.mPassword,salt);// encrypt password to verify
+            boolean curUser = db.selectOneUser(req.mUsername, password); // see if the password and username matched
+            if (curUser==false) { // mismatch between pw and username 
+                return gson.toJson(new Structured_login("error", "No account under that username or password", 2));
+                // android uses the value 3 -- discuss with android before changing the data value
+            } else { // succesfully found a user to login
+                boolean createProfile=db.insertProfile(req.mUsername);
+                if (checkLogin(req.mUsername)) // if the person is already logged in
                 {
-                    mCheck=true;
-                    return  gson.toJson(new StructuredLoginCheck("ok",null,mCheck));
+                    logOut(req.mUsername);// log the user out
+                    return gson.toJson(new Structured_login("error", "Username "+ req.mUsername+"is already loggedin", -1));
+                }
+                else 
+                {
+                    int key=keyGenerator();// create key
+                    logged_in.put(req.mUsername,key);// logged_in is hashtable, and add values into it
+                    System.out.println(logged_in);
+                    return gson.toJson(new Structured_login("ok", null, key));
+                }
+           }
+        });
+        // this route logs out people when they press log out
+        // sends back status ok and null data when they successfully logged out
+         Spark.post ("/logout", (request, response)->{
+            SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
+            response.status(200);
+            response.type("application/json");
+            String username=req.mUsername;
+            if (checkLogin(username)==false)// if the person is not logged in
+            {
+                return gson.toJson(new StructuredResponse("error", "this person is not logged in", null));
+            }
+            else // if person is logged in
+            {
+                logOut(username);
+                return gson.toJson(new StructuredResponse("ok", username + " logged out ", null));
+            }
+        });
+        // this put route changes password and updates tblUser
+        // it verifies the old password, then updates with new salt and new encrypted pw
+        Spark.put("/changePassword/:username", (request, response) -> {
+            String user =request.params("username");
+            SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
+            response.status(200);
+            response.type("application/json");
+            if (!checkKey(user,req.mKey))
+            {
+                System.out.println(logged_in);
+                System.out.println("OH OH");
+                return gson.toJson(new Structured_login("logout", null,false));
+            }
+            byte [] salt=db.getUserSalt(user);// get our old salt
+            byte [] newSalt=getSalt();// create a new salt to enter into the table
+            byte [] password= encryptPw (req.mCurrentPassword,salt);// get our old pw in bytes
+            if (db.selectOneUser(user,password))
+            {
+                byte [] newPassword= encryptPw (req.mNewPassword,newSalt);// encrypt a new pw
+                boolean check=db.updatePassword(user,newPassword,newSalt);// update the tblUser
+                System.out.println(check);
+                if (check)// if successfully updated
+                {
+                    return gson.toJson(new Structured_login("ok", null ,1));
+                }
+                else // if update had an error
+                {
+                    return gson.toJson(new Structured_login("error", "change password failed",-1));
                 }
             }
-            return  gson.toJson(new StructuredLoginCheck("error",null,mCheck));
+            else // if the user doesn't exist in our tblUser
+            {
+               return gson.toJson(new Structured_login("error", "current password is wrong",-2));
+            }
         });
 
-        // GET route that returns all message titles and Ids.  All we do is get 
-        // the data, embed it in a StructuredResponse, turn it into JSON, and 
-        // return it.  If there's no data, we return "[]", so there's no need 
-        // for error handling.
-        
+        //This is the start of the messages
+
+        //This get route returns all the attribute of all the messages
         Spark.get("/messages", (request, response) -> {
-            // ensure status 200 OK, with a MIME type of JSON
             response.status(200);
             response.type("application/json"); 
             return gson.toJson(new StructuredMessage("ok", null, db.selectAllMessage()));
         });
-
-        // GET route that returns everything for a single row in the DataStore.
-        // The ":id" suffix in the first parameter to get() becomes 
-        // request.params("id"), so that we can get the requested row ID.  If 
-        // ":id" isn't a number, Spark will reply with a status 500 Internal
-        // Server Error.  Otherwise, we have an integer, and the only possible 
-        // error is that it doesn't correspond to a row with data.
+        // This post route allows user to create the messagge to the table
+        Spark.post("/messages", (request, response) -> {
+            SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
+            response.status(200);
+            response.type("application/json");
+            if (!checkKey(req.mUsername,req.mKey))
+            {
+                return gson.toJson(new StructuredMessage("logout", null,false));
+            }
+            int newId = db.insertOneMessage(req.mSubject, req.mMessage,req.mUsername); 
+            if (newId == -1) {
+                return gson.toJson(new StructuredMessage("error", "error performing insertion", null));
+            } else {
+                return gson.toJson(new StructuredMessage("ok", "" + newId, null));
+            }
+        });
+        // This message chooses message according to the message id and returns it in
+        // StructuredMessage with RowMessage Data
         Spark.get("/messages/:messageId", (request, response) -> {
             int idx = Integer.parseInt(request.params("messageId"));
-            // ensure status 200 OK, with a MIME type of JSON
             response.status(200);
             response.type("application/json");
             RowMessage data = db.selectOneMessage(idx);
@@ -176,50 +275,34 @@ public class App {
                 return gson.toJson(new StructuredMessage("ok", null, data));
             }
         });
-         // POST route for adding a new element to the DataStore.  This will read
-        // JSON from the body of the request, turn it into a SimpleRequest 
-        // object, extract the title and message, insert them, and return the 
-        // ID of the newly created row.
-        
-        Spark.post("/messages", (request, response) -> {
-            // NB: if gson.Json fails, Spark will reply with status 500 Internal 
-            // Server Error
-            SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
-            //String  user = request.params("username");
-            // ensure status 200 OK, with a MIME type of JSON
-            // NB: even on error, we return 200, but with a JSON object that
-            //     describes the error.
-            response.status(200);
-            response.type("application/json");
-            //int userId=db.getUserId(req.mUsername);
-            // NB: createEntry checks for null title and message
-            int newId = db.insertOneMessage(req.mSubject, req.mMessage,req.mUsername); // mSubject vs mTitle?
-            if (newId == -1) {
-                return gson.toJson(new StructuredMessage("error", "error performing insertion", null));
-            } else {
-                return gson.toJson(new StructuredMessage("ok", "" + newId, null));
-            }
-        });
-        Spark.get("/comments/:messageId", (request, response) -> {
-            // ensure status 200 OK, with a MIME type of JSON
+
+        //This is the starts of the comment calls
+
+        // This route takes in the message id and sends back the data
+        // that has all the comments of that message id.
+        Spark.get("/comments/:messageId/:username/:key", (request, response) -> {
             int mId = Integer.parseInt(request.params("messageId"));
+            String user =request.params("username");
+            int key = Integer.parseInt(request.params("key"));
             response.status(200);
             response.type("application/json"); 
+            if (!checkKey(user,key))
+            {
+                return gson.toJson(new StructuredComment("logout", null,false));
+            }
             return gson.toJson(new StructuredComment("ok", null, db.selectAllComment(mId)));
         });
 
+        // This route allows user to create comment and 
+        // adds it into the table.
         Spark.post("/comments", (request, response) -> {
-            // NB: if gson.Json fails, Spark will reply with status 500 Internal 
-            // Server Error
             SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
-            //String  user = request.params("username");
-            // ensure status 200 OK, with a MIME type of JSON
-            // NB: even on error, we return 200, but with a JSON object that
-            //     describes the error.
             response.status(200);
             response.type("application/json");
-            //int userId=db.getUserId(req.mUsername);
-            // NB: createEntry checks for null title and message
+            if (!checkKey(req.mUsername,req.mKey))
+            {
+                return gson.toJson(new StructuredComment("logout", null,false));
+            }
             System.out.println(req.mUsername +req.mMessageId+req.mComment);
             boolean check = db.insertComment(req.mUsername, req.mMessageId,req.mComment); // mSubject vs mTitle?
             System.out.println(check);
@@ -229,78 +312,19 @@ public class App {
                 return gson.toJson(new StructuredComment("ok", "" + check, null));
             }
         });
+       // This is the start of upvote and downvote section
 
-
-        Spark.get("/register", (request, response) -> {
-            // ensure status 200 OK, with a MIME type of JSON
-            response.status(200);
-            response.type("application/json"); 
-            return gson.toJson(new StructuredResponse("ok", null, db.selectAllUser()));
-        });
-        /**This method is to get the information from user to put into table for registeration */
-         Spark.post("/register", (request, response) -> {
-            // NB: if gson.Json fails, Spark will reply with status 500 Internal 
-            // Server Error
-            SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
-            // ensure status 200 OK, with a MIME type of JSON
-            // NB: even on error, we return 200, but with a JSON object that
-            //     describes the error.
-            response.status(200);
-            response.type("application/json");
-            // NB: createEntry checks for null title and message
-            boolean newUser = db.insertUser(req.mUsername, req.mRealName, req.mEmail); // mSubject vs mTitle?
-            if (newUser == false) {
-                return gson.toJson(new StructuredResponse("error", "error performing insertion", null));
-            } else {
-                return gson.toJson(new StructuredResponse("ok", "" + newUser, null));
-            }
-        });
-         /*
-       Spark.get("/login", (request, response) -> {
-            // ensure status 200 OK, with a MIME type of JSON
-            response.status(200);
-            response.type("application/json"); 
-            return gson.toJson(new StructuredResponse("ok", null, db.selectAllUser()));
-        });*/
-
-        Spark.post("/login", (request, response) -> {
-            // NB: if gson.Json fails, Spark will reply with status 500 Internal 
-            // Server Error
-            SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
-            // ensure status 200 OK, with a MIME type of JSON
-            // NB: even on error, we return 200, but with a JSON object that
-            //     describes the error.
-            response.status(200);
-            response.type("application/json");
-            byte [] salt = db.getUserSalt(req.mUsername);
-            if (salt==null)
-            {
-                System.out.println("Said salt was null");
-                return gson.toJson(new Structured_login("error", "No account under that username or password", 3));
-            }
-            System.out.println("Got passed salt");
-            byte [] password= encryptPw (req.mPassword,salt);
-            // NB: createEntry checks for null title and message8
-            
-            boolean curUser = db.selectOneUser(req.mUsername, password); // mSubject vs mTitle?
-            if (curUser==false) {
-                System.out.println("Got NO select one user");
-                return gson.toJson(new Structured_login("error", "No account under that username or password", 2));
-            } else {
-                boolean createProfile=db.insertProfile(req.mUsername);
-                int key=keyGenerator();
-                System.out.println("Got YES select one user");
-                logged_in.put(req.mUsername,key);
-                System.out.println(key);
-                System.out.println(logged_in);
-                return gson.toJson(new Structured_login("ok", "returned a key", key));
-           }
-        });
+       //This will either unlike the message you already liked or like a new message
         Spark.post("/upVote", (request, response) -> {
 
             SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
             response.status(200);
             response.type("application/json");
+            if (!checkKey(req.mUsername,req.mKey))
+            {
+                System.out.println(logged_in);
+                return gson.toJson(new StructuredMessage("logout", null,false));
+            }
             boolean upVote=db.updateUpVote(req.mUsername,req.mMessageId);
             if (upVote)
             {
@@ -312,89 +336,83 @@ public class App {
             }
         });
 
+        //This will either undislike the message you already disliked or dislike a new message
         Spark.post("/downVote", (request, response) -> {
 
             SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
             response.status(200);
             response.type("application/json");
+            if (!checkKey(req.mUsername,req.mKey))
+            {
+                return gson.toJson(new StructuredMessage("logout", null,false));
+            }
             boolean downVote=db.updateDownVote(req.mUsername,req.mMessageId);
             if (downVote)
             {
-                return gson.toJson(new StructuredMessage("ok", "upvoted", null));
+                return gson.toJson(new StructuredMessage("ok", "downvoted", null));
             }
             else 
             {
-                return gson.toJson(new StructuredMessage("error", "upvote failed", null));
+                return gson.toJson(new StructuredMessage("error", "downvote failed", null));
             }
         });
         
+        //This is the start of the profile page calls
+
+        // This route allows user to create a new profile text
+        // and post it to the tables.
+
         Spark.post("/profile", (request, response) -> {
-             SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
-             response.status(200);
-             response.type("application/json");
-             boolean makeProfile=db.updateProfile(req.mUsername,req.mProfile);
-             if (makeProfile)
-             {
-                return gson.toJson(new StructuredProfile("ok", "successfully made a profile", null,null, null, null, null));
-             }
-             else
-             {
-                return gson.toJson(new StructuredProfile("ok", "error making a profile", null, null,null, null, null));
-             }
-        });
-        Spark.get("/profile/:username", (request, response) -> {
-            // ensure status 200 OK, with a MIME type of JSON
-            String user =request.params("username");
-            response.status(200);
-            response.type("application/json"); 
-            return gson.toJson(new StructuredProfile("ok", "passing in user profile", db.selectProfile(user),db.selectUserMessage(user),db.selectUserComment(user),db.selectMessageLiked(user),db.selectMessageDisliked(user)));
-        });
-        Spark.put("/changePassword/:username", (request, response) -> {
-            // If we can't get an ID or can't parse the JSON, Spark will send
-            // a status 500
-            String user =request.params("username");
             SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
-            // ensure status 200 OK, with a MIME type of JSON
             response.status(200);
             response.type("application/json");
-            byte [] salt=db.getUserSalt(user);
-            byte [] newSalt=getSalt();
-            byte [] password= encryptPw (req.mCurrentPassword,salt);
-            if (db.selectOneUser(user,password))
+            if (!checkKey(req.mUsername,req.mKey))
             {
-                byte [] newPassword= encryptPw (req.mNewPassword,newSalt);
-                boolean check=db.updatePassword(user,newPassword,newSalt);
-                if (check)
-                {
-                    return gson.toJson(new Structured_login("ok", "changed password",1));
-                }
-                else
-                {
-                    return gson.toJson(new Structured_login("error", "change password failed",-1));
-                }
+                return gson.toJson(new StructuredProfile("logout", "logged out",false,null,null,null,null));
+            }
+            boolean makeProfile=db.updateProfile(req.mUsername,req.mProfile);
+            if (makeProfile)
+            {
+               return gson.toJson(new StructuredProfile("ok", "successfully made a profile", null,null, null, null, null));
             }
             else
             {
-               return gson.toJson(new Structured_login("error", "current password is wrong",-2));
+               return gson.toJson(new StructuredProfile("error", "error making a profile", null, null,null, null, null));
             }
-            
         });
-
-        Spark.post ("/logout/", (request, response)->{
-            SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
+        /** This route allows web or android to receive informations to display
+         * It will use the username to get 
+         * User's real name, email, profile_text
+         * All the message the person created
+         * All the comments that the person commented
+         * All the messges that user upvoted or downvoted
+        */
+        Spark.get("/profile/:username/:key", (request, response) -> {
+            String user =request.params("username");
+            int key = Integer.parseInt(request.params("key"));
             response.status(200);
-            response.type("application/json");
-            String username=req.mUsername;
-            if (checkLogin(username)==false)
+            response.type("application/json"); 
+            if (!checkKey(user,key))
             {
-                return gson.toJson(new StructuredResponse("error", "this person is not logged in", null));
+                return gson.toJson(new StructuredLoginCheck("logout", "logged out",false));
             }
-            else 
-            {
-                logOut(username);
-                return gson.toJson(new StructuredResponse("ok", username + " logged out ", null));
-            }
+            response.status(200);
+            response.type("application/json"); 
+            return gson.toJson(new StructuredProfile("ok", null, db.selectProfile(user),db.selectUserMessage(user),db.selectUserComment(user),db.selectMessageLiked(user),db.selectMessageDisliked(user)));
         });
-       
+        Spark.get("/profile/:otherUser/:username/:key", (request, response) -> {
+            String user =request.params("username");
+            String others =request.params("otherUser");
+            int key = Integer.parseInt(request.params("key"));
+            response.status(200);
+            response.type("application/json"); 
+            if (!checkKey(user,key))
+            {
+                return gson.toJson(new StructuredLoginCheck("logout", "logged out",false));
+            }
+            response.status(200);
+            response.type("application/json"); 
+            return gson.toJson(new StructuredProfile("ok", null, db.selectProfile(others),null,null,null,null));
+        });
     }
 }
