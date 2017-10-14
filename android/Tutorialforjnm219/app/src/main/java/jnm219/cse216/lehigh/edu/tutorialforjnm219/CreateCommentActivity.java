@@ -18,7 +18,7 @@ public class CreateCommentActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.createcomment_layout);
+        setContentView(R.layout.create_comment_layout);
 
         // Get top label from the calling activity, and put it in TextView
         Intent input = getIntent();
