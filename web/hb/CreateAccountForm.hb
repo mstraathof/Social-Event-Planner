@@ -11,8 +11,7 @@
                 <input class="form-control" type="text" id="CreateAccountForm-realname"></textarea>
                 <label for="CreateAccountForm-pass">Email</label>
                 <input class="form-control" type="text" id="CreateAccountForm-email"></textarea>
-                <label for="CreateAccountForm-pass">Password</label>
-                <input class="form-control" type="text" id="CreateAccountForm-password"></textarea>
+                
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" id="CreateAccountForm-Submit">Submit</button>

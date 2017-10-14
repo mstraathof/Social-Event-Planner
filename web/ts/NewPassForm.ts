@@ -82,12 +82,12 @@ class NewPassForm {
             NewPassForm.hide();
             // set up an AJAX post.  When the server replies, the result will go to
             // onSubmitResponse
-            window.alert("before ajax"+oldPass+","+newPass);
+            //window.alert("before ajax"+oldPass+","+newPass);
             $.ajax({
                 type: "PUT",
                 url: "/changePassword/"+Gusername,
                 dataType: "json",
-                data: JSON.stringify({ mCurrentPassword: oldPass, mNewPassword: newPass}),
+                data: JSON.stringify({ mCurrentPassword: oldPass, mNewPassword: newPass, mKey: GuserKey}),
                 success: NewPassForm.onChangeResponse
             });
         }
@@ -95,7 +95,11 @@ class NewPassForm {
          * @param data
          */
         public static onChangeResponse(data: any){
-            window.alert("success");
+            if (data.mStatus === "logout") {
+                window.alert("Session Timed Out");
+                location.reload();
+            }
+
             if (data.mStatus === "ok") {
                 window.alert("Changed Successfully");            }
             // Handle explicit errors with a detailed popup message

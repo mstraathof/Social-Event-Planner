@@ -66,7 +66,12 @@ class LoginWindow {
             let tUsername = "" + $("#" + LoginWindow.NAME + "-user").val();
             let Gpassword = "" + $("#" + LoginWindow.NAME + "-pass").val();
             GloggedIn == true;
-
+            if(tUsername == ""){
+                window.alert("Empty Username");
+            }
+            if(Gpassword == ""){
+                window.alert("Empty Password");
+            }
             if(tUsername != null || tUsername != undefined){
                 Gusername = tUsername;
             }
@@ -92,6 +97,8 @@ class LoginWindow {
             GuserKey = data.mLoginData;
             if (data.mStatus === "ok") {
                 $("nav.navbar-default").hide();
+                $('#1').hide();
+                $('#2').hide();
                 NavbarLoggedIn.refresh();
             }
             // Handle explicit errors with a detailed popup message

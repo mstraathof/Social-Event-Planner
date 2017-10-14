@@ -44,12 +44,15 @@ class EditBio {
          */
         public static changeBio() {
                 let newBio = "" + $("#" + EditBio.NAME + "-newBio").val();
-
+                if(newBio.length > 500){
+                    window.alert("Too long of a bio. Max 500 characters");
+                    return;
+                }
                 $.ajax({
                     type: "POST",
                     url: "/profile",
                     dataType: "json",
-                    data: JSON.stringify({ mUsername: Gusername, mProfile: newBio }),
+                    data: JSON.stringify({ mUsername: Gusername, mProfile: newBio, mKey: GuserKey }),
                     success: EditBio.onUpdateResponse
                 });
                 $("nav.xyz").hide();
@@ -62,6 +65,10 @@ class EditBio {
          * onUpdateResponse will get the backends response to the updated bio
          */
         public static onUpdateResponse(data: any){
+            if (data.mStatus === "logout") {
+                window.alert("Session Timed Out");
+                location.reload();
+            }
             //window.alert("Updated Bio Successfully");
         }
 

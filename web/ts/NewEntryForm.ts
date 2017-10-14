@@ -90,7 +90,7 @@ class NewEntryForm {
                 type: "POST",
                 url: "/messages",
                 dataType: "json",
-                data: JSON.stringify({ mSubject: title, mMessage: msg, mUsername: Gusername }),
+                data: JSON.stringify({ mSubject: title, mMessage: msg, mUsername: Gusername, mKey: GuserKey }),
                 success: NewEntryForm.onSubmitResponse
             });
         }
@@ -105,8 +105,15 @@ class NewEntryForm {
             
             // If we get an "ok" message, clear the form and refresh the main 
             // listing of messages
+            if (data.mStatus === "logout") {
+                window.alert("Session Timed Out");
+                location.reload();
+            }
+            
             if (data.mStatus === "ok") {
-                $("nav.xyz").remove();
+                if(viewingYours!=true){
+                    $("nav.xyz").remove();
+                }
                 ElementList.refresh();
             }
             // Handle explicit errors with a detailed popup message

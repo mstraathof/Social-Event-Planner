@@ -36,6 +36,9 @@ class Navbar {
             $("body").prepend(Handlebars.templates[Navbar.NAME + ".hb"]());
             $("#"+Navbar.NAME+"-createAccount").click(CreateAccountForm.show);
             $("#"+Navbar.NAME+"-logIn").click(LoginWindow.show);
+            $("body").append("<h1 id = 1>Welcome to The Buzz</h1>");
+            $("body").append("<h4 id = 2>Create a free Account or Log-In to start Buzzin'</h4>");
+
             Navbar.isInit = true;
         }
     }

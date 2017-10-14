@@ -47,7 +47,7 @@ class CreateAccountForm {
             $("#" + CreateAccountForm.NAME + "-user").val("");
             $("#" + CreateAccountForm.NAME + "-realname").val("");
             $("#" + CreateAccountForm.NAME + "-email").val("");
-            $("#" + CreateAccountForm.NAME + "-password").val("");
+            //$("#" + CreateAccountForm.NAME + "-password").val("");
             //These lines hide the modal background(the shadow when bringing up a new entry form)
             $("#" + CreateAccountForm.NAME).modal("hide");
             $('body').removeClass('modal-open');
@@ -60,7 +60,7 @@ class CreateAccountForm {
             $("#" + CreateAccountForm.NAME + "-user").val("");
             $("#" + CreateAccountForm.NAME + "-realname").val("");
             $("#" + CreateAccountForm.NAME + "-email").val("");
-            $("#" + CreateAccountForm.NAME + "-password").val("");
+            //$("#" + CreateAccountForm.NAME + "-password").val("");
             $("#" + CreateAccountForm.NAME).modal("show");
         }
 
@@ -73,21 +73,21 @@ class CreateAccountForm {
             let userName = "" + $("#" + CreateAccountForm.NAME + "-user").val();
             let realName = "" + $("#" + CreateAccountForm.NAME + "-realname").val();
             let email = "" + $("#" + CreateAccountForm.NAME + "-email").val();
-            let password = "" + $("#" + CreateAccountForm.NAME + "-password").val();
-            if(userName.length >= 500)
+            //let password = "" + $("#" + CreateAccountForm.NAME + "-password").val();
+            if(userName.length >= 255 || userName == "")
             {
-                window.alert("Error: UserName exceeds 500");
+                window.alert("Error: UserName exceeds 500 or is empty");
                 return;
             }
-            if(realName.length >= 50)
+            if(realName.length >= 255 || realName == "")
             {
-                window.alert("Error: Name exceeds 50");
+                window.alert("Error: Name exceeds 50 or is empty");
                 return;
             }
-            //if (email == "" || !email.includes("@") || !email.includes(".com")) {
-            //    window.alert("Error: Invalid Email");
-            //    return;
-            //}
+            if (email == "" || !email.includes("@") || !email.includes(".com")) {
+                window.alert("Error: Invalid Email");
+                return;
+            }
             //must have seperate includes forpassword
             //if (password.length >= 50 || !password.includes("1234567890")) {
             //    window.alert("Error: Password must have a number");

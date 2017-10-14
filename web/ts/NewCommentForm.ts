@@ -67,7 +67,12 @@ class NewCommentForm {
             // get the values of the two fields, force them to be strings, and check 
             // that neither is empty
             let comment = "" + $("#" + NewCommentForm.NAME + "-comment").val();
-            
+            if(comment == ""){
+                window.alert("Cannot post empty comment");
+            }
+            if(comment.length > 255){
+                window.alert("Comment too long");
+            }
             NewCommentForm.hide();
             // set up an AJAX post.  When the server replies, the result will go to
             // onSubmitResponse
@@ -76,7 +81,7 @@ class NewCommentForm {
                 type: "POST",
                 url: "/comments",
                 dataType: "json",
-                data: JSON.stringify({ mUsername: Gusername, mMessageId: mesID, mComment: comment }),
+                data: JSON.stringify({ mUsername: Gusername, mMessageId: mesID, mComment: comment, mKey: GuserKey }),
                 success: NewCommentForm.onSubmitResponse
             });
         }
@@ -88,6 +93,10 @@ class NewCommentForm {
          * @param data The object returned by the server
          */
         private static onSubmitResponse(data: any) {
+            if (data.mStatus === "logout") {
+                window.alert("Session Timed Out");
+                location.reload();
+            }
             // If we get an "ok" message, clear the form and refresh the main 
             // listing of messages
             if (data.mStatus === "ok") {

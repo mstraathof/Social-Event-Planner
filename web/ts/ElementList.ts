@@ -74,7 +74,7 @@ class ElementList {
         // Issue a GET, and then pass the result to update()
         $.ajax({
             type: "GET",
-            url: "/profile/"+username,
+            url: "/profile/"+username+"/"+GuserKey,
             dataType: "json",
             success: ElementList.update
         });
@@ -137,7 +137,7 @@ class ElementList {
             type: "POST",
             url: "/upVote",
             dataType: "json",
-            data: JSON.stringify({ mUsername: Gusername, mMessageId: id}),
+            data: JSON.stringify({ mUsername: Gusername, mMessageId: id, mKey: GuserKey}),
             success: ElementList.onVoteResponse
         });
     }
@@ -154,7 +154,7 @@ class ElementList {
             type: "POST",
             url: "/downVote",
             dataType: "json",
-            data: JSON.stringify({ mUsername: Gusername, mMessageId: id}),
+            data: JSON.stringify({ mUsername: Gusername, mMessageId: id, mKey: GuserKey}),
             success: ElementList.onVoteResponse
         });
     }
@@ -162,7 +162,11 @@ class ElementList {
     /**
     * A response from the AJAX call
     */
-    private static onVoteResponse(){
+    private static onVoteResponse(data: any){
+        if (data.mStatus === "logout") {
+            window.alert("Session Timed Out");
+            location.reload();
+        }
         ElementList.refresh()
     }
 
@@ -234,7 +238,7 @@ class ElementList {
     public static viewCommentsGivenID(messageid: number) {
         $.ajax({
             type: "GET",
-            url: "/comments/"+messageid,
+            url: "/comments/"+messageid+"/"+Gusername+"/"+GuserKey,
             dataType: "json",
             success: ElementList.showComments
         });
@@ -245,6 +249,11 @@ class ElementList {
      * @param data The object returned by the server
      */
     private static showComments(data: any) {
+        if (data.mStatus === "logout") {
+            window.alert("Session Timed Out");
+            location.reload();
+        }
+
         $("#ElementList").remove();
         ViewComments.update(data);
     }

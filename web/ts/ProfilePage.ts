@@ -35,26 +35,34 @@ class ProfilePage{
         public static show(username: string) {
             
             $("#ViewComments").remove();
-            //window.alert("hit profile show");
             ProfilePage.init();
-            //NavbarLoggedIn.refresh();
-            //$("div.panel-default").hide();
-            //$("nav.navbar-default").hide();
             usernameToDisplay = username;
-            //window.alert(usernameToDisplay);
-            $.ajax({
-                type: "GET",
-                url: "/profile/"+usernameToDisplay,
-                dataType: "json",
-                success: ProfilePage.onDisplayProfile
-            });
-            
+            if(usernameToDisplay == Gusername){
+                $.ajax({
+                    type: "GET",
+                    url: "/profile/"+Gusername+"/"+GuserKey,
+                    dataType: "json",
+                    success: ProfilePage.onDisplayProfile
+                });
+            }else{
+                $.ajax({
+                    type: "GET",
+                    url: "/profile/"+usernameToDisplay+"/"+Gusername+"/"+GuserKey,
+                    dataType: "json",
+                    success: ProfilePage.onDisplayProfile
+                });
+            }
         }
         /** Method to show the profile of the user passed in in method show(username)
          * data will contain all info of the user from the AJAX call
          * @param data
          */
         public static onDisplayProfile(data:any){
+            if (data.mStatus === "logout") {
+                window.alert("Session Timed Out");
+                location.reload();
+            }
+
             ProfilePage.init();
             $("#ElementList").remove();
             //ElementList.refreshUser(Gusername);
