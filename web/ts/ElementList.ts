@@ -218,13 +218,12 @@ class ElementList {
      * viewComments allows you to see all the comments tied to a specific message, as well as add a new one. 
      */
     public static viewComments() {
-
         var msgToView = $(this).data("value");
         mesID = msgToView;
         //window.alert(msgToView);
         $.ajax({
             type: "GET",
-            url: "/comments/"+msgToView,
+            url: "/comments/"+msgToView+"/"+Gusername+"/"+GuserKey,
             dataType: "json",
             success: ElementList.showComments
         });        
