@@ -1,14 +1,14 @@
 /**
- * NewEntryForm encapsulates all of the code for the form for adding an entry
+ * NewCommentForm encapsulates all of the code for the form for making a new comment on a message/buzz
  */
 
 var Handlebars: any;
-class NewEntryForm {
+class NewCommentForm {
     
         /**
-         * The name of the DOM entry associated with NewEntryForm
+         * The name of the DOM entry associated with NewCommentForm
          */
-        private static readonly NAME = "NewEntryForm";
+        private static readonly NAME = "NewCommentForm";
     
         /**
          * Track if the Singleton has been initialized
@@ -16,16 +16,16 @@ class NewEntryForm {
         private static isInit = false;
     
         /**
-         * Initialize the NewEntryForm by creating its element in the DOM and 
+         * Initialize the NewCommentForm by creating its element in the DOM and 
          * configuring its buttons.  This needs to be called from any public static 
          * method, to ensure that the Singleton is initialized before use
          */
         private static init() {
-            if (!NewEntryForm.isInit) {
-                $("body").append(Handlebars.templates[NewEntryForm.NAME + ".hb"]());
-                $("#" + NewEntryForm.NAME + "-OK").click(NewEntryForm.submitForm);
-                $("#" + NewEntryForm.NAME + "-Close").click(NewEntryForm.hide);
-                NewEntryForm.isInit = true;
+            if (!NewCommentForm.isInit) {
+                $("body").append(Handlebars.templates[NewCommentForm.NAME + ".hb"]());
+                $("#" + NewCommentForm.NAME + "-OK").click(NewCommentForm.submitForm);
+                $("#" + NewCommentForm.NAME + "-Close").click(NewCommentForm.hide);
+                NewCommentForm.isInit = true;
             }
         }
     
@@ -35,29 +35,28 @@ class NewEntryForm {
          * init().
          */
         public static refresh() {
-            NewEntryForm.init();
+            NewCommentForm.init();
         }
         /**
-         * Hide the NewEntryForm.  Be sure to clear its fields first
+         * Hide the NewCommentForm.  Be sure to clear its fields first
          */
         private static hide() {
-            $("#" + NewEntryForm.NAME + "-title").val("");
-            $("#" + NewEntryForm.NAME + "-message").val("");
+            $("#" + NewCommentForm.NAME + "-comment").val("");
             //These lines hide the modal background(the shadow when bringing up a new entry form)
-            $("#" + NewEntryForm.NAME).modal("hide");
+            $("#" + NewCommentForm.NAME).modal("hide");
             $('body').removeClass('modal-open');
             $('.modal-backdrop').remove();
         }
         /**
-         * Show the NewEntryForm.  Be sure to clear its fields, because there are
+         * Show the NewCommentForm.  Be sure to clear its fields, because there are
          * ways of making a Bootstrap modal disapper without clicking Close, and
          * we haven't set up the hooks to clear the fields on the events associated
          * with those ways of making the modal disappear.
          */
         public static show() {
-            $("#" + NewEntryForm.NAME + "-title").val("");
-            $("#" + NewEntryForm.NAME + "-message").val("");
-            $("#" + NewEntryForm.NAME).modal("show");
+            //window.alert();
+            $("#" + NewCommentForm.NAME + "-comment").val("");
+            $("#" + NewCommentForm.NAME).modal("show");
         }
         /**
          * Send data to submit the form only if the fields are both valid.  
@@ -67,31 +66,23 @@ class NewEntryForm {
         private static submitForm() {
             // get the values of the two fields, force them to be strings, and check 
             // that neither is empty
-            let title = "" + $("#" + NewEntryForm.NAME + "-title").val();
-            let msg = "" + $("#" + NewEntryForm.NAME + "-message").val();
-            if(msg.length >= 500)
-            {
-                window.alert("Error: Message exceeds 500");
-                return;
+            let comment = "" + $("#" + NewCommentForm.NAME + "-comment").val();
+            if(comment == ""){
+                window.alert("Cannot post empty comment");
             }
-            if(title.length >= 50)
-            {
-                window.alert("Error: Title exceeds 50");
-                return;
+            if(comment.length > 255){
+                window.alert("Comment too long");
             }
-            if (title === "" || msg === "") {
-                window.alert("Error: title or message is not valid");
-                return;
-            }
-            NewEntryForm.hide();
+            NewCommentForm.hide();
             // set up an AJAX post.  When the server replies, the result will go to
             // onSubmitResponse
+            //window.alert(mesID+" , "+comment+" , "+Gusername);
             $.ajax({
                 type: "POST",
-                url: "/messages",
+                url: "/comments",
                 dataType: "json",
-                data: JSON.stringify({ mSubject: title, mMessage: msg, mUsername: Gusername, mKey: GuserKey }),
-                success: NewEntryForm.onSubmitResponse
+                data: JSON.stringify({ mUsername: Gusername, mMessageId: mesID, mComment: comment, mKey: GuserKey }),
+                success: NewCommentForm.onSubmitResponse
             });
         }
     
@@ -102,19 +93,17 @@ class NewEntryForm {
          * @param data The object returned by the server
          */
         private static onSubmitResponse(data: any) {
-            
-            // If we get an "ok" message, clear the form and refresh the main 
-            // listing of messages
             if (data.mStatus === "logout") {
                 window.alert("Session Timed Out");
                 location.reload();
             }
-            
+            // If we get an "ok" message, clear the form and refresh the main 
+            // listing of messages
             if (data.mStatus === "ok") {
-                if(viewingYours!=true){
-                    $("nav.xyz").remove();
-                }
-                ElementList.refresh();
+                //NewCommentForm.refresh();
+                $("#ViewComments").remove();
+                //window.alert(mesID);
+                ElementList.viewCommentsGivenID(mesID);
             }
             // Handle explicit errors with a detailed popup message
             else if (data.mStatus === "error") {

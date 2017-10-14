@@ -23,12 +23,7 @@ class EditEntryForm {
         public static init() {
             if (!EditEntryForm.isInit) {
                 $("body").append(Handlebars.templates[EditEntryForm.NAME + ".hb"]());
-                //alert("Init");
                 EditEntryForm.show;
-                /*
-                $("#"+EditEntryForm.NAME+"-upvote").click(EditEntryForm.upvote);
-                $("#"+EditEntryForm.NAME+"-downvote").click(EditEntryForm.downvote);
-                */
                 $("#" + EditEntryForm.NAME + "-Close").click(EditEntryForm.hide);
                 EditEntryForm.isInit = true;
             }

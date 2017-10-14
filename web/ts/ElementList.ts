@@ -36,8 +36,24 @@ class ElementList {
 
     /**
     * refresh() is the public method for updating the ElementList
+    * it updates the list accordingly if you are viewing all messages, 
+    * or the messages you posted, liked, disliked, and commented 
     */
+
     public static refresh() {
+        //window.alert("Username: "+ Gusername);
+        if(viewingYours==true){
+            headers = true;
+            ElementList.refreshUser(Gusername);
+        }else{
+            ElementList.refreshAll();
+        }
+
+    }
+    /**
+    * refreshAll() updates the list of all messages on TheBuzz
+    */
+    public static refreshAll() {
         // Make sure the singleton is initialized
         ElementList.init();
         // Issue a GET, and then pass the result to update()
@@ -48,18 +64,43 @@ class ElementList {
             success: ElementList.update
         });
     }
+    /**
+    * refreshUser() updates the list of all messages you have made,
+    * liked, disliked, and commented
+    */
+    public static refreshUser(username:string) {
+        // Make sure the singleton is initialized
+        ElementList.init();
+        // Issue a GET, and then pass the result to update()
+        $.ajax({
+            type: "GET",
+            url: "/profile/"+username+"/"+GuserKey,
+            dataType: "json",
+            success: ElementList.update
+        });
+    }
+    
 
     /**
     * update() is the private method used by refresh() to update the 
-    * It initializes the editbtn (window Tied to seeing the title and message)
-    * also initializes the upvote and downvote button 
+    * list and initialize buttons for liking and viewing profiles
     */
     private static update(data: any) {
+        
         // Remove the table of data, if it exists
         $("#" + ElementList.NAME).remove();
         // Use a template to re-generate the table, and then insert it
         $("body").append(Handlebars.templates[ElementList.NAME + ".hb"](data));
-        $("."+ElementList.NAME+"-editbtn").click(ElementList.clickEdit);
+        if(headers == false){
+            $('#yours').hide();
+            $('#liked').hide();
+            $('#disliked').hide();
+            $('#commented').hide();  
+        }
+        headers = false;
+
+        $("."+ElementList.NAME+"-comments").click(ElementList.viewComments);
+        $("."+ElementList.NAME+"-profile").click(ElementList.getProfile);
         $("."+ElementList.NAME+"-upvote").click(ElementList.upvote);
         $("."+ElementList.NAME+"-downvote").click(ElementList.downvote);
         
@@ -86,38 +127,59 @@ class ElementList {
     /**
      * Method used for upvoting entries
      * Called when upvote button on Elementlist is pressed
-     * Sends mChangeVote with a value of 1 to the database
+     * Sends mUsername and mMessageId
      */
     private static upvote(){
         $("#editElement").hide();
         let id = $(this).data("value");
-        let up = 1;
+
         $.ajax({
-            type: "PUT",
-            url: "/messages/"+id,
+            type: "POST",
+            url: "/upVote",
             dataType: "json",
-            data: JSON.stringify({ mChangeVote: up}),
-            success: ElementList.onSubmitResponse
+            data: JSON.stringify({ mUsername: Gusername, mMessageId: id, mKey: GuserKey}),
+            success: ElementList.onVoteResponse
         });
     }
     /**
      * Method used for downvoting entries
      * Called when downvote button on Elementlist is pressed
-     * Sends mChangeVote with a value of -1 to the database
+     * Sends Username and mMessageId
      */
     private static downvote(){
         $("#editElement").hide();
         let id = $(this).data("value");
-        let down = -1;
 
         $.ajax({
-            type: "PUT",
-            url: "/messages/"+id,
+            type: "POST",
+            url: "/downVote",
             dataType: "json",
-            data: JSON.stringify({ mChangeVote: down}),
-            success: ElementList.onSubmitResponse
+            data: JSON.stringify({ mUsername: Gusername, mMessageId: id, mKey: GuserKey}),
+            success: ElementList.onVoteResponse
         });
     }
+
+    /**
+    * A response from the AJAX call
+    */
+    private static onVoteResponse(data: any){
+        if (data.mStatus === "logout") {
+            window.alert("Session Timed Out");
+            location.reload();
+        }
+        ElementList.refresh()
+    }
+
+    /**
+    * Method to view profile of user. Allows you to see the username, real name, email, 
+    * and bio of the person who posted the buzz.
+    */
+    private static getProfile(){
+        $("#editElement").hide();
+        let user = $(this).data("value");
+        ProfilePage.show(user);
+    }
+
     /**
      * onSubmitResponse determines if the upvote and downvote was successful
      * mStatus will be 1 upon successfull 
@@ -151,5 +213,48 @@ class ElementList {
         //$("."+ElementList.NAME+"-editbtn").click(EditEntryForm.init);
         $("."+ElementList.NAME+"-editbtn").click(EditEntryForm.show);
     }
-    
+
+    /**
+     * viewComments allows you to see all the comments tied to a specific message, as well as add a new one. 
+     */
+    public static viewComments() {
+
+        var msgToView = $(this).data("value");
+        mesID = msgToView;
+        //window.alert(msgToView);
+        $.ajax({
+            type: "GET",
+            url: "/comments/"+msgToView,
+            dataType: "json",
+            success: ElementList.showComments
+        });        
+
+    }
+
+    /**
+     * viewCommentsGivenID lets you view the comments of a message given an id
+     *  @param messageId id of message to see comments ofS
+     */
+    public static viewCommentsGivenID(messageid: number) {
+        $.ajax({
+            type: "GET",
+            url: "/comments/"+messageid+"/"+Gusername+"/"+GuserKey,
+            dataType: "json",
+            success: ElementList.showComments
+        });
+        
+    }
+    /**
+     * showComments will get the data of the AJAX call and actually display the comments of the message
+     * @param data The object returned by the server
+     */
+    private static showComments(data: any) {
+        if (data.mStatus === "logout") {
+            window.alert("Session Timed Out");
+            location.reload();
+        }
+
+        $("#ElementList").remove();
+        ViewComments.update(data);
+    }
 }

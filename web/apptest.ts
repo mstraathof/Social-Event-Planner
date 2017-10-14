@@ -12,7 +12,6 @@ var expect: any;
 var spyOn: any;
 var $: any;
 
-
 describe("Ajax Test", function () {
     // Wait for CSS to load before running tests
     beforeAll(function (done: any) {
@@ -151,5 +150,76 @@ describe("Tests of UI",function() {
     
 });
 
+describe("Test EditBio",function() {
+    /**
+     * This tests edit bio functionality
+     */
+    it("UI Test: test edit bio", function(){
+        $('#EditBio-newBio').click();
+        let bio = $("#EditBio-newBio").val();
+        expect(bio).toEqual("");
+        //Closes out of AddEntry Form
+        $('#EditBio-Close').click();
+        $('#EditBio').modal("hide");        
+    });
+    /**
+     * Checks that the modals for AddElement and EditElement are hidden before starting up the page
+     */
+    it("UI Test: Tests that AddElement and EditElement Divs are hidden on start", function(){
+        let newEntryVisibility = $('#EditBio').is(':visible');
+        expect(newEntryVisibility).toEqual(false);
+        let editEntryVisibility = $('#EditBio').is(':visible');
+        expect(editEntryVisibility).toEqual(false);
+    });
+    
+});
 
-
+describe("Test EditBio",function() {
+    /**
+     * This tests New Comment
+     */
+    it("UI Test: test new comment", function(){
+        $('#NewCommentForm-comment').click();
+        let com = $("#NewCommentForm-comment").val();
+        expect(com).toEqual("");
+        //Closes out of AddEntry Form
+        $('#NewCommentForm-Close').click();
+        $('#NewCommentForm').modal("hide");        
+    });
+    /**
+     * Checks that the modals for AddElement and EditElement are hidden before starting up the page
+     */
+    it("UI Test: Tests that AddElement and EditElement Divs are hidden on start", function(){
+        let newEntryVisibility = $('#NewCommentForm').is(':visible');
+        expect(newEntryVisibility).toEqual(false);
+        let editEntryVisibility = $('#NewCommentForm').is(':visible');
+        expect(editEntryVisibility).toEqual(false);
+    });
+    
+});
+describe("Test New Password form",function() {
+    /**
+     * This tests New Password
+     */
+    it("UI Test: test new password", function(){
+        $('#NewPassForm-oldPass').click();
+        $('#NewPassForm-newPass').click();
+        let oldP = $("#NewPassForm-oldPass").val();
+        let newP = $("#NewPassForm-newPass").val();
+        expect(oldP).toEqual("");
+        expect(newP).toEqual("");
+        //Closes out of AddEntry Form
+        $('#NewPassForm-Close').click();
+        $('#NewPassForm').modal("hide");        
+    });
+    /**
+     * Checks modals
+     */
+    it("UI Test: Tests that AddElement and EditElement Divs are hidden on start", function(){
+        let newEntryVisibility = $('#NewPassForm').is(':visible');
+        expect(newEntryVisibility).toEqual(false);
+        let editEntryVisibility = $('#NewPassForm').is(':visible');
+        expect(editEntryVisibility).toEqual(false);
+    });
+    
+});

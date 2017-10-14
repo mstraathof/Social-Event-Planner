@@ -5,6 +5,16 @@
  * NewEntryForm
  */
 var Handlebars: any;
+var $: any;
+// var Gusername:string;
+// var Gpassword:string;
+// var GuserKey:number;
+// var GloggedIn:boolean;
+
+// var editEntryForm: EditEntryForm;
+// var loginWindow: LoginWindow;
+//var createAccountForm: CreateAccountForm;
+
 class Navbar {
     /**
      * Track if the Singleton has been initialized
@@ -24,7 +34,11 @@ class Navbar {
     private static init() {
         if (!Navbar.isInit) {
             $("body").prepend(Handlebars.templates[Navbar.NAME + ".hb"]());
-            $("#"+Navbar.NAME+"-add").click(NewEntryForm.show);
+            $("#"+Navbar.NAME+"-createAccount").click(CreateAccountForm.show);
+            $("#"+Navbar.NAME+"-logIn").click(LoginWindow.show);
+            $("body").append("<h1 id = 1>Welcome to The Buzz</h1>");
+            $("body").append("<h4 id = 2>Create a free Account or Log-In to start Buzzin'</h4>");
+
             Navbar.isInit = true;
         }
     }
