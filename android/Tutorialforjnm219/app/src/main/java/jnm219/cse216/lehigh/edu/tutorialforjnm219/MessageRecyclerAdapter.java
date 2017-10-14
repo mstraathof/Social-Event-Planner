@@ -21,6 +21,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -36,6 +37,8 @@ import static android.support.v4.content.ContextCompat.startActivity;
 public class MessageRecyclerAdapter extends RecyclerView.Adapter<MessageRecyclerAdapter.MessageViewHolder>{
 
     private final List<Message> messageList;
+
+    String check = "true";
 
     public MessageRecyclerAdapter(List<Message> messageList) {
         this.messageList = messageList;
@@ -144,6 +147,11 @@ public class MessageRecyclerAdapter extends RecyclerView.Adapter<MessageRecycler
                             new Response.Listener<JSONObject>() {
                                 @Override
                                 public void onResponse(JSONObject response) {
+                                    try {
+                                        check = response.getString("mMessageData");
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
                                     Log.e("jnm219", "got response from PUT to update vote count");
                                     // todo: consider updating local vote count only if PUT succeeded.
                                 }
@@ -162,8 +170,13 @@ public class MessageRecyclerAdapter extends RecyclerView.Adapter<MessageRecycler
                             return headers;
                         }
                     };
-                    VolleySingleton.getInstance(v.getContext()).addToRequestQueue(postRequest);
-
+                    if(check != "false") {
+                        VolleySingleton.getInstance(v.getContext()).addToRequestQueue(postRequest);
+                    }
+                    else{
+                        ApplicationWithGlobals.setKey(0);
+                        ApplicationWithGlobals.setUsername("error");
+                    }
                     //This will refresh the page so the new vote count can be displayed
                     Intent i = new Intent(v.getContext(), MainActivity.class);
                     v.getContext().startActivity(i);
@@ -195,6 +208,12 @@ public class MessageRecyclerAdapter extends RecyclerView.Adapter<MessageRecycler
                             new Response.Listener<JSONObject>() {
                                 @Override
                                 public void onResponse(JSONObject response) {
+                                    try {
+                                        check = response.getString("mMessageData");
+                                        Log.e("jnm219", "Response: "+response.getString(("mMessageData")));
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
                                     Log.e("jnm219", "got response from PUT to update vote count");
                                     // todo: consider updating local vote count only if PUT succeeded.
                                 }
@@ -214,8 +233,15 @@ public class MessageRecyclerAdapter extends RecyclerView.Adapter<MessageRecycler
                         }
 
                     };
-                    VolleySingleton.getInstance(v.getContext()).addToRequestQueue(postRequest);
-
+                    Log.e("jnm219","check "+check);
+                    if(check != "false")
+                    {
+                        VolleySingleton.getInstance(v.getContext()).addToRequestQueue(postRequest);
+                    }
+                    else{
+                        ApplicationWithGlobals.setKey(0);
+                        ApplicationWithGlobals.setUsername("error");
+                    }
                     //This will refresh the page so the new vote count can be displayed
                     Intent i = new Intent(v.getContext(), MainActivity.class);
                     v.getContext().startActivity(i);

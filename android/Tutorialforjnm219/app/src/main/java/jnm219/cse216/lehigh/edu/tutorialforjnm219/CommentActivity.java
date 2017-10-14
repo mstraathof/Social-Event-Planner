@@ -58,6 +58,8 @@ public class CommentActivity extends AppCompatActivity {
     //On create will fill this with the unique messageId
     String messageIDGlobal = "";
 
+    String check = "";
+
 
 
     // enter into the browser to understand what the android app is parsing in the GET request.
@@ -83,7 +85,7 @@ public class CommentActivity extends AppCompatActivity {
         rv.setAdapter(adapter);
 
         String messageId = getIntent().getStringExtra("messageId");
-        urlGet = "https://quiet-taiga-79213.herokuapp.com/comments/"+messageId;
+        urlGet = "https://quiet-taiga-79213.herokuapp.com/comments/"+messageId+"/"+ApplicationWithGlobals.getUsername()+"/"+ApplicationWithGlobals.getKey();
         urlPost = "https://quiet-taiga-79213.herokuapp.com/comments";
         messageIDGlobal = messageId;
         Log.d("Liger", "This MessageId: "+messageId);
@@ -213,6 +215,11 @@ public class CommentActivity extends AppCompatActivity {
                         new Response.Listener<JSONObject>() {
                             @Override
                             public void onResponse(JSONObject response) {
+                                try {
+                                    check = response.getString("mCommentData");
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
                                 Log.e("jnm219", "got response");
                             }
                         },
@@ -230,7 +237,13 @@ public class CommentActivity extends AppCompatActivity {
                         return headers;
                     }
                 };
-                VolleySingleton.getInstance(this).addToRequestQueue(postRequest);
+                if(check != "false") {
+                    VolleySingleton.getInstance(this).addToRequestQueue(postRequest);
+                }
+                else{
+                    ApplicationWithGlobals.setKey(0);
+                    ApplicationWithGlobals.setUsername("error");
+                }
                 refreshList();
 
                 //Calls method from itself to more reliably refill the comment adapter

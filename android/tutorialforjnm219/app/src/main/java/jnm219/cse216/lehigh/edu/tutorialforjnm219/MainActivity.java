@@ -59,6 +59,8 @@ public class MainActivity extends AppCompatActivity{
     // enter into the browser to understand what the android app is parsing in the GET request.
     String url = "https://quiet-taiga-79213.herokuapp.com/messages";
 
+    String  check = "";
+
     //This method handles creating the menu icon, it toggles the visibility depending on if they are logged in or not
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -277,7 +279,6 @@ public class MainActivity extends AppCompatActivity{
     protected void onActivityResult(int requestCode, int resultCode, final Intent intent) {
         //Toast.makeText(MainActivity.this,"RequestCode: "+ requestCode+ "ResultCode: "+resultCode, Toast.LENGTH_LONG).show();
         // Json request for Create Buzz
-
         if (requestCode == 789) {
             // Make sure the request was successful
             if (resultCode == RESULT_OK) {
@@ -298,8 +299,18 @@ public class MainActivity extends AppCompatActivity{
                 JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, url,
                         new JSONObject(jsonParams),
                         new Response.Listener<JSONObject>() {
+
                             @Override
                             public void onResponse(JSONObject response) {
+                                try {
+                                    check = response.getString("mMessageData");
+                                    if(check == "false")
+                                    {
+                                        refreshLogout();
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
                                 Log.e("jnm219", "got response");
                             }
                         },
@@ -318,8 +329,16 @@ public class MainActivity extends AppCompatActivity{
                     }
                 };
                 //Toast.makeText(MainActivity.this,"Check: "+check, Toast.LENGTH_LONG).show();
-                VolleySingleton.getInstance(this).addToRequestQueue(postRequest);
-                refreshList();
+                if(check != "false") {
+                    VolleySingleton.getInstance(this).addToRequestQueue(postRequest);
+                }
+                else{
+                    ApplicationWithGlobals.setKey(0);
+                    ApplicationWithGlobals.setUsername("error");
+                    refreshLogout();
+                }
+                finish();
+                startActivity(getIntent());
 
             }
             else{
@@ -345,13 +364,19 @@ public class MainActivity extends AppCompatActivity{
                             @Override
                             public void onResponse(JSONObject response){
                                 int key = 0;
+                                boolean check;
                                 try {
                                     key = response.getInt("mLoginData");
                                     //If the key is 3, the persons username or password is wrong, or they are not registered
                                     //That user is not logged in
+
                                     if(key == 3)
                                     {
                                         Toast.makeText(MainActivity.this,"No Registered User under "+resultUsername, Toast.LENGTH_LONG).show();
+                                    }
+                                    else if(key == -1)
+                                    {
+                                        Toast.makeText(MainActivity.this,"User is already logged in", Toast.LENGTH_LONG).show();
                                     }
                                     else if(key == 2)
                                     {
@@ -485,13 +510,24 @@ public class MainActivity extends AppCompatActivity{
 
                 jsonParams.put("mCurrentPassword",resultCurrentPassword);
                 jsonParams.put("mNewPassword",resultNewPassword);
+                jsonParams.put("mUsername",ApplicationWithGlobals.getUsername());
+                jsonParams.put("mKey",ApplicationWithGlobals.getKey()+"");
                 JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.PUT, url,
                         new JSONObject(jsonParams),
                         new Response.Listener<JSONObject>() {
                             @Override
                             public void onResponse(JSONObject response){
+                                try {
+                                    check = response.getString("mLoginData");
+                                    if(check == "false")
+                                    {
+                                        refreshLogout();
+                                    }
+                                    Log.e("Liger", "Check: "+response.getString("mLoginData"));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
                                 Log.e("Liger","got response");
-
                             }
                         },
                         new Response.ErrorListener() {
@@ -509,8 +545,16 @@ public class MainActivity extends AppCompatActivity{
                         return headers;
                     }
                 };
-                VolleySingleton.getInstance(this).addToRequestQueue(postRequest);
-                refreshList();
+                if(check != "false") {
+                    VolleySingleton.getInstance(this).addToRequestQueue(postRequest);
+                }
+                else{
+                    ApplicationWithGlobals.setKey(0);
+                    ApplicationWithGlobals.setUsername("error");
+                    refreshLogout();
+                }
+                finish();
+                startActivity(getIntent());
             }
         }
     }
