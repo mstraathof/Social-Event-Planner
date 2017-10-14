@@ -256,7 +256,6 @@ public class Database {
      */
     boolean selectOneUser(String username, byte [] password) 
     {
-        System.out.println("Got into select one user");
         boolean check=false;
         try {
             mSelectOneUser.setString(1, username);
@@ -264,16 +263,13 @@ public class Database {
             ResultSet rs = mSelectOneUser.executeQuery();
             if (!rs.next()) 
             {
-                System.out.println("this didn't find a user");
                 check=false;
             }
             else
             {
-                System.out.println("found a user");
                 check= true;
             }
         } catch (SQLException e) {
-            System.out.println("Error");
             e.printStackTrace();
             return false;
         }
@@ -301,23 +297,18 @@ public class Database {
      */
     byte [] getUserSalt (String username)
     {
-        System.err.println("HELLO!");
         byte [] salt = null;
         int i=0;
         try {
-            System.out.println(username);
             mGetSalt.setString (1,username);
             ResultSet rs=mGetSalt.executeQuery();
             if (rs.next())
             {
-                System.out.println("check 1");
                 salt= rs.getBytes("salt");
             }
-            System.out.println("Check 2");
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        System.out.println(salt);
         return salt;
     }
 
@@ -326,9 +317,9 @@ public class Database {
     /**
      * Inserting one message to the table
      */
-    int insertOneMessage(String subject, String message, String username) {
+    boolean insertOneMessage(String subject, String message, String username) {
         int count = 0;
-        int votes = 0;
+        int votes= 0;
         try {
             mInsertOneMessage.setString(1, subject);
             mInsertOneMessage.setString(2, message);
@@ -343,11 +334,9 @@ public class Database {
             count += mInsertOneMessage.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
-        if(count == 0)
-                return -1;
-        else
-            return count;
+        return true;
     }
     
     /**
@@ -431,7 +420,6 @@ public class Database {
             rs +=mInsertComment.executeUpdate();
         } catch (SQLException e)
         {
-            System.out.println("execute query failed");
             e.printStackTrace();
             return false;
         }
@@ -643,11 +631,9 @@ public class Database {
             mSelectOneProfile.setString(1,username);
             ResultSet rs = mSelectOneProfile.executeQuery();
             if (rs.next()) {
-                System.out.println("got in to sql try");
                 res= new RowProfile(rs.getString("username"),rs.getString("realname"),rs.getString("email"),rs.getString("profile_text"));
             }
         } catch (SQLException e) {
-            System.out.println("failed");
             e.printStackTrace();
         }
         return res;

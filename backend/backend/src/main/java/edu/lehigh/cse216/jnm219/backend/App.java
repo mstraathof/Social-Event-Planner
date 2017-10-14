@@ -53,7 +53,7 @@ public class App {
      *This method encrypts the password by taking in the string password from the user
      *  and randomly generated salt by the getSalt() method using PBKDF
      */
-    private static byte [] encryptPw (String password,byte [] salt) throws NoSuchAlgorithmException, InvalidKeySpecException
+    public static byte [] encryptPw (String password,byte [] salt) throws NoSuchAlgorithmException, InvalidKeySpecException
     {
         int iterations= 1000;
         char[] chars = password.toCharArray();
@@ -65,7 +65,7 @@ public class App {
     /**
     * This randomly creates salt which is in byte []
     */
-    private static byte [] getSalt() throws NoSuchAlgorithmException
+    public static byte [] getSalt() throws NoSuchAlgorithmException
     {
         SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
         byte[] salt = new byte[16];
@@ -73,7 +73,7 @@ public class App {
         return salt;
     }
     // This static hashtable keeps the log of which users are logged in with their keys
-    static Hashtable<String,Integer> logged_in=new Hashtable<String,Integer>();
+    public static Hashtable<String,Integer> logged_in=new Hashtable<String,Integer>();
     /** This method randomly creates key to return to the android and web */
     public static int keyGenerator (){
         Random rand = new Random();
@@ -180,7 +180,7 @@ public class App {
                 {
                     int key=keyGenerator();// create key
                     logged_in.put(req.mUsername,key);// logged_in is hashtable, and add values into it
-                    System.out.println(logged_in);
+
                     return gson.toJson(new Structured_login("ok", null, key));
                 }
            }
@@ -211,8 +211,6 @@ public class App {
             response.type("application/json");
             if (!checkKey(user,req.mKey))
             {
-                System.out.println(logged_in);
-                System.out.println("OH OH");
                 return gson.toJson(new Structured_login("logout", null,false));
             }
             byte [] salt=db.getUserSalt(user);// get our old salt
@@ -222,7 +220,6 @@ public class App {
             {
                 byte [] newPassword= encryptPw (req.mNewPassword,newSalt);// encrypt a new pw
                 boolean check=db.updatePassword(user,newPassword,newSalt);// update the tblUser
-                System.out.println(check);
                 if (check)// if successfully updated
                 {
                     return gson.toJson(new Structured_login("ok", null ,1));
@@ -255,8 +252,8 @@ public class App {
             {
                 return gson.toJson(new StructuredMessage("logout", null,false));
             }
-            int newId = db.insertOneMessage(req.mSubject, req.mMessage,req.mUsername); 
-            if (newId == -1) {
+            boolean newId = db.insertOneMessage(req.mSubject, req.mMessage,req.mUsername); 
+            if (!newId) {
                 return gson.toJson(new StructuredMessage("error", "error performing insertion", null));
             } else {
                 return gson.toJson(new StructuredMessage("ok", "" + newId, null));
@@ -303,9 +300,7 @@ public class App {
             {
                 return gson.toJson(new StructuredComment("logout", null,false));
             }
-            System.out.println(req.mUsername +req.mMessageId+req.mComment);
             boolean check = db.insertComment(req.mUsername, req.mMessageId,req.mComment); // mSubject vs mTitle?
-            System.out.println(check);
             if (check == false) {
                 return gson.toJson(new StructuredComment("error", "error performing insertion", null));
             } else {
@@ -322,7 +317,6 @@ public class App {
             response.type("application/json");
             if (!checkKey(req.mUsername,req.mKey))
             {
-                System.out.println(logged_in);
                 return gson.toJson(new StructuredMessage("logout", null,false));
             }
             boolean upVote=db.updateUpVote(req.mUsername,req.mMessageId);
