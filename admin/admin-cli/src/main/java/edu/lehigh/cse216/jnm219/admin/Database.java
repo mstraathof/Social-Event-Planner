@@ -384,5 +384,47 @@ public class Database {
         return true;
     }
 
+    String authorizeUserForBackend(String[] credentials) {   // credentials[username, realname, email, password]
+        String password = "";        
+        try {
+            String username = credentials[0];
+            Password pw = new Password();
+
+            mSelectUnauthUserOne.setString(1, username);
+            ResultSet rs = mSelectUnauthUserOne.executeQuery();
+            
+            if (rs.next())
+            {
+                String realname = rs.getString("realname");
+                credentials[1] = realname;
+                String email = rs.getString("email");
+                credentials[2] = email;
+                mInsertUser.setString(1, username);
+                mInsertUser.setString(2, realname);
+                mInsertUser.setString(3, email);
+                byte [] salt = pw.getSalt();
+                password = "liger";
+                credentials[3] = password;
+                byte [] saltedPassword = pw.encryptPw (password, salt);
+                mInsertUser.setBytes(4,salt);
+                mInsertUser.setBytes(5, saltedPassword);
+                mInsertUser.executeUpdate();
+                mRemoveUnauthUserOne.setString(1, username);    // remove the authorized user from the unauthuser table
+                mRemoveUnauthUserOne.executeUpdate();
+            }
+            else
+            {
+                System.out.println("username not found");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+        return password;
+    }
+
 }
   
