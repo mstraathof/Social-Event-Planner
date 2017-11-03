@@ -69,46 +69,6 @@ public class MainActivity extends AppCompatActivity{
         int key = ApplicationWithGlobals.getKey();
         getMenuInflater().inflate(R.menu.menu_main, menu);
         optionsMenu = menu;
-        //case if the user is not logged in yet
-        if(username == "error" || key == 0) {
-            MenuItem login = (MenuItem) menu.findItem(R.id.login_settings);
-            login.setVisible(true);
-
-            MenuItem register = (MenuItem) menu.findItem(R.id.register_settings);
-            register.setVisible(true);
-
-            MenuItem buzz = (MenuItem) menu.findItem(R.id.create_buzz_settings);
-            buzz.setVisible(false);
-
-            //Finds the logout button and makes it hidden
-            MenuItem logout = (MenuItem) optionsMenu.findItem(R.id.logout_settings);
-            logout.setVisible(false);
-
-            //Makes the change password button hidden
-            MenuItem changePassword = (MenuItem) optionsMenu.findItem(R.id.change_password_settings);
-            changePassword.setVisible(false);
-        }
-        //Case if the user is logged in
-        else{
-            MenuItem login = (MenuItem) menu.findItem(R.id.login_settings);
-            login.setVisible(false);
-
-            MenuItem register = (MenuItem) menu.findItem(R.id.register_settings);
-            register.setVisible(false);
-
-            MenuItem buzz = (MenuItem) menu.findItem(R.id.create_buzz_settings);
-            buzz.setVisible(true);
-
-            //Finds the logout button and makes it hidden
-            MenuItem logout = (MenuItem) optionsMenu.findItem(R.id.logout_settings);
-            logout.setVisible(true);
-
-            //Makes the change password button active
-            MenuItem changePassword = (MenuItem) optionsMenu.findItem(R.id.change_password_settings);
-            changePassword.setVisible(true);
-        }
-        //Toast.makeText(MainActivity.this, "Username: "+username+" Key: "+key, Toast.LENGTH_LONG).show();
-
         return true;
     }
 
@@ -132,10 +92,8 @@ public class MainActivity extends AppCompatActivity{
         String username = ApplicationWithGlobals.getUsername();
         int key  = ApplicationWithGlobals.getKey();
 
-        //If a user is logged in, the List of all the messages are displayed on the main page, other wise it is empty
-        if(username != "Error" && key != 0) {
-            refreshList();      // populate RecyclerView with initial set of buzzes.
-        }
+
+        refreshList();      // populate RecyclerView with initial set of buzzes.
     }
 
     /**
@@ -346,118 +304,6 @@ public class MainActivity extends AppCompatActivity{
             }
         }
 
-        //Json Request for the Login Screen
-        if (requestCode == 666)
-        {
-            if(resultCode == RESULT_OK) {
-                String url = "https://quiet-taiga-79213.herokuapp.com/login";
-
-                Map<String, String> jsonParams = new HashMap<String, String>();
-                final String resultUsername = intent.getStringExtra("resultUserName");
-                final String resultPassword = intent.getStringExtra("resultPassword");
-
-                jsonParams.put("mUsername",resultUsername);
-                jsonParams.put("mPassword",resultPassword);
-                JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, url,
-                        new JSONObject(jsonParams),
-                        new Response.Listener<JSONObject>() {
-                            @Override
-                            public void onResponse(JSONObject response){
-                                int key = 0;
-                                boolean check;
-                                try {
-                                    key = response.getInt("mLoginData");
-                                    //If the key is 3, the persons username or password is wrong, or they are not registered
-                                    //That user is not logged in
-
-                                    if(key == 3)
-                                    {
-                                        Toast.makeText(MainActivity.this,"No Registered User under "+resultUsername, Toast.LENGTH_LONG).show();
-                                    }
-                                    else if(key == -1)
-                                    {
-                                        Toast.makeText(MainActivity.this,"User is already logged in", Toast.LENGTH_LONG).show();
-                                    }
-                                    else if(key == 2)
-                                    {
-                                        Toast.makeText(MainActivity.this,"Username and Password do not match", Toast.LENGTH_LONG).show();
-                                    }
-                                    else {
-                                        ApplicationWithGlobals.setUsername(resultUsername);
-                                        ApplicationWithGlobals.setKey(key);
-                                        refreshLogin();
-                                        refreshList();
-                                    }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                                //Toast.makeText(MainActivity.this,"Key2: "+key, Toast.LENGTH_LONG).show();
-                                Log.e("Liger","got response");
-                            }
-                        },
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                Toast.makeText(MainActivity.this,"Login Failed: Please Try Again", Toast.LENGTH_LONG).show();
-                                Log.e("Liger", "JsonObjectRequest() failed: " + error.getMessage());
-
-                            }
-                        }) {
-                    @Override
-                    public Map<String, String> getHeaders() {
-                        HashMap<String, String> headers = new HashMap<String, String>();
-                        headers.put("Content-Type", "application/json; charset=utf-8");
-                        headers.put("User-agent", System.getProperty("http.agent"));
-                        return headers;
-                    }
-                };
-                VolleySingleton.getInstance(this).addToRequestQueue(postRequest);
-            }
-        }
-
-        //Json Request for the Register Screen
-        if(requestCode == 667)
-        {
-            if(resultCode == RESULT_OK) {
-                String url = "https://quiet-taiga-79213.herokuapp.com/register";
-
-                Map<String, String> jsonParams = new HashMap<String, String>();
-                Map<String, String> jsonParamsProfile = new HashMap<String, String>();
-                final String resultUsername = intent.getStringExtra("resultUserName");
-                final String resultPassword = intent.getStringExtra("resultPassword");
-                final String resultRealName = intent.getStringExtra("resultRealName");
-                final String resultEmail = intent.getStringExtra("resultEmail");
-
-                jsonParams.put("mUsername",resultUsername);
-                jsonParams.put("mRealName",resultRealName);
-                jsonParams.put("mEmail",resultEmail);
-                JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, url,
-                        new JSONObject(jsonParams),
-                        new Response.Listener<JSONObject>() {
-                            @Override
-                            public void onResponse(JSONObject response){
-                                Log.e("Liger","got response");
-                            }
-                        },
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                Log.e("Liger", "JsonObjectRequest() failed: " + error.getMessage());
-
-                            }
-                        }) {
-                    @Override
-                    public Map<String, String> getHeaders() {
-                        HashMap<String, String> headers = new HashMap<String, String>();
-                        headers.put("Content-Type", "application/json; charset=utf-8");
-                        headers.put("User-agent", System.getProperty("http.agent"));
-                        return headers;
-                    }
-                };
-                //Volley request that registers a new user
-                VolleySingleton.getInstance(this).addToRequestQueue(postRequest);
-            }
-        }
 
         //Json request for the logout functionality
         if(requestCode == 4) {
@@ -563,36 +409,15 @@ public class MainActivity extends AppCompatActivity{
      * This method logs out a user by getting rid of the username and key in local storage, and changes the view back to logged out
      */
     private void refreshLogout() {
-
-        //This finds the menuItem for creating a buzz and makes it visible
-        MenuItem buzz = (MenuItem) optionsMenu.findItem(R.id.create_buzz_settings);
-        buzz.setVisible(false);
-
-        //This finds the menuItem for login and makes it visible
-        MenuItem login = (MenuItem) optionsMenu.findItem(R.id.login_settings);
-        login.setVisible(true);
-
-        //This finds the menuItem for registering and makes it visible
-        MenuItem register = (MenuItem) optionsMenu.findItem(R.id.register_settings);
-        register.setVisible(true);
-
-        //Finds the logout button and makes it hidden
-        MenuItem logout = (MenuItem) optionsMenu.findItem(R.id.logout_settings);
-        logout.setVisible(false);
-
-        //Makes the change password button hidden
-        MenuItem changePassword = (MenuItem) optionsMenu.findItem(R.id.change_password_settings);
-        changePassword.setVisible(false);
-
         ApplicationWithGlobals.setKey(0);
         ApplicationWithGlobals.setUsername("Error");
 
-
+        Intent i = new Intent(MainActivity.this, WelcomeActivity.class);
         Toast.makeText(MainActivity.this,"Logout Successful", Toast.LENGTH_LONG).show();
         //These two lines reload the MainActivity from itself, essentially calling OnCreate again
         //necessary in order to get rid of all the messages from the main activity
         finish();
-        startActivity(getIntent());
+        startActivity(i);
     }
 
 }
