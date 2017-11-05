@@ -7,6 +7,19 @@ import spark.Spark;
 // Import Google's JSON library
 import com.google.gson.*;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.Arrays;
+
 //Importing the ability to access the database from Postgres
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -26,11 +39,14 @@ import java.io.IOException;
 import java.util.Random;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Collections;
 
 /**
  * For now, our app creates an HTTP server that can only get and add data.
  */
 public class App {
+    private static final HttpTransport transport = new NetHttpTransport();
+    private static final JsonFactory jsonFactory = new JacksonFactory();
 /**
  * Get an integer environment varible if it exists, and otherwise return the
  * default value.
@@ -105,6 +121,25 @@ public class App {
         }
         return  false;
     }
+
+    public static GoogleIdToken validateGoogleToken(final String idTokenString) {
+        System.out.println("validating: "+idTokenString);
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, jsonFactory).setAudience(Collections.singletonList("1080316803619-flf753te3n99rv3mh90movqrs3eujk3v.apps.googleusercontent.com")).build();
+        // 1080316803619-flf753te3n99rv3mh90movqrs3eujk3v.apps.googleusercontent.com
+        GoogleIdToken googleIdToken = null;
+        try{
+            googleIdToken = verifier.verify(idTokenString);
+        } catch(GeneralSecurityException | IOException e){
+            System.out.println("Exception: "+e);
+        }
+        if (googleIdToken != null) {
+            return googleIdToken;
+        } else {
+            System.out.println("Invalid ID token.");
+            return null;
+        }
+    }
+
     public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException 
     {
 
@@ -161,27 +196,27 @@ public class App {
             byte [] salt = db.getUserSalt(req.mUsername);
             if (salt==null) // No accounts exist under this username
             {
-                return gson.toJson(new Structured_login("error", "No account under that username or password", 3));
+                return gson.toJson(new Structured_login("error", "No account under that username or password", 3, null));
                 // android uses the value 3 -- discuss with android before changing the data value
             }
             byte [] password= encryptPw (req.mPassword,salt);// encrypt password to verify
-            boolean curUser = db.selectOneUser(req.mUsername, password); // see if the password and username matched
+            boolean curUser = db.selectOneUser(req.mUsername); // see if the password and username matched
             if (curUser==false) { // mismatch between pw and username 
-                return gson.toJson(new Structured_login("error", "No account under that username or password", 2));
+                return gson.toJson(new Structured_login("error", "No account under that username or password", 2,null));
                 // android uses the value 3 -- discuss with android before changing the data value
             } else { // succesfully found a user to login
                 boolean createProfile=db.insertProfile(req.mUsername);
                 if (checkLogin(req.mUsername)) // if the person is already logged in
                 {
                     logOut(req.mUsername);// log the user out
-                    return gson.toJson(new Structured_login("error", "Username "+ req.mUsername+"is already loggedin", -1));
+                    return gson.toJson(new Structured_login("error", "Username "+ req.mUsername+"is already loggedin", -1,null));
                 }
                 else 
                 {
                     int key=keyGenerator();// create key
                     logged_in.put(req.mUsername,key);// logged_in is hashtable, and add values into it
 
-                    return gson.toJson(new Structured_login("ok", null, key));
+                    return gson.toJson(new Structured_login("ok", null, key, null));
                 }
            }
         });
@@ -211,27 +246,27 @@ public class App {
             response.type("application/json");
             if (!checkKey(user,req.mKey))
             {
-                return gson.toJson(new Structured_login("logout", null,false));
+                return gson.toJson(new Structured_login("logout", null,false, null));
             }
             byte [] salt=db.getUserSalt(user);// get our old salt
             byte [] newSalt=getSalt();// create a new salt to enter into the table
             byte [] password= encryptPw (req.mCurrentPassword,salt);// get our old pw in bytes
-            if (db.selectOneUser(user,password))
+            if (db.selectOneUser(user))
             {
                 byte [] newPassword= encryptPw (req.mNewPassword,newSalt);// encrypt a new pw
                 boolean check=db.updatePassword(user,newPassword,newSalt);// update the tblUser
                 if (check)// if successfully updated
                 {
-                    return gson.toJson(new Structured_login("ok", null ,1));
+                    return gson.toJson(new Structured_login("ok", null ,1, null));
                 }
                 else // if update had an error
                 {
-                    return gson.toJson(new Structured_login("error", "change password failed",-1));
+                    return gson.toJson(new Structured_login("error", "change password failed",-1,null));
                 }
             }
             else // if the user doesn't exist in our tblUser
             {
-               return gson.toJson(new Structured_login("error", "current password is wrong",-2));
+               return gson.toJson(new Structured_login("error", "current password is wrong",-2,null));
             }
         });
 
@@ -408,5 +443,62 @@ public class App {
             response.type("application/json"); 
             return gson.toJson(new StructuredProfile("ok", null, db.selectProfile(others),null,null,null,null));
         });
+
+        Spark.post("/tokensignin", (request, response) -> {
+            SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
+            response.status(200);
+            response.type("application/json");
+            String idToke = req.token_id;
+            System.out.println(idToke);
+            GoogleIdToken ret = validateGoogleToken(idToke);
+            
+            Payload payload = ret.getPayload();
+            
+                            // Print user identifier
+            String userId = payload.getSubject();
+            //System.out.println("User ID: " + userId);
+            
+            //Get profile information from payload
+            String email = payload.getEmail();
+            System.out.println("email = " + email);
+            boolean emailVerified = Boolean.valueOf(payload.getEmailVerified());
+            System.out.println("emailVerified = " + emailVerified);
+            String name = (String) payload.get("name");
+            System.out.println("name = " + name);
+            //String pictureUrl = (String) payload.get("picture");
+            //System.out.println("pictureUrl = " + pictureUrl);
+            //String locale = (String) payload.get("locale");
+            //System.out.println("locale = " + locale);
+            //String familyName = (String) payload.get("family_name");
+            //System.out.println("familyName = " + familyName);
+            //String givenName = (String) payload.get("given_name");
+            //System.out.println("givenName = " + givenName);
+            
+            String user = null;
+            int key = 0;
+            if(ret != null){
+                String domain = email.substring(email.length()-10, email.length());
+                if(domain.equals("lehigh.edu")){
+                    user = email.substring(0,email.length()-11);
+
+                    if(db.selectOneUser(user) == false){
+                        db.insertUser(user, name, email);
+                        boolean creatingProfile = db.insertProfile(user);
+                    }else{
+                        //user exists
+                    }
+                    key = keyGenerator(); // create key
+                    logged_in.put(user,key); // logged_in is hashtable, and add values into it
+                    System.out.println(logged_in);
+                }else{
+                    System.out.println("Only lehigh.edu domains allowed");
+                }
+            }else{
+                //Dont do anything
+            }
+            return gson.toJson(new Structured_login("ok", null, key, user));
+        });
     }
 }
+
+// mvn clean install
