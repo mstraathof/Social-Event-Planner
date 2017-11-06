@@ -122,10 +122,11 @@ public class App {
         return  false;
     }
 
+    /** This method validates the Google Token. It accepts a String and returns a GooleIdToken */
     public static GoogleIdToken validateGoogleToken(final String idTokenString) {
         System.out.println("validating: "+idTokenString);
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, jsonFactory).setAudience(Collections.singletonList("1080316803619-flf753te3n99rv3mh90movqrs3eujk3v.apps.googleusercontent.com")).build();
-        // 1080316803619-flf753te3n99rv3mh90movqrs3eujk3v.apps.googleusercontent.com
+        // Our CLIENT_ID: 1080316803619-flf753te3n99rv3mh90movqrs3eujk3v.apps.googleusercontent.com
         GoogleIdToken googleIdToken = null;
         try{
             googleIdToken = verifier.verify(idTokenString);
@@ -445,6 +446,13 @@ public class App {
             return gson.toJson(new StructuredProfile("ok", null, db.selectProfile(others),db.selectUserMessage(others),db.selectUserComment(others),db.selectMessageLiked(others),db.selectMessageDisliked(others)));
         });
 
+        /**
+         * This route gets a token id to verify through google. 
+         * Once the token is verified successfully, a users profile 
+         * and account is created if needed, and the user is added to 
+         * the hash table. If the user is not verified successfully, they 
+         * will be unable to log into the buzz
+         */
         Spark.post("/tokensignin", (request, response) -> {
             SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
             response.status(200);
@@ -455,7 +463,7 @@ public class App {
             
             Payload payload = ret.getPayload();
             
-                            // Print user identifier
+            // Print user identifier
             String userId = payload.getSubject();
             //System.out.println("User ID: " + userId);
             

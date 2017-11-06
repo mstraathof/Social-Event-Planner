@@ -21,6 +21,11 @@ import spark.Spark;
 
 public class DatabaseTest extends TestCase
 {
+    Random rand = new Random();
+    int  random = rand.nextInt(10000) + 1000;
+    String use= Integer.toString(random);
+    String username = "testuser"+use;
+
     public void testApp()
     {
         assertTrue( true );
@@ -31,73 +36,24 @@ public class DatabaseTest extends TestCase
     public void testInsertUser()
     {
         Database dbt = Database.getDatabase(2);
-        Random rand = new Random();
-        int  random = rand.nextInt(10000) + 1000;
-        String use= Integer.toString(random);
-        boolean check = dbt.insertUser("usernameTest"+use,"Real Name", "Email@email.com");
+        
+        boolean check = dbt.insertUser(username,"Real Name", "Email@email.com");
         assertTrue(check);
         dbt.disconnect();
     }
-    public void testSelectOneUser()throws NoSuchAlgorithmException, InvalidKeySpecException
-    {
-        Database dbt = Database.getDatabase(2);
-        App abc= new App();
-        byte [] salt= dbt.getUserSalt("mira");
-        byte [] pw= abc.encryptPw("aaa",salt);
-        boolean check = dbt.selectOneUser("mira",pw);
-        assertTrue(check);
-        dbt.disconnect();
-    }
-    public void testUpdatePassword()throws NoSuchAlgorithmException, InvalidKeySpecException
-    {
-        Database dbt = Database.getDatabase(2);
-        App abc= new App();
-        byte [] salt= abc.getSalt();
-        byte [] pw= abc.encryptPw("aaa",salt);
-        boolean check =dbt.updatePassword("mira",pw,salt);
-        assertTrue(check);
-        dbt.disconnect();
-    }
-    public void testInsertOneMessage()
-    {
-        Database dbt = Database.getDatabase(2);
-        boolean check=dbt.insertOneMessage("subject525","message321","mira");
-        assertTrue(check);
-        dbt.disconnect();
-    }
-    public void testInsertComment()
-    {
-        Database dbt = Database.getDatabase(2);
-        boolean check=dbt.insertComment("mira",1,"comment");
-        assertTrue(check);
-        dbt.disconnect();
-    }
-    public void testUpVote()
-    {
-        Database dbt = Database.getDatabase(2);
-        boolean check=dbt.updateUpVote("mira",1);
-        assertTrue(check);
-        dbt.disconnect();
-    }
-    public void testDownVote()
-    {
-        Database dbt = Database.getDatabase(2);
-        boolean check=dbt.updateDownVote("mira",1);
-        assertTrue(check);
-        dbt.disconnect();
-    }
+    
     public void testInsertProfile()
     {
         Database dbt = Database.getDatabase(2);
-        boolean chk=dbt.insertProfile("mira");
-        boolean check=dbt.insertProfile("mira");
+        boolean chk=dbt.insertProfile(username);
+        boolean check=dbt.insertProfile(username);
         assertFalse(check);
         dbt.disconnect();
     }
     public void testUpdateProfile()
     {
         Database dbt = Database.getDatabase(2);
-        boolean check=dbt.updateProfile("mira","This is the new profile table");
+        boolean check=dbt.updateProfile(username,"This is the new profile table");
         assertTrue(check);
         dbt.disconnect();
     }
@@ -150,5 +106,56 @@ public class DatabaseTest extends TestCase
         Database dbt = Database.getDatabase(2);
         dbt.insertRow("y", "z");
         assertEquals(false, -1 == dbt.upVote(1, -1));
+    }*/
+
+    /*
+        public void testUpdatePassword()throws NoSuchAlgorithmException, InvalidKeySpecException
+    {
+        Database dbt = Database.getDatabase(2);
+        App abc= new App();
+        byte [] salt= abc.getSalt();
+        byte [] pw= abc.encryptPw("aaa",salt);
+        boolean check =dbt.updatePassword("mira",pw,salt);
+        assertTrue(check);
+        dbt.disconnect();
+    }*/
+
+    /*
+    public void testSelectOneUser()throws NoSuchAlgorithmException, InvalidKeySpecException
+    {
+        Database dbt = Database.getDatabase(2);
+        App abc= new App();
+        boolean check = dbt.selectOneUser(username);
+        assertTrue(check);
+        dbt.disconnect();
+    }
+
+    public void testInsertOneMessage()
+    {
+        Database dbt = Database.getDatabase(2);
+        boolean check=dbt.insertOneMessage("subject525","message321",username);
+        assertTrue(check);
+        dbt.disconnect();
+    }
+    public void testInsertComment()
+    {
+        Database dbt = Database.getDatabase(2);
+        boolean check=dbt.insertComment(username,1,"comment");
+        assertTrue(check);
+        dbt.disconnect();
+    }
+    public void testUpVote()
+    {
+        Database dbt = Database.getDatabase(2);
+        boolean check=dbt.updateUpVote(username,1);
+        assertTrue(check);
+        dbt.disconnect();
+    }
+    public void testDownVote()
+    {
+        Database dbt = Database.getDatabase(2);
+        boolean check=dbt.updateDownVote(username,1);
+        assertTrue(check);
+        dbt.disconnect();
     }*/
 }
