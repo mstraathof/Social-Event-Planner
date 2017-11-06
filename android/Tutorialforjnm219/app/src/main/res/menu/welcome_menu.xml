@@ -7,14 +7,14 @@
     <item
         android:id="@+id/register_settings"
         android:orderInCategory="1"
-        android:title="Register"
+        android:title=""
         app:showAsAction="never" />
 
     //Creates a Log In button in the drop down menu on the login page
     <item
         android:id="@+id/login_settings"
         android:orderInCategory="2"
-        android:title="Log In"
+        android:title=""
         app:showAsAction="never"
         app:actionViewClass = "android.widget.SearchView"/>
 
