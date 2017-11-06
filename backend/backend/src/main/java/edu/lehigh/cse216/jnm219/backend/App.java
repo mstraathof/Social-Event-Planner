@@ -416,19 +416,20 @@ public class App {
          * All the comments that the person commented
          * All the messges that user upvoted or downvoted
         */
-        Spark.get("/profile/:username/:key", (request, response) -> {
-            String user =request.params("username");
-            int key = Integer.parseInt(request.params("key"));
-            response.status(200);
-            response.type("application/json"); 
-            if (!checkKey(user,key))
-            {
-                return gson.toJson(new StructuredLoginCheck("logout", "logged out",false));
-            }
-            response.status(200);
-            response.type("application/json"); 
-            return gson.toJson(new StructuredProfile("ok", null, db.selectProfile(user),db.selectUserMessage(user),db.selectUserComment(user),db.selectMessageLiked(user),db.selectMessageDisliked(user)));
-        });
+
+        // Spark.get("/profile/:username/:key", (request, response) -> {
+        //     String user =request.params("username");
+        //     int key = Integer.parseInt(request.params("key"));
+        //     response.status(200);
+        //     response.type("application/json"); 
+        //     if (!checkKey(user,key))
+        //     {
+        //         return gson.toJson(new StructuredLoginCheck("logout", "logged out",false));
+        //     }
+        //     response.status(200);
+        //     response.type("application/json"); 
+        //     return gson.toJson(new StructuredProfile("ok", null, db.selectProfile(user),db.selectUserMessage(user),db.selectUserComment(user),db.selectMessageLiked(user),db.selectMessageDisliked(user)));
+        // });
         Spark.get("/profile/:otherUser/:username/:key", (request, response) -> {
             String user =request.params("username");
             String others =request.params("otherUser");
@@ -441,7 +442,7 @@ public class App {
             }
             response.status(200);
             response.type("application/json"); 
-            return gson.toJson(new StructuredProfile("ok", null, db.selectProfile(others),null,null,null,null));
+            return gson.toJson(new StructuredProfile("ok", null, db.selectProfile(others),db.selectUserMessage(others),db.selectUserComment(others),db.selectMessageLiked(others),db.selectMessageDisliked(others)));
         });
 
         Spark.post("/tokensignin", (request, response) -> {
@@ -489,14 +490,18 @@ public class App {
                     }
                     key = keyGenerator(); // create key
                     logged_in.put(user,key); // logged_in is hashtable, and add values into it
-                    System.out.println(logged_in);
+                    System.out.println(logged_in); // prints hash table
+                    return gson.toJson(new Structured_login("ok", null, key, user));
                 }else{
                     System.out.println("Only lehigh.edu domains allowed");
+                    return gson.toJson(new Structured_login("wrongDomain", null, key, user));
                 }
             }else{
-                //Dont do anything
+                //Returns user and key. If user returned is null and key is 0, then the user is not logged in
+                //because of issues authenticating them
+                System.out.println("Google user not verified");
+                return gson.toJson(new Structured_login("notVerified", null, key, user));
             }
-            return gson.toJson(new Structured_login("ok", null, key, user));
         });
     }
 }
