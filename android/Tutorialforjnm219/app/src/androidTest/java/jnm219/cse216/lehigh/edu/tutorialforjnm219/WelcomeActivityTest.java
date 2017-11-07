@@ -12,59 +12,47 @@ import android.view.ViewParent;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.hamcrest.core.IsInstanceOf;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
 import static android.support.test.espresso.action.ViewActions.click;
-import static android.support.test.espresso.action.ViewActions.closeSoftKeyboard;
-import static android.support.test.espresso.action.ViewActions.replaceText;
-import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.is;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public class Register_Has_Empty_List {
+public class WelcomeActivityTest {
 
     @Rule
-    public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class);
+    public ActivityTestRule<WelcomeActivity> mActivityTestRule = new ActivityTestRule<>(WelcomeActivity.class);
 
     @Test
-    public void register_Has_Empty_List() {
-        openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
+    public void welcomeActivityTest() {
+        // Added a sleep statement to match the app's execution delay.
+        // The recommended way to handle such scenarios is to use Espresso idling resources:
+        // https://google.github.io/android-testing-support-library/docs/espresso/idling-resource/index.html
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-        ViewInteraction appCompatTextView = onView(
-                allOf(withId(R.id.title), withText("Register"), isDisplayed()));
-        appCompatTextView.perform(click());
-
-        ViewInteraction editText = onView(
-                allOf(withId(R.id.enterUserName), isDisplayed()));
-        editText.perform(replaceText("Username"), closeSoftKeyboard());
-
-        ViewInteraction editText2 = onView(
-                allOf(withId(R.id.enterRealName), isDisplayed()));
-        editText2.perform(replaceText("Real"), closeSoftKeyboard());
-
-        ViewInteraction editText3 = onView(
-                allOf(withId(R.id.enterEmail), isDisplayed()));
-        editText3.perform(replaceText("Email"), closeSoftKeyboard());
-
-        ViewInteraction recyclerView = onView(
-                allOf(withId(R.id.message_list_view),
+        ViewInteraction to = onView(
+                allOf(withText("Sign in"),
                         childAtPosition(
-                                childAtPosition(
-                                        IsInstanceOf.<View>instanceOf(android.view.ViewGroup.class),
-                                        1),
+                                allOf(withId(R.id.sign_in_button),
+                                        childAtPosition(
+                                                withClassName(is("android.widget.RelativeLayout")),
+                                                2)),
                                 0),
                         isDisplayed()));
-        recyclerView.check(matches(isDisplayed()));
+        to.perform(click());
 
     }
 

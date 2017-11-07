@@ -10,15 +10,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 /**
- * Is called when the user clicks the three dots on the main page, then clicks change passsword
- * The purpose of this class is to allow the user to change their password
+ * Created by Trent Gray on 11/6/2017.
  */
-public class changePassword extends AppCompatActivity {
 
+public class CreateBioActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.change_password_layout);
+        setContentView(R.layout.create_comment_layout);
 
         // Get top label from the calling activity, and put it in TextView
         Intent input = getIntent();
@@ -26,8 +25,7 @@ public class changePassword extends AppCompatActivity {
         final TextView tv = (TextView) findViewById(R.id.topLabel);
         tv.setText(topLabel);
 
-        final EditText et = (EditText) findViewById(R.id.enterCurrentPassword);
-        final EditText em = (EditText) findViewById(R.id.enterNewPassword);
+        final EditText et = (EditText) findViewById(R.id.enterComment);
 
         // The OK button gets the text from the input box and returns it to the calling activity
         Button bOk = (Button) findViewById(R.id.buttonOk);
@@ -35,10 +33,9 @@ public class changePassword extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Create an intent only when the user entered text in both fields
-                if (!et.getText().toString().equals("") && !em.getText().toString().equals("")) {
+                if (!et.getText().toString().equals("")) {
                     Intent i = new Intent();
-                    i.putExtra("resultCurrentPassword", et.getText().toString());
-                    i.putExtra("resultNewPassword", em.getText().toString());
+                    i.putExtra("resultBio", et.getText().toString());
                     setResult(Activity.RESULT_OK, i);
                     finish();
                 }

@@ -58,6 +58,10 @@ public class CommentActivity extends AppCompatActivity {
     //On create will fill this with the unique messageId
     String messageIDGlobal = "";
 
+    //On create will fill this with the unique view which says where comment
+    //is being called from. 0 is for main and 1 is for profile.
+    int viewGlobal = 0;
+
     String check = "";
 
 
@@ -67,7 +71,7 @@ public class CommentActivity extends AppCompatActivity {
     String urlGet = "";
 
     /**
-     * This mehod is called everytime the comment button is pressed, will fill the view with comments
+     * This method is called every time the comment button is pressed, will fill the view with comments
      * @param savedInstanceState
      */
     @Override
@@ -85,9 +89,12 @@ public class CommentActivity extends AppCompatActivity {
         rv.setAdapter(adapter);
 
         String messageId = getIntent().getStringExtra("messageId");
+        final String username = getIntent().getStringExtra("otherUser");
+        int view = getIntent().getIntExtra("view",0);
         urlGet = "https://quiet-taiga-79213.herokuapp.com/comments/"+messageId+"/"+ApplicationWithGlobals.getUsername()+"/"+ApplicationWithGlobals.getKey();
         urlPost = "https://quiet-taiga-79213.herokuapp.com/comments";
         messageIDGlobal = messageId;
+        viewGlobal = view;
         Log.d("Liger", "This MessageId: "+messageId);
 
         refreshList();
@@ -97,8 +104,22 @@ public class CommentActivity extends AppCompatActivity {
         bCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(v.getContext(), MainActivity.class);
-                v.getContext().startActivity(i);
+                //This will refresh the page so the new vote count can be displayed
+                if(viewGlobal == 0){
+                    Intent i = new Intent(v.getContext(), MainActivity.class);
+                    v.getContext().startActivity(i);
+                    //Log.d("button", "click " + position);
+                }
+                else if(viewGlobal == 1){
+                    Intent i = new Intent(v.getContext(), ProfileActivity.class);
+                    i.putExtra("otherUser", username);
+                    v.getContext().startActivity(i);
+                    //Log.d("button", "click " + position);
+                }
+                else{
+                    ApplicationWithGlobals.setKey(0);
+                    ApplicationWithGlobals.setUsername("error");
+                }
             }
         });
 
@@ -249,8 +270,12 @@ public class CommentActivity extends AppCompatActivity {
                 //Calls method from itself to more reliably refill the comment adapter
                 finish();
                 startActivity(getIntent());
-            } else {
-                Toast.makeText(CommentActivity.this, "Error Creating Buzz", Toast.LENGTH_LONG).show();
+            }
+            else if(resultCode == RESULT_CANCELED){
+                Toast.makeText(CommentActivity.this, "Comment Canceled", Toast.LENGTH_LONG).show();
+            }
+            else {
+                Toast.makeText(CommentActivity.this, "Error Creating Comment", Toast.LENGTH_LONG).show();
             }
         }
     }
