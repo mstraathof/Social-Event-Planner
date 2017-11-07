@@ -123,9 +123,7 @@ public class Database {
                 +"user_id Serial PRIMARY KEY,"
                 +"username VARCHAR(255) UNIQUE NOT NULL,"
                 +"realname VARCHAR(255) NOT NULL,"
-                +"email VARCHAR(255) NOT NULL,"
-                +"salt BYTEA,"
-                +"password BYTEA)"
+                +"email VARCHAR(255) NOT NULL)"
             );
             db.mCreateProfileTable = db.mConnection.prepareStatement(
                 "CREATE TABLE IF NOT EXISTS tblProfile ("
@@ -169,7 +167,7 @@ public class Database {
                 +"FOREIGN KEY (username) REFERENCES tblUser (username),"
                 +"FOREIGN KEY (message_id) REFERENCES tblMessage (message_id))"
             );
-            db.mInsertUser = db.mConnection.prepareStatement("INSERT INTO tblUser VALUES (default, ?, ?, ?, ?, ?)");
+            db.mInsertUser = db.mConnection.prepareStatement("INSERT INTO tblUser VALUES (default, ?, ?, ?)");
             db.mInsertUserUnauth = db.mConnection.prepareStatement("INSERT INTO tblUnauthUser VALUES (?, ?, ?)");
             db.mSelectUnauthUserOne = db.mConnection.prepareStatement("SELECT * FROM tblUnauthUser WHERE username=?");
             db.mSelectUnauthUserAll = db.mConnection.prepareStatement("SELECT * FROM tblUnauthUser");
@@ -278,7 +276,7 @@ public class Database {
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
             System.err.println("There is no table to drop");
-            e.printStackTrace();
+            //e.printStackTrace();
             return false;
         }
         return true;
@@ -366,10 +364,6 @@ public class Database {
                 mInsertUser.executeUpdate();
                 mRemoveUnauthUserOne.setString(1, username);    // remove the authorized user from the unauthuser table
                 mRemoveUnauthUserOne.executeUpdate();
-            }
-            else
-            {
-                System.out.println("username not found");
             }
         } catch (SQLException e) {
             e.printStackTrace();
