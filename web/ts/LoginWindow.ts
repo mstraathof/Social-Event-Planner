@@ -95,8 +95,12 @@ class LoginWindow {
          */
         private static onLoginResponse(data: any) {
             GuserKey = data.mLoginData;
+            Gusername = data.mUsername;
             if (data.mStatus === "ok") {
                 $("nav.navbar-default").hide();
+                var x = document.getElementById("Gsignin");
+                x.style.display="none";
+                //$("Gsignin").hide();
                 $('#1').hide();
                 $('#2').hide();
                 NavbarLoggedIn.refresh();

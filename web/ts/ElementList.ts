@@ -68,13 +68,13 @@ class ElementList {
     * refreshUser() updates the list of all messages you have made,
     * liked, disliked, and commented
     */
-    public static refreshUser(username:string) {
+    public static refreshUser(username:string, otherUser:string) {
         // Make sure the singleton is initialized
         ElementList.init();
         // Issue a GET, and then pass the result to update()
         $.ajax({
             type: "GET",
-            url: "/profile/"+username+"/"+GuserKey,
+            url: "/profile/"+otherUser+"/"+username+"/"+GuserKey,
             dataType: "json",
             success: ElementList.update
         });
