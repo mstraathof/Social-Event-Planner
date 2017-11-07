@@ -28,7 +28,7 @@ class NavbarLoggedIn {
             $("#"+NavbarLoggedIn.NAME+"-profile").click(NavbarLoggedIn.loadProfile);
             $("#"+NavbarLoggedIn.NAME+"-viewBuzz").click(NavbarLoggedIn.viewBuzz);
             $("#"+NavbarLoggedIn.NAME+"-logOut").click(NavbarLoggedIn.logOut);
-            $("#"+NavbarLoggedIn.NAME+"-changePass").click(NewPassForm.show);
+            //$("#"+NavbarLoggedIn.NAME+"-changePass").click(NewPassForm.show);
             //$("div.container-fluid well span6").hide();
             //$("div.container-fluid well span6").hide();
             //ProfilePage.show(Gusername);
@@ -43,13 +43,19 @@ class NavbarLoggedIn {
      */
     public static logOut(){
         $.ajax({
-            type: "POST",
-            url: "/logout",
+            type    : "POST",
+            url     : "/logout",
             dataType: "json",
-            data: JSON.stringify({ mUsername: Gusername }),
-            success: NavbarLoggedIn.onLogOutResponse
+            data    : JSON.stringify({ mUsername: Gusername }),
+            success : NavbarLoggedIn.onLogOutResponse
         });
         
+    }
+    public static signOut(){
+        var auth2 = gapi.auth2.getAuthInstance();
+        auth2.signOut().then(function () {
+        console.log('User signed out.');
+        });
     }
     /**
      * Method for the response from the AJAX call to log out
@@ -68,7 +74,7 @@ class NavbarLoggedIn {
      * Method in navbar to allow a user to view all message on The Buzz
      */
     public static viewBuzz(){
-        viewingYours=false;
+        viewingYours = false;
         $("nav.xyz").hide();
         $('body').removeClass('div.container-fluid well span6');
         $("div.container-fluid well span6").hide();

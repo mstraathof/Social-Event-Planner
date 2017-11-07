@@ -31,19 +31,22 @@
                     <a class="btn btn-link" id="NavbarLoggedIn-profile">
                         Profile
                     </a>
-                </li>
+                </li>       
                 <li>
-                    <a class="btn btn-link" id="NavbarLoggedIn-changePass">
-                        Change Password
-                    </a>
-                </li>
-                <li>
-                    <a class="btn btn-link" id="NavbarLoggedIn-logOut">
-                        Log Out
+                    <a class="btn btn-link" id="NavbarLoggedIn-logOut" onclick="signOut();">
+                        Sign Out
                     </a>
                 </li>
                 
             </ul>
+             <script>
+                function signOut() {
+                var auth2 = gapi.auth2.getAuthInstance();
+                auth2.signOut().then(function () {
+                console.log('User signed out.');
+                });
+                 }
+                </script>
         </div>
     </div>
 </nav>

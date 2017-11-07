@@ -37,21 +37,21 @@ class ProfilePage{
             $("#ViewComments").remove();
             ProfilePage.init();
             usernameToDisplay = username;
-            if(usernameToDisplay == Gusername){
+            /*if(usernameToDisplay == Gusername){
                 $.ajax({
                     type: "GET",
                     url: "/profile/"+Gusername+"/"+GuserKey,
                     dataType: "json",
                     success: ProfilePage.onDisplayProfile
                 });
-            }else{
+            }else{*/
                 $.ajax({
                     type: "GET",
                     url: "/profile/"+usernameToDisplay+"/"+Gusername+"/"+GuserKey,
                     dataType: "json",
                     success: ProfilePage.onDisplayProfile
                 });
-            }
+            //}
         }
         /** Method to show the profile of the user passed in in method show(username)
          * data will contain all info of the user from the AJAX call
@@ -59,6 +59,7 @@ class ProfilePage{
          */
         public static onDisplayProfile(data:any){
             if (data.mStatus === "logout") {
+                window.alert(Gkey);
                 window.alert("Session Timed Out");
                 location.reload();
             }
@@ -76,11 +77,11 @@ class ProfilePage{
 
             $("#"+ProfilePage.NAME+"-editBio").click(ProfilePage.editBio);
             
-            if(Gusername == usernameToDisplay){
+            
                 viewingYours=true;
-                ElementList.refreshUser(Gusername);
+                ElementList.refreshUser(Gusername,usernameToDisplay);
                 headers = true;
-            }
+            
             //ProfilePage.init(Gusername);
             //window.alert(username+" is logged in");
         }
