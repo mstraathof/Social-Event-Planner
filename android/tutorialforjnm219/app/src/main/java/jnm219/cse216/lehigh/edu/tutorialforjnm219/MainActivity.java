@@ -43,7 +43,6 @@ import java.util.logging.Handler;
 
 /**
  * Main Activity Will handle all the things that the main page ("Message Page") does, like displaying messages,
- * The menu button for this activity has Register and Login when the user is not logged in yet
  * When the User is logged in, the menu displays Create Buzz, change password, and logout
  */
 public class MainActivity extends AppCompatActivity{
@@ -91,7 +90,7 @@ public class MainActivity extends AppCompatActivity{
         RecyclerView rv = (RecyclerView) findViewById(R.id.message_list_view);
         rv.setLayoutManager(new LinearLayoutManager(this));
         rv.addItemDecoration(new SimpleDividerItemDecoration(this));
-        adapter = new MessageRecyclerAdapter(mMessageData);
+        adapter = new MessageRecyclerAdapter(mMessageData, 0);
         rv.setAdapter(adapter);
 
         String username = ApplicationWithGlobals.getUsername();
@@ -125,23 +124,6 @@ public class MainActivity extends AppCompatActivity{
                 Toast.makeText(MainActivity.this, "Error: User not Logged In", Toast.LENGTH_LONG).show();
             }
         }
-        if (id == R.id.login_settings){
-            Intent i = new Intent(getApplicationContext(), login.class);
-            i.putExtra("topLabel","Log In:");
-            i.putExtra("username","Enter Username:");
-            i.putExtra("password","Enter Password");
-            startActivityForResult(i, 666);
-            return true;
-        }
-
-        if(id == R.id.register_settings){
-            Intent i = new Intent(getApplicationContext(), Register.class);
-            i.putExtra("topLabel","Register for The Buzz");
-            i.putExtra("username","Enter Username:");
-            i.putExtra("password","Enter Password");
-            startActivityForResult(i, 667);
-            return true;
-        }
 
         if(id == R.id.logout_settings)
         {
@@ -149,11 +131,12 @@ public class MainActivity extends AppCompatActivity{
             i.putExtra("topLabel","Are you sure you want to logout?");
             startActivityForResult(i,4);
         }
-        if(id == R.id.change_password_settings)
-        {
-            Intent i = new Intent(getApplicationContext(), changePassword.class);
-            i.putExtra("topLabel","Change Password");
-            startActivityForResult(i,5);
+
+        if(id == R.id.profile_settings){
+            Intent i = new Intent(getApplicationContext(), ProfileActivity.class);
+            String username = ApplicationWithGlobals.getUsername();
+            i.putExtra("otherUser", username);
+            startActivity(i);
         }
 
         return super.onOptionsItemSelected(item);
@@ -217,21 +200,9 @@ public class MainActivity extends AppCompatActivity{
         MenuItem buzz = (MenuItem) optionsMenu.findItem(R.id.create_buzz_settings);
         buzz.setVisible(true);
 
-        //This finds the menuItem for login and makes it hidden
-        MenuItem login = (MenuItem) optionsMenu.findItem(R.id.login_settings);
-        login.setVisible(false);
-
-        //This finds the menuItem for registering and makes it hidden
-        MenuItem register = (MenuItem) optionsMenu.findItem(R.id.register_settings);
-        register.setVisible(false);
-
         //Finds the logout button and makes it hidden
         MenuItem logout = (MenuItem) optionsMenu.findItem(R.id.logout_settings);
         logout.setVisible(true);
-
-        //Makes the change password button hidden
-        MenuItem changePassword = (MenuItem) optionsMenu.findItem(R.id.change_password_settings);
-        changePassword.setVisible(true);
     }
     /**
      * @param requestCode tells you which activity needs to be responded to.
@@ -304,6 +275,9 @@ public class MainActivity extends AppCompatActivity{
                 startActivity(getIntent());
 
             }
+            else if(resultCode == RESULT_CANCELED){
+                Toast.makeText(MainActivity.this, "Buzz Canceled", Toast.LENGTH_LONG).show();
+            }
             else{
                 Toast.makeText(MainActivity.this,"Error Creating Buzz", Toast.LENGTH_LONG).show();
             }
@@ -347,65 +321,6 @@ public class MainActivity extends AppCompatActivity{
             }
             else{
                 Toast.makeText(MainActivity.this,"Logout Cancelled", Toast.LENGTH_LONG).show();
-            }
-        }
-        //Json Request for the Change Password screen
-        if(requestCode == 5)
-        {
-            if(resultCode == RESULT_OK) {
-                String url = "https://quiet-taiga-79213.herokuapp.com/changePassword/"+ApplicationWithGlobals.getUsername();
-
-                Map<String, String> jsonParams = new HashMap<String, String>();
-                final String resultCurrentPassword = intent.getStringExtra("resultCurrentPassword");
-                final String resultNewPassword = intent.getStringExtra("resultNewPassword");
-
-                jsonParams.put("mCurrentPassword",resultCurrentPassword);
-                jsonParams.put("mNewPassword",resultNewPassword);
-                jsonParams.put("mUsername",ApplicationWithGlobals.getUsername());
-                jsonParams.put("mKey",ApplicationWithGlobals.getKey()+"");
-                JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.PUT, url,
-                        new JSONObject(jsonParams),
-                        new Response.Listener<JSONObject>() {
-                            @Override
-                            public void onResponse(JSONObject response){
-                                try {
-                                    check = response.getString("mLoginData");
-                                    if(check == "false")
-                                    {
-                                        refreshLogout();
-                                    }
-                                    Log.e("Liger", "Check: "+response.getString("mLoginData"));
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                                Log.e("Liger","got response");
-                            }
-                        },
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                Log.e("Liger", "JsonObjectRequest() failed: " + error.getMessage());
-
-                            }
-                        }) {
-                    @Override
-                    public Map<String, String> getHeaders() {
-                        HashMap<String, String> headers = new HashMap<String, String>();
-                        headers.put("Content-Type", "application/json; charset=utf-8");
-                        headers.put("User-agent", System.getProperty("http.agent"));
-                        return headers;
-                    }
-                };
-                if(check != "false") {
-                    VolleySingleton.getInstance(this).addToRequestQueue(postRequest);
-                }
-                else{
-                    ApplicationWithGlobals.setKey(0);
-                    ApplicationWithGlobals.setUsername("error");
-                    refreshLogout();
-                }
-                finish();
-                startActivity(getIntent());
             }
         }
     }

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="jnm219.cse216.lehigh.edu.tutorialforjnm219.ProfileActivity"
+    tools:showIn="@layout/profile_activity_layout">
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/comment_list_view"
+        android:layout_height="match_parent"
+        android:layout_marginTop="120dp"
+        android:layout_width="match_parent"
+        tools:layout_editor_absoluteY="8dp"
+        tools:layout_editor_absoluteX="8dp">
+    </android.support.v7.widget.RecyclerView>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp">
+
+        <TextView
+            android:id="@+id/profileUsername"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:text="Username"
+            android:textAlignment="center"
+            android:textStyle="bold"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="20dp"
+            android:layout_toEndOf="@+id/messageItemSubject"
+            android:layout_toRightOf="@+id/messageItemSubject" />
+        <TextView
+            android:id="@+id/profileRealname"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:text="Realname"
+            android:textAlignment="center"
+            android:textStyle="bold"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="40dp"
+            android:layout_toEndOf="@+id/messageItemSubject"
+            android:layout_toRightOf="@+id/messageItemSubject" />
+        <TextView
+            android:id="@+id/profileEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:text="Email"
+            android:textAlignment="center"
+            android:textStyle="bold"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="60dp"
+            android:layout_toEndOf="@+id/messageItemSubject"
+            android:layout_toRightOf="@+id/messageItemSubject" />
+        <TextView
+            android:id="@+id/profileBio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:text="Bio"
+            android:textAlignment="center"
+            android:textStyle="bold"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="80dp"
+            android:layout_toEndOf="@+id/messageItemSubject"
+            android:layout_toRightOf="@+id/messageItemSubject" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp">
+
+        <Button
+            android:id="@+id/profileBioButton"
+            style="@style/Widget.AppCompat.Button.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:onClick="onProfileBioClick"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:text="Edit Bio"
+            android:textAlignment="center"
+            android:textAllCaps="false"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>

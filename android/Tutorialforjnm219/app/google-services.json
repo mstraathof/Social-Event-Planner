@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1080316803619",
+    "project_id": "the-buzz-184104"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1080316803619:android:ad18de5f45d09f78",
+        "android_client_info": {
+          "package_name": "jnm219.cse216.lehigh.edu.tutorialforjnm219"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1080316803619-10h54s88avqqs7ljrt4tiu1g09nd3od5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "jnm219.cse216.lehigh.edu.tutorialforjnm219",
+            "certificate_hash": "9f96efa448ca2411be1769109ff0e7bb32ba6441"
+          }
+        },
+        {
+          "client_id": "1080316803619-flf753te3n99rv3mh90movqrs3eujk3v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAb2KDOdhJYoM58lKwDuLYtmE-J6G4MEKk"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

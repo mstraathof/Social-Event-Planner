@@ -37,11 +37,14 @@ import static android.support.v4.content.ContextCompat.startActivity;
 public class MessageRecyclerAdapter extends RecyclerView.Adapter<MessageRecyclerAdapter.MessageViewHolder>{
 
     private final List<Message> messageList;
+    // Keeps track of where MessageRecyclerAdapter is called from. 0 is Main and 1 is Profile
+    private final int view;
 
     String check = "true";
 
-    public MessageRecyclerAdapter(List<Message> messageList) {
+    public MessageRecyclerAdapter(List<Message> messageList, int view) {
         this.messageList = messageList;
+        this.view = view;
     }
 
     @Override
@@ -67,6 +70,7 @@ public class MessageRecyclerAdapter extends RecyclerView.Adapter<MessageRecycler
         holder.usernameTextView.setText("Username: "+message.mUsername);
         holder.votesTextView.setText("Votes: "+message.mVotes);        // setText needs a string
         holder.createTimeTextView.setText("Time: "+message.mCreateTime);
+        holder.messageProfileButton.setText("" +message.mUsername);
     }
 
     @Override
@@ -92,6 +96,7 @@ public class MessageRecyclerAdapter extends RecyclerView.Adapter<MessageRecycler
         private Button likeButton;
         private Button disLikeButton;
         private Button commentButton;
+        private Button messageProfileButton;
 
         public MessageViewHolder(View itemView) {
             super(itemView);
@@ -104,6 +109,7 @@ public class MessageRecyclerAdapter extends RecyclerView.Adapter<MessageRecycler
             usernameTextView = (TextView) itemView.findViewById(R.id.messageItemUsername);
             commentButton = (Button) itemView.findViewById(R.id.messageCommentButton);
             createTimeTextView = (TextView) itemView.findViewById(R.id.messageItemCreateTime);
+            messageProfileButton = (Button) itemView.findViewById(R.id.messageProfileButton);
             Log.d("Liger", "Username: "+messageId.getText().toString());
 
             /**
@@ -118,6 +124,8 @@ public class MessageRecyclerAdapter extends RecyclerView.Adapter<MessageRecycler
                     Intent i = new Intent(v.getContext(), CommentActivity.class);
                     Log.d("Liger", "Username: "+messageId.getText().toString());
                     i.putExtra("messageId",messageId.getText().toString());
+                    i.putExtra("view",view);
+                    i.putExtra("otherUser", messageProfileButton.getText().toString());
                     v.getContext().startActivity(i);
                 }
             });
@@ -178,9 +186,22 @@ public class MessageRecyclerAdapter extends RecyclerView.Adapter<MessageRecycler
                         ApplicationWithGlobals.setUsername("error");
                     }
                     //This will refresh the page so the new vote count can be displayed
-                    Intent i = new Intent(v.getContext(), MainActivity.class);
-                    v.getContext().startActivity(i);
-                    //Log.d("button", "click " + position);
+                    if(view == 0){
+                        Intent i = new Intent(v.getContext(), MainActivity.class);
+                        v.getContext().startActivity(i);
+                        //Log.d("button", "click " + position);
+                    }
+                    else if(view == 1){
+                        Intent i = new Intent(v.getContext(), ProfileActivity.class);
+                        String username = ApplicationWithGlobals.getUsername();
+                        i.putExtra("otherUser", messageProfileButton.getText().toString());
+                        v.getContext().startActivity(i);
+                        //Log.d("button", "click " + position);
+                    }
+                    else{
+                        ApplicationWithGlobals.setKey(0);
+                        ApplicationWithGlobals.setUsername("error");
+                    }
                 }
             });
             //Click Button handler for the dislike button  Sends a json object with mChangeVote with value -1
@@ -243,18 +264,46 @@ public class MessageRecyclerAdapter extends RecyclerView.Adapter<MessageRecycler
                         ApplicationWithGlobals.setUsername("error");
                     }
                     //This will refresh the page so the new vote count can be displayed
-                    Intent i = new Intent(v.getContext(), MainActivity.class);
-                    v.getContext().startActivity(i);
+                    if(view == 0){
+                        Intent i = new Intent(v.getContext(), MainActivity.class);
+                        v.getContext().startActivity(i);
+                        //Log.d("button", "click " + position);
+                    }
+                    else if(view == 1){
+                        Intent i = new Intent(v.getContext(), ProfileActivity.class);
+                        String username = ApplicationWithGlobals.getUsername();
+                        i.putExtra("otherUser", messageProfileButton.getText().toString());
+                        v.getContext().startActivity(i);
+                        //Log.d("button", "click " + position);
+                    }
+                    else{
+                        ApplicationWithGlobals.setKey(0);
+                        ApplicationWithGlobals.setUsername("error");
+                    }
                 }
             });
 
+            /**
+             * On profile button click, the activity will change to that profile view
+             */
+            messageProfileButton.setOnClickListener(new View.OnClickListener(){
+                public void onClick(View v) {
+                    // onClick() for button is called after onInterceptTouchEvent() stashed adapter position in a global variable.
+                    int position;
+                    ApplicationWithGlobals mApp = (ApplicationWithGlobals)v.getContext().getApplicationContext();
+                    //position = mApp.getPosition();
+
+                    Intent i = new Intent(v.getContext(), ProfileActivity.class);
+                    String username = ApplicationWithGlobals.getUsername();
+                    i.putExtra("otherUser", messageProfileButton.getText().toString());
+                    v.getContext().startActivity(i);
+                }
+            });
 
         }
         void onRecyclerItemClick(){
             int position = getAdapterPosition();
         }
     }
-
-
 }
 

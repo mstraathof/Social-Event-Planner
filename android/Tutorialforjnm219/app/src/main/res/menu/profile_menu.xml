@@ -1,27 +1,23 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="jnm219.cse216.lehigh.edu.tutorialforjnm219.MainActivity">
-
-
+    tools:context="jnm219.cse216.lehigh.edu.tutorialforjnm219.ProfileActivity">
     //Creates a Create a Buzz button in the drop down menu
     <item
         android:id="@+id/create_buzz_settings"
         android:orderInCategory="1"
         android:title="@string/action_settings"
         app:showAsAction="never" />
-    //Creates a Log In button in the drop down menu
+    //Creates a View Messages button in the drop down menu
+    <item
+        android:id="@+id/message_settings"
+        android:orderInCategory="2"
+        android:title="View Messages"
+        app:showAsAction="never" />
+    //Creates a logout button in the drop down menu
     <item
         android:id="@+id/logout_settings"
         android:orderInCategory="3"
         android:title="Log Out"
-        app:showAsAction="never"
-        app:actionViewClass = "android.widget.SearchView"/>
-    <item
-        android:id="@+id/profile_settings"
-        android:orderInCategory="2"
-        android:title="View Profile"
-        app:showAsAction="never"
-        />
-
+        app:showAsAction="never"/>
 </menu>

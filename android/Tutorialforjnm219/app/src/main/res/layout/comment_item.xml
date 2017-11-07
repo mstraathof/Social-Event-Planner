@@ -5,15 +5,42 @@
     android:weightSum="1"
     android:orientation="vertical">
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     <TextView
         android:id="@+id/commentItemUsername"
         android:layout_width="174dp"
         android:layout_height="wrap_content"
         android:text="Username" />
+
     <TextView
         android:id="@+id/commentItemComment"
         android:layout_width="174dp"
         android:layout_height="wrap_content"
-        android:text="Comment" />
+        android:text="Comment"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@+id/commentItemUsername"
+        android:layout_toRightOf="@+id/commentItemUsername" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/commentProfileButton"
+            style="@style/Widget.AppCompat.Button.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onProfileButtonClick"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:text="Profile"
+            android:textAlignment="center"
+            android:textAllCaps="false"
+            android:textSize="14sp" />
+
+    </LinearLayout>
 
 </LinearLayout>
