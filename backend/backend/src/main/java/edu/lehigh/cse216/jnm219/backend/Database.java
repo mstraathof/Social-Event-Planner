@@ -173,8 +173,8 @@ public class Database {
             db.mInsertOneMessage = db.mConnection.prepareStatement("INSERT INTO tblMessage VALUES (default, ?, ?, ?, ?, ?)");
             db.mSelectAllMessage = db.mConnection.prepareStatement("SELECT * FROM tblMessage ORDER BY createTime DESC");
             db.mSelectOneMessage = db.mConnection.prepareStatement("SELECT * from tblMessage WHERE message_id=?");
-            db.mInsertUser = db.mConnection.prepareStatement("Insert into tblUnauthUser Values (?, ?, ?)");
-            db.mSelectOneUser = db.mConnection.prepareStatement("Select * from tblUser where username=? and password=?");
+            db.mInsertUser = db.mConnection.prepareStatement("Insert into tblUser Values (default, ?, ?, ?)");
+            db.mSelectOneUser = db.mConnection.prepareStatement("Select * from tblUser where username=?");
             db.mSelectAllUser = db.mConnection.prepareStatement("Select * from tblUser");
             db.mUpdateUser = db.mConnection.prepareStatement("Update tblUser Set Password=?, salt=? where username=?");
             db.mInsertComment = db.mConnection.prepareStatement("Insert into tblComment values (default, ?, ?, ?, ?)");
@@ -254,12 +254,11 @@ public class Database {
      * selecting one user with matching username and password to see
      * a user exist
      */
-    boolean selectOneUser(String username, byte [] password) 
+    boolean selectOneUser(String username) 
     {
         boolean check=false;
         try {
             mSelectOneUser.setString(1, username);
-            mSelectOneUser.setBytes(2, password);
             ResultSet rs = mSelectOneUser.executeQuery();
             if (!rs.next()) 
             {
@@ -671,6 +670,7 @@ public class Database {
         }
         return true;
     }
+
 }
 
 /** 
