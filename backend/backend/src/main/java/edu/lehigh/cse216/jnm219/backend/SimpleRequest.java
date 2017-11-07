@@ -57,4 +57,6 @@ public class SimpleRequest {
      * A new password provided by the client.
      */
     public String mNewPassword;
+
+    public String token_id;
 }

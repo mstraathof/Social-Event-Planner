@@ -33,6 +33,11 @@ import static android.support.v4.content.ContextCompat.startActivity;
  */
 public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecyclerAdapter.CommentViewHolder>{
 
+    private final List<Comment> CommentList;
+
+    public CommentRecyclerAdapter(List<Comment> CommentList) {
+        this.CommentList = CommentList;
+    }
     @Override
     public CommentViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
@@ -50,6 +55,7 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
     public void onBindViewHolder(CommentViewHolder holder, int position) {
         final Comment Comment = CommentList.get(position);
         holder.CommentTextView.setText("Comment: " + Comment.mComment);
+        holder.commentProfileButton.setText(""+Comment.mUsername);
         holder.usernameTextView.setText("Username: "+ Comment.mUsername);
     }
 
@@ -69,21 +75,37 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
         //private final RecyclerItemClickListener mListenerInternal;
         private TextView CommentTextView;
         private TextView usernameTextView;
+        private Button commentProfileButton;
 
         public CommentViewHolder(View itemView) {
             super(itemView);
             CommentTextView = (TextView) itemView.findViewById(R.id.commentItemComment);
             usernameTextView = (TextView) itemView.findViewById(R.id.commentItemUsername);
+            commentProfileButton = (Button) itemView.findViewById(R.id.commentProfileButton);
 
-        }
+
+        /**
+         * On profile button click, the activity will change to that profile view
+         */
+        commentProfileButton.setOnClickListener(new View.OnClickListener(){
+            public void onClick (View v){
+
+            // onClick() for button is called after onInterceptTouchEvent() stashed adapter position in a global variable.
+            int position;
+            ApplicationWithGlobals mApp = (ApplicationWithGlobals) v.getContext().getApplicationContext();
+            //position = mApp.getPosition();
+
+            Intent i = new Intent(v.getContext(), ProfileActivity.class);
+            String username = ApplicationWithGlobals.getUsername();
+            i.putExtra("otherUser", commentProfileButton.getText().toString());
+            v.getContext().startActivity(i);
+            }
+        });
+    }
+
         void onRecyclerItemClick(){
             int position = getAdapterPosition();
         }
-    }
-    private final List<Comment> CommentList;
-
-    public CommentRecyclerAdapter(List<Comment> CommentList) {
-        this.CommentList = CommentList;
     }
 
 }

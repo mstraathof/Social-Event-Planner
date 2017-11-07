@@ -24,6 +24,7 @@ public class Structured_login {
      */
     public Object mLoginData;
 
+    public String mUsername;
     /**
      * Construct a Structured_login by providing a status, message, and data.
      * If the status is not provided, set it to "invalid".
@@ -32,9 +33,10 @@ public class Structured_login {
      * @param message The message to go along with an error status
      * @param object An object with additional data to send to the client
      */
-    public Structured_login(String status, String message, Object data) {
+    public Structured_login(String status, String message, Object data, String username) {
         mStatus = (status != null) ? status : "invalid";
         mMessage = message;
         mLoginData = data;
+        mUsername = username;
     }
 }
