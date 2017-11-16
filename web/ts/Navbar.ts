@@ -42,7 +42,7 @@ class Navbar {
         }
     }
      private static onLoginResponse(data: any) {
-         window.alert("hi");
+         //window.alert("hi");
             GuserKey  = data.mLoginData;
             Gusername = data.mUsername;
             if (data.mStatus === "ok") {

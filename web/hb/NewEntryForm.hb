@@ -9,6 +9,8 @@
                 <input class="form-control" type="text" id="NewEntryForm-title" />
                 <label for="NewEntryForm-message">Message</label>
                 <textarea class="form-control" id="NewEntryForm-message"></textarea>
+                <label for="NewEntryForm-file">Upload File</label>
+                <input type="file" id="fileUpload" />
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" id="NewEntryForm-OK">OK</button>

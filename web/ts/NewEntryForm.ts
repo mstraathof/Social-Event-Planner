@@ -69,6 +69,8 @@ class NewEntryForm {
             // that neither is empty
             let title = "" + $("#" + NewEntryForm.NAME + "-title").val();
             let msg = "" + $("#" + NewEntryForm.NAME + "-message").val();
+// !!!!!!!!!!!
+            let file = "" + $("#" + NewEntryForm.NAME + "-file").val();
             if(msg.length >= 500)
             {
                 window.alert("Error: Message exceeds 500");
@@ -87,6 +89,7 @@ class NewEntryForm {
             // set up an AJAX post.  When the server replies, the result will go to
             // onSubmitResponse
             $.ajax({
+    // add fields to ajax call
                 type: "POST",
                 url: "/messages",
                 dataType: "json",

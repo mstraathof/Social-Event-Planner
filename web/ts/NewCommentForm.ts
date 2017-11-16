@@ -66,6 +66,8 @@ class NewCommentForm {
         private static submitForm() {
             // get the values of the two fields, force them to be strings, and check 
             // that neither is empty
+// !!!!!!!!!!!
+            let file = "" + $("#" + NewCommentForm.NAME + "-file").val();
             let comment = "" + $("#" + NewCommentForm.NAME + "-comment").val();
             if(comment == ""){
                 window.alert("Cannot post empty comment");
