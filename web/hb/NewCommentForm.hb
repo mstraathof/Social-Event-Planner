@@ -7,6 +7,8 @@
             <div class="modal-body">
                 <label for="NewCommentForm-comment">Comment:</label>
                 <input class="form-control" type="text" id="NewCommentForm-comment" />
+                <label for="NewCommentForm-url">URL</label>
+                <input type="url" id="NewCommentForm-url" />
                 <label for="NewCommentForm-file">Upload File</label>
                 <input type="file" id="fileUpload" />
             </div>

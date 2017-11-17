@@ -68,6 +68,7 @@ class NewCommentForm {
             // that neither is empty
 // !!!!!!!!!!!
             let file = "" + $("#" + NewCommentForm.NAME + "-file").val();
+            let url = "" + $("#" + NewCommentForm.NAME + "-url").val();            
             let comment = "" + $("#" + NewCommentForm.NAME + "-comment").val();
             if(comment == ""){
                 window.alert("Cannot post empty comment");

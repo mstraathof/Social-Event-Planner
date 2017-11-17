@@ -57,6 +57,8 @@ class NewEntryForm {
         public static show() {
             $("#" + NewEntryForm.NAME + "-title").val("");
             $("#" + NewEntryForm.NAME + "-message").val("");
+            $("#" + NewEntryForm.NAME + "-url").val("");
+            $("#" + NewEntryForm.NAME + "-file").val("");
             $("#" + NewEntryForm.NAME).modal("show");
         }
         /**
@@ -70,32 +72,65 @@ class NewEntryForm {
             let title = "" + $("#" + NewEntryForm.NAME + "-title").val();
             let msg = "" + $("#" + NewEntryForm.NAME + "-message").val();
 // !!!!!!!!!!!
+            let url = "" + $("#" + NewEntryForm.NAME + "-url").val();
             let file = "" + $("#" + NewEntryForm.NAME + "-file").val();
             if(msg.length >= 500)
             {
-                window.alert("Error: Message exceeds 500");
+                window.alert("Error: Message cannot exceed 500 characters");
                 return;
             }
             if(title.length >= 50)
             {
-                window.alert("Error: Title exceeds 50");
+                window.alert("Error: Title cannot exceed 50 characters");
                 return;
             }
             if (title === "" || msg === "") {
-                window.alert("Error: title or message is not valid");
+                window.alert("Error: Title and message cannot be blank");
                 return;
             }
+            // TODO: validate url
             NewEntryForm.hide();
             // set up an AJAX post.  When the server replies, the result will go to
             // onSubmitResponse
+            /*
             $.ajax({
-    // add fields to ajax call
                 type: "POST",
                 url: "/messages",
                 dataType: "json",
                 data: JSON.stringify({ mSubject: title, mMessage: msg, mUsername: Gusername, mKey: GuserKey }),
                 success: NewEntryForm.onSubmitResponse
+                // failure: alert "upload failed. please retry"
             });
+            */
+            //var formData = new FormData($("#" + NewEntryForm.NAME + "-form"));
+            var formData = new FormData(<HTMLFormElement>document.getElementById(NewEntryForm.NAME + "-form"));
+            //var formData = new FormData();
+            formData.append('name','mira');
+            formData.append('title',document.getElementById(NewEntryForm.NAME + "-title").nodeValue);
+            console.log(document.getElementById(NewEntryForm.NAME + "-form").nodeName);
+            //console.log(document.getElementById(NewEntryForm.NAME + "-form").toString);
+            /*
+            $.ajax({
+                type: "POST",
+                url: "/messages",
+                dataType: "json",
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: NewEntryForm.onSubmitResponse
+                // failure: alert "upload failed. please retry"
+            });
+            */
+            console.log("formData:");
+            for (var value of formData.values()) {
+                console.log(value); 
+            }
+            console.log("after loop");
+            console.log("name: " + formData.get("name"));
+            console.log("title: " + formData.get("title"));
+            console.log("message: " + formData.get("message"));
+            console.log("url: " + formData.get("url"));
+            console.log("after formData");
         }
     
         /**
