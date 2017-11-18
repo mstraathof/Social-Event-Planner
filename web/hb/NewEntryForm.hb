@@ -11,7 +11,7 @@
                 <label for="NewEntryForm-message">Message</label>
                 <textarea class="form-control" id="NewEntryForm-message" name="message"></textarea>
                 <label for="NewEntryForm-url">URL</label>
-                <input type="url" id="NewEntryForm-url" name="url" />
+                <input class="form-control" type="url" id="NewEntryForm-url" name="url" />
                 <label for="NewEntryForm-file">Upload File</label>
                 <input type="file" id="NewEntryForm-file" name="file" />
             </div>

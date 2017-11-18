@@ -1,6 +1,6 @@
 <div class="panel panel-default" id="ViewComments">
 
-    <td><button class="ViewComments-addComment" data-value="{{this.mMessageId}}">Add a new comment</button></td>
+    <td><button class="ViewComments-addComment" data-value="{{this.mMessageId}}">Add a comment</button></td>
 
     <table class="table">
         <tbody>

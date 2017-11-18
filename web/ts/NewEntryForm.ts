@@ -108,16 +108,18 @@ class NewEntryForm {
             */
             //var formData = new FormData(<HTMLFormElement>document.getElementById(NewEntryForm.NAME + "-form"));
             var formData = new FormData();
-            formData.append('title', title);            
-            formData.append('message', message);
-            formData.append('url', url);
-            formData.append('file', file);
+            formData.append('mUsername', Gusername);            
+            formData.append('mKey', "" + GuserKey);            
+            formData.append('mSubject', title);            
+            formData.append('mMessage', message);
+            formData.append('mUrl', url);
+            formData.append('mFile', file);
 
             $.ajax({
                 type: "POST",
-                //url: "/messages",
-                url: "https://forums.wholetomato.com/mira/echo.aspx",
-                //dataType: "json",      // dataType of response to POST
+                url: "/messages",
+                //url: "https://forums.wholetomato.com/mira/echo.aspx",
+                dataType: "json",      // dataType of response to POST
                 data: formData,
                 contentType: false,
                 processData: false,
@@ -133,7 +135,7 @@ class NewEntryForm {
          */
         private static onSubmitResponse(data: any) {
             
-            console.log("response to POST: " + data);   // DEBUG
+            //console.log("response to POST: " + data);   // DEBUG
 
             // If we get an "ok" message, clear the form and refresh the main 
             // listing of messages

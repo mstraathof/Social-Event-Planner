@@ -65,7 +65,7 @@
         </tbody>
     </table>
 
-    <h4 id="commented">Comments</h4>
+    <h4 id="commented">Your Comments</h4>
     <table class="table">
         <tbody>
             {{#each mCommentData}}

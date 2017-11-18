@@ -7,14 +7,10 @@
         
         <div class="span8">
             <h3>{{this.mProfileData.mUsername}}</h3>
-            <h6>Email: {{this.mProfileData.mEmail}}</h6>
-            <h6>Real Name: {{this.mProfileData.mRealName}}</h6>
-            <h6>{{this.mProfileData.mProfile}}</h6>
-
+            <h5>{{this.mProfileData.mRealName}}</h5>
+            <h5><a href="mailto:{{this.mProfileData.mEmail}}">{{this.mProfileData.mEmail}}</a></h5>
             <button type="button" class="btn btn-info" id="ProfilePage-editBio">Edit Bio</button>
-                    
         </div>
-
     </div>
 </div>
 </nav>

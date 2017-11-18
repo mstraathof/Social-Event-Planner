@@ -2,11 +2,10 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">New Bio Form</h4>
+                <h4 class="modal-title">Edit Bio</h4>
             </div>
             <div class="modal-body">
-
-                <label for="EditBio-newBio">Enter a new Bio: </label>
+                <label for="EditBio-newBio"></label>
                 <textarea class="form-control" id="EditBio-newBio"></textarea>
             </div>
             <div class="modal-footer">
