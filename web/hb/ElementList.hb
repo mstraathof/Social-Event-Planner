@@ -1,5 +1,5 @@
 <div class="panel panel-default" id="ElementList">
-    <h2 id="yours">Your Messages/Buzz's</h2>
+    <h4 id="yours">Your Buzzes</h4>
     <table class="table">
         <tbody>
             {{#each mMessageData}}
@@ -10,7 +10,6 @@
                 
                 <td>{{this.mCreateTime}}</td>
                 <td>{{this.mVotes}}</td>
-
 
                 <!-- Data For both Edit and Delete Buttons on each Entry
                 <td><button class="ElementList-editbtn" data-value="{{this.mId}}"data-message="{{this.mMessage}}"data-subject="{{this.mSubject}}">Edit</button></td>
@@ -24,7 +23,7 @@
         </tbody>
     </table>
 
-    <h2 id="liked">Liked Messages</h2>
+    <h4 id="liked">Your Upvoted Buzzes</h4>
     <table class="table">
         <tbody>
             {{#each mLikedData}}
@@ -45,7 +44,7 @@
         </tbody>
     </table>
 
-    <h2 id="disliked">Disliked Messages</h2>
+    <h4 id="disliked">Your Downvoted Buzzes</h4>
     <table class="table">
         <tbody>
             {{#each mDislikedData}}
@@ -66,18 +65,15 @@
         </tbody>
     </table>
 
-    <h2 id="commented">Comments</h2>
+    <h4 id="commented">Comments</h4>
     <table class="table">
         <tbody>
             {{#each mCommentData}}
             <tr>
                 <!-- This element has info on all the values in mData -->
-
                 <td>{{this.mComment}}</td>
-                
                 <td>{{this.mCreateTime}}</td>
                 <td>{{this.mUsername}}</td>
-
             </tr>
             {{/each}}
         </tbody>

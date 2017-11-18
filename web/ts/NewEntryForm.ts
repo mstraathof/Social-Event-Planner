@@ -55,8 +55,8 @@ class NewEntryForm {
          * with those ways of making the modal disappear.
          */
         public static show() {
-            $("#" + NewEntryForm.NAME + "-title").val("");
-            $("#" + NewEntryForm.NAME + "-message").val("");
+            $("#" + NewEntryForm.NAME + "-title").val("foo");
+            $("#" + NewEntryForm.NAME + "-message").val("bar");
             $("#" + NewEntryForm.NAME + "-url").val("");
             $("#" + NewEntryForm.NAME + "-file").val("");
             $("#" + NewEntryForm.NAME).modal("show");
@@ -67,14 +67,13 @@ class NewEntryForm {
          * their click was received.
          */
         private static submitForm() {
-            // get the values of the two fields, force them to be strings, and check 
-            // that neither is empty
-            let title = "" + $("#" + NewEntryForm.NAME + "-title").val();
-            let msg = "" + $("#" + NewEntryForm.NAME + "-message").val();
-// !!!!!!!!!!!
+            // get form fields
+            let title = "" + $("#" + NewEntryForm.NAME + "-title").val();   // prepend "" to force into a string
+            let message = "" + $("#" + NewEntryForm.NAME + "-message").val();
             let url = "" + $("#" + NewEntryForm.NAME + "-url").val();
-            let file = "" + $("#" + NewEntryForm.NAME + "-file").val();
-            if(msg.length >= 500)
+            let file = $("#" + NewEntryForm.NAME + "-file")[0].files[0];
+
+            if(message.length >= 500)
             {
                 window.alert("Error: Message cannot exceed 500 characters");
                 return;
@@ -84,15 +83,20 @@ class NewEntryForm {
                 window.alert("Error: Title cannot exceed 50 characters");
                 return;
             }
-            if (title === "" || msg === "") {
-                window.alert("Error: Title and message cannot be blank");
+            if (title === "") {
+                window.alert("Error: Title cannot be blank");
+                return;
+            }
+            if (message === "") {
+                window.alert("Error: Message cannot be blank");
                 return;
             }
             // TODO: validate url
-            NewEntryForm.hide();
-            // set up an AJAX post.  When the server replies, the result will go to
-            // onSubmitResponse
+            NewEntryForm.hide();        // close modal dialog.
+
+            // set up an AJAX post.  When the server replies, the onSubmitResponse will be called.
             /*
+            // simple, one-part POST before requirement to send a file to the backend server.
             $.ajax({
                 type: "POST",
                 url: "/messages",
@@ -102,35 +106,23 @@ class NewEntryForm {
                 // failure: alert "upload failed. please retry"
             });
             */
-            //var formData = new FormData($("#" + NewEntryForm.NAME + "-form"));
-            var formData = new FormData(<HTMLFormElement>document.getElementById(NewEntryForm.NAME + "-form"));
-            //var formData = new FormData();
-            formData.append('name','mira');
-            formData.append('title',document.getElementById(NewEntryForm.NAME + "-title").nodeValue);
-            console.log(document.getElementById(NewEntryForm.NAME + "-form").nodeName);
-            //console.log(document.getElementById(NewEntryForm.NAME + "-form").toString);
-            /*
+            //var formData = new FormData(<HTMLFormElement>document.getElementById(NewEntryForm.NAME + "-form"));
+            var formData = new FormData();
+            formData.append('title', title);            
+            formData.append('message', message);
+            formData.append('url', url);
+            formData.append('file', file);
+
             $.ajax({
                 type: "POST",
-                url: "/messages",
-                dataType: "json",
+                //url: "/messages",
+                url: "https://forums.wholetomato.com/mira/echo.aspx",
+                //dataType: "json",      // dataType of response to POST
                 data: formData,
                 contentType: false,
                 processData: false,
                 success: NewEntryForm.onSubmitResponse
-                // failure: alert "upload failed. please retry"
             });
-            */
-            console.log("formData:");
-            for (var value of formData.values()) {
-                console.log(value); 
-            }
-            console.log("after loop");
-            console.log("name: " + formData.get("name"));
-            console.log("title: " + formData.get("title"));
-            console.log("message: " + formData.get("message"));
-            console.log("url: " + formData.get("url"));
-            console.log("after formData");
         }
     
         /**
@@ -141,6 +133,8 @@ class NewEntryForm {
          */
         private static onSubmitResponse(data: any) {
             
+            console.log("response to POST: " + data);   // DEBUG
+
             // If we get an "ok" message, clear the form and refresh the main 
             // listing of messages
             if (data.mStatus === "logout") {

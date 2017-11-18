@@ -77,15 +77,33 @@ class NewCommentForm {
                 window.alert("Comment too long");
             }
             NewCommentForm.hide();
+            var formData = new FormData();
+            formData.append('comment', comment);
+            formData.append('file', file);
+            formData.append('url', url);
             // set up an AJAX post.  When the server replies, the result will go to
             // onSubmitResponse
             //window.alert(mesID+" , "+comment+" , "+Gusername);
+            /*
             $.ajax({
                 type: "POST",
                 url: "/comments",
                 dataType: "json",
                 data: JSON.stringify({ mUsername: Gusername, mMessageId: mesID, mComment: comment, mKey: GuserKey }),
                 success: NewCommentForm.onSubmitResponse
+            });
+            */
+            $.ajax({
+                type: "POST",
+                url: "/comments",
+                //url: "https://forums.wholetomato.com/mira/echo.aspx",
+                //dataType: "json",      // dataType of response to POST
+                data: formData,
+                crossDomain: true,
+                contentType: false,
+                processData: false,
+                success: NewCommentForm.onSubmitResponse
+                // failure: alert "upload failed. please retry"
             });
         }
     

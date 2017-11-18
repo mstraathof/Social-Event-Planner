@@ -44,11 +44,10 @@ class ElementList {
         //window.alert("Username: "+ Gusername);
         if(viewingYours==true){
             headers = true;
-            ElementList.refreshUser(Gusername);
+            ElementList.refreshUser(Gusername, /* otherUser */ Gusername);
         }else{
             ElementList.refreshAll();
         }
-
     }
     /**
     * refreshAll() updates the list of all messages on TheBuzz
@@ -60,7 +59,7 @@ class ElementList {
         $.ajax({
             type: "GET",
             url: "/messages",
-            dataType: "json",
+            dataType: "json",           // JSON response will contain only all buzzes, not voted buzzes or comments.
             success: ElementList.update
         });
     }
@@ -74,12 +73,11 @@ class ElementList {
         // Issue a GET, and then pass the result to update()
         $.ajax({
             type: "GET",
-            url: "/profile/"+otherUser+"/"+username+"/"+GuserKey,
-            dataType: "json",
+            url: "/profile/" + otherUser + "/" + username + "/" + GuserKey,
+            dataType: "json",           // JSON response will contain buzzes, voted buzzes, and comments of one user.
             success: ElementList.update
         });
     }
-    
 
     /**
     * update() is the private method used by refresh() to update the 

@@ -24,7 +24,7 @@
                 </li>
                 <li>
                     <a class="btn btn-link" id="NavbarLoggedIn-viewBuzz">
-                        View Buzz's
+                        View All Buzzes
                     </a>
                 </li>
                 <li>
@@ -37,16 +37,15 @@
                         Sign Out
                     </a>
                 </li>
-                
             </ul>
              <script>
                 function signOut() {
-                var auth2 = gapi.auth2.getAuthInstance();
-                auth2.signOut().then(function () {
-                console.log('User signed out.');
-                });
-                 }
-                </script>
+                    var auth2 = gapi.auth2.getAuthInstance();
+                    auth2.signOut().then(function () {
+                        console.log('User signed out.');
+                    });
+                }
+            </script>
         </div>
     </div>
 </nav>
