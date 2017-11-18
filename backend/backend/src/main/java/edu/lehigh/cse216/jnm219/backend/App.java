@@ -2,6 +2,9 @@ package edu.lehigh.cse216.jnm219.backend;
 
 // Import the Spark package, so that we can make use of the "get" function to 
 // create an HTTP GET route
+import com.google.api.client.googleapis.json.GoogleJsonError;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+import com.google.api.client.http.FileContent;
 import spark.Spark;
 
 // Import Google's JSON library
@@ -13,6 +16,8 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.http.HttpRequest; 
+import com.google.api.client.http.HttpRequestInitializer; 
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 
@@ -41,12 +46,24 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Collections;
 
+import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.Drive.Files;
+import com.google.api.services.drive.model.File;
+import com.google.api.services.drive.model.FileList;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.List;
+
 /**
  * For now, our app creates an HTTP server that can only get and add data.
  */
 public class App {
+
     private static final HttpTransport transport = new NetHttpTransport();
     private static final JsonFactory jsonFactory = new JacksonFactory();
+    
+    
 /**
  * Get an integer environment varible if it exists, and otherwise return the
  * default value.
@@ -56,6 +73,42 @@ public class App {
  * 
  * @returns The best answer we could come up with for a value for envar
  */
+    public static void DriveTest() throws IOException {
+        Drive service;
+        try {
+            service = Connect.getDriveService();
+
+            // Print the names and IDs for up to 10 files.
+            FileList result = service.files().list()
+                    .setMaxResults(10)
+                    .execute();
+            List<File> files = result.getItems();
+            if (files == null || files.size() == 0) {
+                System.out.println("No files found.");
+            } else {
+                System.out.println("Files:");
+                for (File file : files) {
+                    System.out.printf("%s (%s)\n",file.getTitle(),file.getId());
+                }
+            }
+
+            File fileMetadata = new File();
+            fileMetadata.setTitle("harambe2.jpg");
+            java.io.File filepath = new java.io.File("C:\\Users\\Jack\\Pictures\\Saved Pictures\\harambe.jpg");
+            FileContent mediaContent = new FileContent("image/jpeg", filepath);
+            File file = service.files().insert(fileMetadata, mediaContent)
+                    .setFields("id")
+                    .execute();
+            System.out.println("File ID: " + file.getId());
+
+            // End try
+
+        } catch (GoogleJsonResponseException e){
+            System.out.println("Google Drive Connetion Failure");
+            GoogleJsonError error = e.getDetails();
+            System.out.print(error);
+        }
+    }
     static int getIntFromEnv(String envar, int defaultVal) {
         ProcessBuilder processBuilder = new ProcessBuilder();
         if (processBuilder.environment().get(envar) != null) {
@@ -157,6 +210,12 @@ public class App {
         // Get a fully-configured connection to the database, or exit 
         // immediately
         Database db = Database.getDatabase(1);
+
+        try{
+            DriveTest();
+        }catch(IOException e){
+            System.out.println("IO EXCEPTION FOUND: "+e);
+        }
 
         // Set up the location for serving static files.  If the STATIC_LOCATION
         // environment variable is set, we will serve from it.  Otherwise, serve
@@ -276,7 +335,8 @@ public class App {
         //This get route returns all the attribute of all the messages
         Spark.get("/messages", (request, response) -> {
             response.status(200);
-            response.type("application/json"); 
+            response.type("application/json");
+            DriveTest(); 
             return gson.toJson(new StructuredMessage("ok", null, db.selectAllMessage()));
         });
         // This post route allows user to create the messagge to the table

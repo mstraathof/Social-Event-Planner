@@ -39,52 +39,79 @@
       <artifactId>google-api-client</artifactId>
       <version>1.23.0</version>
     </dependency>
-
+    <dependency>
+      <groupId>com.google.apis</groupId>
+      <artifactId>google-api-services-drive</artifactId>
+      <version>v2-rev285-1.23.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.api-client</groupId>
+      <artifactId>google-api-client-java6</artifactId>
+      <version>1.22.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.oauth-client</groupId>
+      <artifactId>google-oauth-client-jetty</artifactId>
+      <version>1.22.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.http-client</groupId>
+      <artifactId>google-http-client-jackson2</artifactId>
+      <version>1.22.0</version>
+    </dependency>
   </dependencies>
   <build>
+    <resources>
+      <resource>
+       <directory>src/main/resources</directory> 
+        <includes>
+          <include>**/*</include>
+        </includes>
+      </resource>
+    </resources>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.6.1</version>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>1.6.0</version>
-        <configuration>
-          <mainClass>edu.lehigh.cse216.jnm219.backend.App</mainClass>
-        </configuration>
-      </plugin>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-compiler-plugin</artifactId>
+      <version>3.6.1</version>
+      <configuration>
+        <source>1.8</source>
+        <target>1.8</target>
+      </configuration>
+    </plugin>
+    <plugin>
+      <groupId>org.codehaus.mojo</groupId>
+      <artifactId>exec-maven-plugin</artifactId>
+      <version>1.6.0</version>
+      <configuration>
+        <mainClass>edu.lehigh.cse216.jnm219.backend.App</mainClass>
+      </configuration>
+    </plugin>
 
-      <plugin>
-    <groupId>com.heroku.sdk</groupId>
-    <artifactId>heroku-maven-plugin</artifactId>
-    <version>1.2.0</version>
-    <configuration>
+    <plugin>
+      <groupId>com.heroku.sdk</groupId>
+      <artifactId>heroku-maven-plugin</artifactId>
+      <version>1.2.0</version>
+      <configuration>
         <jdkVersion>1.8</jdkVersion>
         <appName>quiet-taiga-79213</appName> 
         <processTypes>
             <web>java -jar ./target/backend-1.0-SNAPSHOT-jar-with-dependencies.jar</web>
         </processTypes>
-    </configuration>
-  </plugin>
+      </configuration>
+    </plugin>
 
-  <plugin>
-    <artifactId>maven-assembly-plugin</artifactId>
-    <executions>
+    <plugin>
+      <artifactId>maven-assembly-plugin</artifactId>
+      <executions>
         <execution>
             <phase>package</phase>
             <goals>
                 <goal>single</goal>
             </goals>
         </execution>
-    </executions>
-    <configuration>
+      </executions>
+      <configuration>
         <descriptorRefs>
             <descriptorRef>jar-with-dependencies</descriptorRef>
         </descriptorRefs>
@@ -92,9 +119,9 @@
             <manifest>
                 <mainClass>edu.lehigh.cse216.jnm219.backend.App</mainClass>
             </manifest>
-        </archive>
-    </configuration>
-</plugin>
+          </archive>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 </project>
