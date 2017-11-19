@@ -13,16 +13,16 @@
       },
       "oauth_client": [
         {
-          "client_id": "1080316803619-10h54s88avqqs7ljrt4tiu1g09nd3od5.apps.googleusercontent.com",
+          "client_id": "1080316803619-flf753te3n99rv3mh90movqrs3eujk3v.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "1080316803619-1qcf02lhenq022dl3qftfjf2h15fernj.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "jnm219.cse216.lehigh.edu.tutorialforjnm219",
             "certificate_hash": "9f96efa448ca2411be1769109ff0e7bb32ba6441"
           }
-        },
-        {
-          "client_id": "1080316803619-flf753te3n99rv3mh90movqrs3eujk3v.apps.googleusercontent.com",
-          "client_type": 3
         }
       ],
       "api_key": [

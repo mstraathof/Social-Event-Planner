@@ -3,6 +3,9 @@
     package="jnm219.cse216.lehigh.edu.tutorialforjnm219">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-feature android:name="android.hardware.camera2.full" />
 
     <application
         android:name=".ApplicationWithGlobals"
@@ -41,6 +44,11 @@
             android:name=".CreateBuzzActivity"
             android:label="@string/title_activity_second"
             android:theme="@style/AppTheme.NoActionBar">
+            //added
+                <intent-filter>
+                    <action android:name="android.intent.action.MAIN" />
+                    <category android:name="android.intent.category.LAUNCHER" />
+                </intent-filter>
         </activity>
         <activity
             android:name=".login"
@@ -72,6 +80,7 @@
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
+
     </application>
 
 </manifest>

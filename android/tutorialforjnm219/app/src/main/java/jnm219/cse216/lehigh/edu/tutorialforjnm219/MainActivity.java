@@ -34,12 +34,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Handler;
+
+import javax.net.ssl.HttpsURLConnection;
 
 /**
  * Main Activity Will handle all the things that the main page ("Message Page") does, like displaying messages,
@@ -148,6 +153,36 @@ public class MainActivity extends AppCompatActivity{
     public void refreshList()
     {
         String url = "https://quiet-taiga-79213.herokuapp.com/messages";
+        URL urlType = null;
+        try {
+            urlType = new URL("https://quiet-taiga-79213.herokuapp.com/messages");
+        }catch(MalformedURLException e){
+            //wat
+        }
+        /////
+        HttpsURLConnection conn = null;
+        try {
+            conn = (HttpsURLConnection) urlType.openConnection();
+        }catch(IOException e){
+            //wat
+        }
+        //if(conn !=null) {
+        long currentTime = System.currentTimeMillis();
+        long expires = conn.getHeaderFieldDate("Expires", currentTime);
+        long lastModified = conn.getHeaderFieldDate("Last-Modified", currentTime);
+        long lastUpdateTime = 0;
+        //}
+
+        // lastUpdateTime represents when the cache was last updated.
+        if (lastModified < lastUpdateTime) {
+            //skip update
+            Toast.makeText(MainActivity.this,"hit skip update", Toast.LENGTH_LONG).show();
+        } else {
+            // Parse update
+            Toast.makeText(MainActivity.this,"hit do update", Toast.LENGTH_LONG).show();
+            lastUpdateTime = lastModified;
+        }
+        /////
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
