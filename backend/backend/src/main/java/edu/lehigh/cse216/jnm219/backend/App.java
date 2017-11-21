@@ -4,7 +4,7 @@ package edu.lehigh.cse216.jnm219.backend;
 // create an HTTP GET route
 import com.google.api.client.googleapis.json.GoogleJsonError;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
-import com.google.api.client.http.FileContent;
+import com.google.api.client.http.*;
 import spark.Spark;
 
 // Import Google's JSON library
@@ -14,15 +14,15 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 
-import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.http.HttpRequest; 
-import com.google.api.client.http.HttpRequestInitializer; 
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
+import java.security.Permission;
+import java.sql.Array;
 import java.util.Arrays;
 
 //Importing the ability to access the database from Postgres
@@ -32,12 +32,14 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.Hashtable;
 import java.util.Enumeration;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.SecretKeyFactory;
+import javax.servlet.MultipartConfigElement;
+import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Part;
 import java.math.BigInteger;
 import java.security.spec.InvalidKeySpecException;
 import java.io.IOException;
@@ -50,14 +52,25 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.Drive.Files;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
+import spark.utils.IOUtils;
 
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
+
+/*
+import java.io.IOException;
+import net.spy.memcached.AddrUtil;
+import net.spy.memcached.MemcachedClient;
+import net.spy.memcached.ConnectionFactoryBuilder;
+import net.spy.memcached.auth.PlainCallbackHandler;
+import net.spy.memcached.auth.AuthDescriptor;
+*/
 
 /**
  * For now, our app creates an HTTP server that can only get and add data.
  */
+//@WebServlet("/messages")
+//@MultipartConfig
 public class App {
 
     private static final HttpTransport transport = new NetHttpTransport();
@@ -73,42 +86,7 @@ public class App {
  * 
  * @returns The best answer we could come up with for a value for envar
  */
-    public static void DriveTest() throws IOException {
-        Drive service;
-        try {
-            service = Connect.getDriveService();
 
-            // Print the names and IDs for up to 10 files.
-            FileList result = service.files().list()
-                    .setMaxResults(10)
-                    .execute();
-            List<File> files = result.getItems();
-            if (files == null || files.size() == 0) {
-                System.out.println("No files found.");
-            } else {
-                System.out.println("Files:");
-                for (File file : files) {
-                    System.out.printf("%s (%s)\n",file.getTitle(),file.getId());
-                }
-            }
-
-            File fileMetadata = new File();
-            fileMetadata.setTitle("harambe2.jpg");
-            java.io.File filepath = new java.io.File("C:\\Users\\Jack\\Pictures\\Saved Pictures\\harambe.jpg");
-            FileContent mediaContent = new FileContent("image/jpeg", filepath);
-            File file = service.files().insert(fileMetadata, mediaContent)
-                    .setFields("id")
-                    .execute();
-            System.out.println("File ID: " + file.getId());
-
-            // End try
-
-        } catch (GoogleJsonResponseException e){
-            System.out.println("Google Drive Connetion Failure");
-            GoogleJsonError error = e.getDetails();
-            System.out.print(error);
-        }
-    }
     static int getIntFromEnv(String envar, int defaultVal) {
         ProcessBuilder processBuilder = new ProcessBuilder();
         if (processBuilder.environment().get(envar) != null) {
@@ -207,15 +185,39 @@ public class App {
         final Gson gson = new Gson();
         Spark.port(getIntFromEnv("PORT", 4567));
 
+        try {
+            Drive service = GDrive.getDriveService();
+            /*
+            File fileMetadata = new File();
+            fileMetadata.setTitle("harambe3.jpg");
+            java.io.File filepath = new java.io.File("C:\\Users\\Jack\\Desktop\\harambe.jpg");
+            FileContent mediaContent = new FileContent("image/jpeg", filepath);
+            File file2 = service.files().insert(fileMetadata, mediaContent)
+                    .setFields("id")
+                    .execute();
+            System.out.println("File Title: " + file2.getTitle());
+            */
+            //System.out.println(System.getProperty("user.dir"));
+            // Print the names and IDs for up to 10 files.
+            FileList result = service.files().list()
+                    .execute();
+            List<File> files = result.getItems();
+            if (files == null || files.size() == 0) {
+                System.out.println("No files found.");
+            } else {
+                System.out.println("Files:");
+                for (File file : files) {
+                    System.out.printf("%s --%s-- (%s)\n",file.getTitle(),file.getCreatedDate(),file.getId());
+                }
+            }
+        }catch(IOException e)
+        {
+            System.out.println(e);
+        }
+
         // Get a fully-configured connection to the database, or exit 
         // immediately
         Database db = Database.getDatabase(1);
-
-        try{
-            DriveTest();
-        }catch(IOException e){
-            System.out.println("IO EXCEPTION FOUND: "+e);
-        }
 
         // Set up the location for serving static files.  If the STATIC_LOCATION
         // environment variable is set, we will serve from it.  Otherwise, serve
@@ -336,22 +338,47 @@ public class App {
         Spark.get("/messages", (request, response) -> {
             response.status(200);
             response.type("application/json");
-            DriveTest(); 
+
             return gson.toJson(new StructuredMessage("ok", null, db.selectAllMessage()));
         });
         // This post route allows user to create the messagge to the table
+
         Spark.post("/messages", (request, response) -> {
-            SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
+            //System.out.println("Entering Messages");
             response.status(200);
             response.type("application/json");
-            if (!checkKey(req.mUsername,req.mKey))
+            request.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement("/temp"));
+
+            String message = request.raw().getParameter("mMessage");
+            String  subject = request.raw().getParameter("mSubject");
+            String URL = request.raw().getParameter("mUrl");
+            String webUrl = "Error";
+            String username = request.raw().getParameter("mUsername");
+            String keyString = request.raw().getParameter("mKey");
+            int key = Integer.parseInt(keyString);
+
+           // SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
+
+            //System.out.println("PreUpload File");
+            //System.out.println(req.mFile.getTitle());
+            //uploadFile(req.mFile);
+            try (InputStream is = request.raw().getPart("mFile").getInputStream()) {
+                // Use the input stream to create a file
+                System.out.println("Success");
+                webUrl = uploadFile(is,URL);
+            }catch(Exception e){
+                System.out.println("Failure: "+e);
+            }
+            if (!checkKey(username,key))
             {
                 return gson.toJson(new StructuredMessage("logout", null,false));
             }
-            boolean newId = db.insertOneMessage(req.mSubject, req.mMessage,req.mUsername); 
+            System.out.println("Username: "+username+" Subject: "+subject+" Message: "+message+" WebURL: "+webUrl+" Key: "+key);
+            boolean newId = db.insertOneMessage(subject,message,username,URL,webUrl);
             if (!newId) {
                 return gson.toJson(new StructuredMessage("error", "error performing insertion", null));
             } else {
+               // System.out.println("SUCCESS MESSAGE INSERT");
                 return gson.toJson(new StructuredMessage("ok", "" + newId, null));
             }
         });
@@ -396,7 +423,7 @@ public class App {
             {
                 return gson.toJson(new StructuredComment("logout", null,false));
             }
-            boolean check = db.insertComment(req.mUsername, req.mMessageId,req.mComment); // mSubject vs mTitle?
+            boolean check = db.insertComment(req.mUsername, req.mMessageId,req.mComment,req.mURL,req.mURL); // mSubject vs mTitle?
             if (check == false) {
                 return gson.toJson(new StructuredComment("error", "error performing insertion", null));
             } else {
@@ -571,6 +598,61 @@ public class App {
                 return gson.toJson(new Structured_login("notVerified", null, key, user));
             }
         });
+
+    }
+    public static String uploadFile(InputStream in,String filename) throws IOException {
+        Drive service;
+        String webUrl;
+        try {
+            service = GDrive.getDriveService();
+
+            /*
+            File upload = service.files().insert(file)
+                    .setFields("id")
+                    .execute();
+            */
+            File body = new File();
+            body.setTitle(filename);
+            body.setDescription("Description");
+            body.setMimeType("image/jpeg");
+
+
+            System.out.println("Upload File Reached");
+            File file= service.files().insert(body,
+                    new InputStreamContent(
+                            "image/jpeg",
+                            new ByteArrayInputStream(
+                                    IOUtils.toByteArray(in)))).setFields("webContentLink,id").execute();
+            System.out.println("PRE permisisons");
+            service.permissions().insert(file.getId(),new com.google.api.services.drive.model.Permission()
+            .setRole("owner")
+            .setType("anyone")
+            .setWithLink(true)).execute();
+            System.out.println("post permissions");
+
+            webUrl = file.getWebContentLink();
+            System.out.println("web: "+webUrl);
+            //System.out.println("Id: "+file.getId());
+
+            System.out.println("File Content Link: " + file.getWebContentLink());
+        } catch (GoogleJsonResponseException e){
+            System.out.println("Google Drive Connection Failure "+e);
+            GoogleJsonError error = e.getDetails();
+            System.out.print(error);
+            return "Error";
+        }
+        FileList result = service.files().list()
+                .execute();
+        List<File> files = result.getItems();
+        if (files == null || files.size() == 0) {
+            System.out.println("No files found.");
+        } else {
+            System.out.println("Files:");
+            for (File file : files) {
+                System.out.printf("%s --%s-- (%s)\n",file.getTitle(),file.getCreatedDate(),file.getId());
+            }
+        }
+        return webUrl;
     }
 }
 

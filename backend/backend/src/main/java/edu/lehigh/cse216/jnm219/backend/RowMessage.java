@@ -36,16 +36,19 @@ public class RowMessage {
      */
     String mUsername;
 
+    String mWebUrl;
+
     /**
      * Construct a RowMessage object by providing values for its fields
      */
-    public RowMessage(int id, String subject, String message, String username, String createTime, int votes) {
+    public RowMessage(int id, String subject, String message, String username, String createTime, int votes, String webUrl) {
         mId = id;
         mSubject = subject;
         mMessage = message;
         mUsername=username;
         mCreateTime = createTime;
         mVotes=votes;
+        mWebUrl = webUrl;
     }
 
 }
