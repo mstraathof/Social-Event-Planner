@@ -2,7 +2,9 @@ package jnm219.cse216.lehigh.edu.tutorialforjnm219;
 
 import android.app.Activity;
 import android.app.Application;
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -30,13 +32,32 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.protocol.ClientContext;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -168,20 +189,20 @@ public class MainActivity extends AppCompatActivity{
         }
         //if(conn !=null) {
         long currentTime = System.currentTimeMillis();
-        long expires = conn.getHeaderFieldDate("Expires", currentTime);
-        long lastModified = conn.getHeaderFieldDate("Last-Modified", currentTime);
+        //long expires = conn.getHeaderFieldDate("Expires", currentTime);
+        //long lastModified = conn.getHeaderFieldDate("Last-Modified", currentTime);
         long lastUpdateTime = 0;
         //}
 
         // lastUpdateTime represents when the cache was last updated.
-        if (lastModified < lastUpdateTime) {
+        //if (lastModified < lastUpdateTime) {
             //skip update
-            Toast.makeText(MainActivity.this,"hit skip update", Toast.LENGTH_LONG).show();
-        } else {
+        //    Toast.makeText(MainActivity.this,"hit skip update", Toast.LENGTH_LONG).show();
+        //} else {
             // Parse update
-            Toast.makeText(MainActivity.this,"hit do update", Toast.LENGTH_LONG).show();
-            lastUpdateTime = lastModified;
-        }
+        //    Toast.makeText(MainActivity.this,"hit do update", Toast.LENGTH_LONG).show();
+        //    lastUpdateTime = lastModified;
+        //}
         /////
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
@@ -258,57 +279,189 @@ public class MainActivity extends AppCompatActivity{
                 Map<String, String> jsonParams = new HashMap<String, String>();
                 final String resultSubject = intent.getStringExtra("resultSubject");
                 final String resultMessage = intent.getStringExtra("resultMessage");
+                final File resultPicture = (File) intent.getExtras().get("picture");
+                Toast.makeText(MainActivity.this,"info: "+resultMessage+" "+resultSubject, Toast.LENGTH_LONG).show();
 
 
-                // add the data collected from user into map which gets made into a JSONObject
-                jsonParams.put("mSubject", resultSubject);
-                jsonParams.put("mMessage", resultMessage);
-                jsonParams.put("mUsername",ApplicationWithGlobals.getUsername());
-                jsonParams.put("mKey",ApplicationWithGlobals.getKey()+"");
-                JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, url,
-                        new JSONObject(jsonParams),
-                        new Response.Listener<JSONObject>() {
+                if (resultPicture != null) {
+                    ////////////////////////////
 
-                            @Override
-                            public void onResponse(JSONObject response) {
-                                try {
-                                    check = response.getString("mMessageData");
-                                    if(check == "false")
-                                    {
-                                        refreshLogout();
-                                    }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                                Log.e("jnm219", "got response");
-                            }
-                        },
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                Log.e("jnm219", "JsonObjectRequest() failed: " + error.getMessage());
-                            }
-                        }) {
-                    @Override
-                    public Map<String, String> getHeaders() {
-                        HashMap<String, String> headers = new HashMap<String, String>();
-                        headers.put("Content-Type", "application/json; charset=utf-8");
-                        headers.put("User-agent", System.getProperty("http.agent"));
-                        return headers;
+                    taskParams params = new taskParams(resultPicture,resultSubject,resultMessage);
+                    new AsyncCallerPic().execute(params);
+
+                    /*
+                    Toast.makeText(MainActivity.this,"halp me", Toast.LENGTH_LONG).show();
+
+                    CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+                    HttpPost postRequest = new HttpPost(url);
+
+                    try {
+
+                        //MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+                        MultipartEntityBuilder entity = MultipartEntityBuilder.create();
+                        //entity.addPart("mFile", new FileBody(resultPicture));
+                        entity.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+                        entity.addPart("mFile", new FileBody(resultPicture));
+                        entity.addTextBody("mSubject", resultSubject);
+                        entity.addTextBody("mMessage", resultMessage);
+                        entity.addTextBody("mUrl", "");
+                        entity.addTextBody("mUsername", ApplicationWithGlobals.getUsername());
+                        entity.addTextBody("mKey", ApplicationWithGlobals.getKey() + "");
+                        //entity.addPart("mKey", new (resultMessage));
+
+                        //httpPost.setEntity(entity);
+                        ///HttpEntity hent = entity.build();
+                        //httpPost.setEntity(hent);
+                        //HttpContext context = new BasicHttpContext();
+                        // Bind custom cookie store to the local context
+                        //context.setAttribute(ClientContext.COOKIE_STORE, Globals.sessionCookie);
+
+                        //HttpResponse response = httpClient.execute(httpPost, context);
+                        //HttpEntity resEntity = response.getEntity();
+                        String Response = "";
+                        //if (response != null)
+                        //{
+                        //    Response = EntityUtils.toString(resEntity);
+                        //}
+
                     }
-                };
-                //Toast.makeText(MainActivity.this,"Check: "+check, Toast.LENGTH_LONG).show();
-                if(check != "false") {
-                    VolleySingleton.getInstance(this).addToRequestQueue(postRequest);
-                }
-                else{
-                    ApplicationWithGlobals.setKey(0);
-                    ApplicationWithGlobals.setUsername("error");
-                    refreshLogout();
-                }
-                finish();
-                startActivity(getIntent());
+                    //catch (IOException e)
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    */
+                }else {
+                /*
+                DefaultHttpClient localDefaultHttpClient = new DefaultHttpClient();
 
+                FileBody localFileBody = new FileBody(new File(this.picturePath), "image/jpg");
+                HttpPost localHttpPost = new HttpPost("http://website.com/path/....");
+                MultipartEntity localMultipartEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+                try
+                {
+                    Log.d("picturepath", this.picturePath);
+                    localMultipartEntity.addPart("Email", new StringBody("emailid@gmail.com"));
+                    localMultipartEntity.addPart("password", new StringBody("password"));
+                    localMultipartEntity.addPart("phone", new StringBody("9875......."));
+                    localMultipartEntity.addPart("profilepicture", localFileBody);
+                    localHttpPost.setEntity(localMultipartEntity);
+                    HttpResponse localHttpResponse = localDefaultHttpClient.execute(localHttpPost);
+                    System.out.println("responsecode" + localHttpResponse.getStatusLine().getStatusCode());
+                }
+                catch (Exception e)
+                {
+                    Log.d("exception", e.toString());
+                }*/
+                    /////////////////////////
+                    // add the data collected from user into map which gets made into a JSONObject
+                    //
+                    /*
+                    HttpClient httpClient = new DefaultHttpClient();
+                    HttpPost postRequestA = new HttpPost(url);
+
+                    try {
+                        //MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+                        MultipartEntityBuilder entity = MultipartEntityBuilder.create();
+                        //entity.addPart("mFile", new FileBody(resultPicture));
+                        entity.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+                        //entity.addPart("mFile", new FileBody(resultPicture));
+                        entity.addTextBody("mSubject", resultSubject);
+                        entity.addTextBody("mMessage", resultMessage);
+                        entity.addTextBody("mUrl", "");
+                        entity.addTextBody("mUsername", ApplicationWithGlobals.getUsername());
+                        entity.addTextBody("mKey", ApplicationWithGlobals.getKey() + "");
+                        //entity.addPart("mKey", new (resultMessage));
+                        Log.e("00000000000000000000", "WE HITTTTTT HEREREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
+                        //httpPost.setEntity(entity);
+                        postRequestA.setEntity(entity.build());
+                        httpClient.execute(postRequestA);
+                    }catch(Exception e){
+                        Log.e("TAG", "SOMETHING WRONG HERE "+e);
+                        //fak
+                    }
+                    */
+                    String[] parts = new String[2];
+                    parts[0] = resultMessage;
+                    parts[1] = resultSubject;
+
+
+                    new AsyncCallerNoPic().execute(parts);
+                    Toast.makeText(MainActivity.this,"hmm does this hit?", Toast.LENGTH_LONG).show();
+
+                    jsonParams.put("mUsername", ApplicationWithGlobals.getUsername()+"");
+                    jsonParams.put("mKey",ApplicationWithGlobals.getKey()+"");
+                    jsonParams.put("mSubject", resultSubject+"");
+                    jsonParams.put("mMessage", resultMessage+"");
+                    //jsonParams.put("mFile", resultPicture);
+                    //jsonParams.put("mUrl", "");
+
+                    ////
+
+                    //////
+
+                    JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, url, new JSONObject(jsonParams), new Response.Listener<JSONObject>(){
+                                @Override
+                                public void onResponse(JSONObject response) {
+                                    Toast.makeText(MainActivity.this,"YOOOO", Toast.LENGTH_LONG).show();
+
+                                    try {
+                                        check = response.getString("mMessageData");
+                                        Toast.makeText(MainActivity.this,"check: "+check, Toast.LENGTH_LONG).show();
+                                        if (check == "false") {
+                                            refreshLogout();
+                                            Toast.makeText(MainActivity.this,"hmm "+ApplicationWithGlobals.getUsername(), Toast.LENGTH_LONG).show();
+                                        }
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                    Log.e("jnm219", "got response");
+                                }
+                            },
+                            new Response.ErrorListener() {
+                        ///
+                        @Override
+                            public void onErrorResponse(VolleyError error) {
+                            Log.d("00000000000000000000", "Failed with error msg:\t" + error.getMessage());
+                            Log.d("00000000000000000000", "Error StackTrace: \t" + error.getStackTrace());
+                            // edited here
+                            try {
+                                byte[] htmlBodyBytes = error.networkResponse.data;
+                                Log.e("what                  ", new String(htmlBodyBytes), error);
+                            } catch (NullPointerException e) {
+                                e.printStackTrace();
+                            }
+                            if (error.getMessage() == null){
+                                //createUser();
+                            }
+                        }
+                                ///
+                                //@Override
+                                //public void onErrorResponse(VolleyError error) {
+                                 //   Log.e("jnm219", "JsonObjectRequest() failed: " + error.getMessage());
+                                //}
+                            }) /*{
+                        @Override
+                        public Map<String, String> getHeaders() {
+                            HashMap<String, String> headers = new HashMap<String, String>();
+                            headers.put("Content-Type", "application/json; charset=utf-8");
+                            headers.put("User-agent", System.getProperty("http.agent"));
+                            return headers;
+                        }
+                    }*/;
+
+
+                    //Toast.makeText(MainActivity.this,"Check: "+check, Toast.LENGTH_LONG).show();
+                    if (check != "false") {
+                        VolleySingleton.getInstance(this).addToRequestQueue(postRequest);
+                    } else {
+                        Toast.makeText(MainActivity.this,"hm2", Toast.LENGTH_LONG).show();
+                        ApplicationWithGlobals.setKey(0);
+                        ApplicationWithGlobals.setUsername("error");
+                        refreshLogout();
+                    }
+                    finish();
+                    startActivity(getIntent());
+                }
             }
             else if(resultCode == RESULT_CANCELED){
                 Toast.makeText(MainActivity.this, "Buzz Canceled", Toast.LENGTH_LONG).show();
@@ -316,6 +469,7 @@ public class MainActivity extends AppCompatActivity{
             else{
                 Toast.makeText(MainActivity.this,"Error Creating Buzz", Toast.LENGTH_LONG).show();
             }
+
         }
 
 
@@ -375,4 +529,89 @@ public class MainActivity extends AppCompatActivity{
         startActivity(i);
     }
 
+    private class AsyncCallerNoPic extends AsyncTask<String, Void, Void>
+    {
+        @Override
+        protected Void doInBackground(String... pParams) {
+            String param1,param2;
+            param1=pParams[0];
+            param2=pParams[1];
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpPost postRequestA = new HttpPost(url);
+            try {
+                //MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+                MultipartEntityBuilder entity = MultipartEntityBuilder.create();
+                //entity.addPart("mFile", new FileBody(resultPicture));
+                entity.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+                //entity.addPart("mFile", new FileBody(resultPicture));
+                entity.addTextBody("mSubject", param1);
+                entity.addTextBody("mMessage", param2);
+                entity.addTextBody("mUrl", "");
+                entity.addTextBody("mUsername", ApplicationWithGlobals.getUsername());
+                entity.addTextBody("mKey", ApplicationWithGlobals.getKey() + "");
+                //entity.addPart("mKey", new (resultMessage));
+                Log.e("00000000000000000000", "WE HITTTTTT HEREREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
+                //httpPost.setEntity(entity);
+                postRequestA.setEntity(entity.build());
+                httpClient.execute(postRequestA);
+            }catch(Exception e){
+                Log.e("TAG", "SOMETHING WRONG HERE "+e);
+                //fak
+            }
+            //this method will be running on background thread so don't update UI frome here
+            //do your long running http tasks here,you dont want to pass argument and u can access the parent class' variable url over here
+
+
+            return null;
+        }
+    }
+    private class AsyncCallerPic extends AsyncTask<taskParams, Void, Void>
+    {
+        @Override
+        protected Void doInBackground(taskParams... pParams) {
+            String subject = pParams[0].sub;
+            String message = pParams[0].mes;
+            File picture = pParams[0].pic;
+
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpPost postRequestA = new HttpPost(url);
+            try {
+                //MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+                MultipartEntityBuilder entity = MultipartEntityBuilder.create();
+                //entity.addPart("mFile", new FileBody(resultPicture));
+                entity.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+                entity.addPart("mFile", new FileBody(picture));
+                entity.addTextBody("mSubject", subject);
+                entity.addTextBody("mMessage", message);
+                entity.addTextBody("mUrl", "");
+                entity.addTextBody("mUsername", ApplicationWithGlobals.getUsername());
+                entity.addTextBody("mKey", ApplicationWithGlobals.getKey() + "");
+                //entity.addPart("mKey", new (resultMessage));
+                Log.e("00000000000000000000", "WITH A PICCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC");
+                //httpPost.setEntity(entity);
+                postRequestA.setEntity(entity.build());
+                httpClient.execute(postRequestA);
+            }catch(Exception e){
+                Log.e("TAG", "SOMETHING WRONG HERE "+e);
+                //fak
+            }
+            //this method will be running on background thread so don't update UI frome here
+            //do your long running http tasks here,you dont want to pass argument and u can access the parent class' variable url over here
+
+
+            return null;
+        }
+    }
+
+    private static class taskParams {
+        File pic;
+        String sub;
+        String mes;
+
+        taskParams(File pic, String sub, String mes) {
+            this.pic = pic;
+            this.sub = sub;
+            this.mes = mes;
+        }
+    }
 }

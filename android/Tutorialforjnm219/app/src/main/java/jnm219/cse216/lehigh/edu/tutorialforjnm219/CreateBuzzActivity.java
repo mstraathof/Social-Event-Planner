@@ -37,6 +37,8 @@ public class CreateBuzzActivity extends AppCompatActivity {
 
     private Camera mCamera;
     private CameraPreview mPreview;
+    boolean pictureTaken = false;
+    File pictureFile = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +86,10 @@ public class CreateBuzzActivity extends AppCompatActivity {
                     Intent i = new Intent();
                     i.putExtra("resultSubject", et.getText().toString());
                     i.putExtra("resultMessage", em.getText().toString());
+                    //if(pictureTaken != false) {
+                    Toast.makeText(CreateBuzzActivity.this, "Picture: " + pictureFile, Toast.LENGTH_LONG).show();
+                    i.putExtra("picture", pictureFile);
+
                     setResult(Activity.RESULT_OK, i);
                     finish();
                 }
@@ -102,29 +108,28 @@ public class CreateBuzzActivity extends AppCompatActivity {
 
         // a listener to the Capture button
         Button captureButton = (Button) findViewById(R.id.getpicture);
-        captureButton.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // get an image from the camera
-                        if(mCamera != null) {
-                            mCamera.takePicture(null, null, mPicture);
-                        }else{
-                            Toast.makeText(CreateBuzzActivity.this, "No camera available on this device", Toast.LENGTH_LONG).show();
-                        }
-                    }
+        captureButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // get an image from the camera
+                if(mCamera != null) {
+                    mCamera.takePicture(null, null, mPicture);
+                }else{
+                    Toast.makeText(CreateBuzzActivity.this, "No camera available on this device", Toast.LENGTH_LONG).show();
                 }
-        );
+            }
+        });
     }
 
     private Camera.PictureCallback mPicture = new Camera.PictureCallback() {
 
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
-
-            File pictureFile = getOutputMediaFile(1);
+            pictureTaken = true;
+            pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
             if (pictureFile == null){
-                //Log.d(TAG, "Error creating media file, check storage permissions: " + e.getMessage());
+
+                Log.d("asd", "Error creating media file, check storage permissions: ");
                 return;
             }
 
