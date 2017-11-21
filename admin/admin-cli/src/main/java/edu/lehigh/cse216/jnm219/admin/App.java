@@ -8,6 +8,29 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.FileContent;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.util.store.FileDataStoreFactory;
+
+import com.google.api.services.drive.DriveScopes;
+import com.google.api.services.drive.model.*;
+import com.google.api.services.drive.Drive;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * App is our basic admin app.  For now, it is a demonstration of the six key 
  * operations on a database: connect, insert, update, query, delete, disconnect
@@ -18,6 +41,7 @@ public class App {
      * Print the menu for our program
      */
     static void menu() {
+        System.out.println("");
         System.out.println("Main Menu");
         System.out.println("---------------------------");
         System.out.println("  [T] Create all tables");
@@ -26,6 +50,7 @@ public class App {
         System.out.println("  [r] Print unauthorized users");
         System.out.println("  [+] Authorize user");
         System.out.println("  [-] Reject user");
+        System.out.println("  [G] List Google Drive Files");
         System.out.println("  [q] Quit Program");
         System.out.println("  [?] Help (this message)");
         System.out.println();
@@ -55,8 +80,8 @@ public class App {
      */
     static char prompt(BufferedReader in) {
         // The valid actions:
-        String mainActions = "TDq?";
-        String allActions = "TDaUpmcudAXPMCYZq?r+-";
+        String mainActions = "";
+        String allActions = "TDaUpmcudAXPMCYZq?r+-G";
         // We repeat until a valid single-character option is selected        
         while (true) {
             System.out.print("[" + mainActions + "] :> ");
@@ -95,6 +120,7 @@ public class App {
         {
             return;
         }
+
         // Start our basic command-line interpreter:
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         while (true) {
@@ -173,7 +199,161 @@ public class App {
                 String username = getString(in, "Enter username");
                 db.rejectUser(username);
             }
-            
+            // Handle Files on the Google Drive
+            else if(action == 'G'){
+                try{
+                    // Creates a service object that acts as the gateway to the google drive information
+                    Drive service = GDrive.getDriveService();
+
+                    // The valid actions:
+                    String mainActions = "LDq";
+                    String allActions = "LDq";
+                    BufferedReader IN = new BufferedReader(new InputStreamReader(System.in));
+                    // We repeat until a valid single-character option is selected        
+                    while (true) {
+                        System.out.println("");
+                        System.out.println("Google Drive Menu");
+                        System.out.println("---------------------------");
+                        System.out.println("  [L] List Files");
+                        System.out.println("  [D] Delete File");
+                        System.out.println("  [q] Quit Drive Menu");
+                        System.out.println("");
+                        System.out.print("[" + mainActions + "] :> ");
+                        String actions = "";
+                        try {
+                            actions += IN.readLine();
+                            System.out.println(actions);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            continue;
+                        }
+                        if (!allActions.contains(actions) || actions == "") {
+                            System.out.println("Invalid Command");
+                            continue;
+                        }
+                        // Input Command
+                        char command;
+                        try{
+                            command = actions.charAt(0);
+                        } catch (Exception e){
+                            System.out.println("Invalid Command");
+                            continue;
+                        }
+                        
+
+                        // Lists files
+                        if(command == 'L'){
+
+                            FileList result = service.files().list()
+                            .execute();
+                            List<File> files = result.getItems();
+                            if (files == null || files.size() == 0) {
+                                System.out.println("No files found.");
+                                break;
+                            }
+                            int numFiles = files.size();
+                            String[] fileIds = new String[numFiles];
+                            String[] fileName = new String[numFiles];
+                            String[] fileOwner = new String[numFiles];
+                            String[] lastModified = new String[numFiles];
+                            int i = 0;
+                            for (File file : files) {
+                                fileIds[i] = file.getId();
+                                fileName[i] = file.getId();
+                                fileOwner[i] = file.getId();
+                                lastModified[i] = file.getId();
+                                // File size in kilobytes
+                                if(file.getFileSize() < 1000000){
+                                    System.out.printf("[%d]\t FileName: %-25s FileOwner(s): %-35s LastModified: (%s)\t FileSize: (%s KB)\n",i,file.getTitle(),file.getOwnerNames(),file.getModifiedDate(),(file.getFileSize()/1000));
+                                }
+                                // File size in megabytes
+                                else{
+                                    System.out.printf("[%d]\t FileName: %-25s FileOwner(s): %-35s LastModified: (%s)\t FileSize: (%s MB)\n",i,file.getTitle(),file.getOwnerNames(),file.getModifiedDate(),(file.getFileSize()/1000000));
+                                }
+                                
+                                i++;
+                            }
+                        }
+                        // Deletes Chosen File
+                        else if(command == 'D'){
+
+                            FileList result = service.files().list()
+                            .execute();
+                            List<File> files = result.getItems();
+                            if (files == null || files.size() == 0) {
+                                System.out.println("No files found.");
+                                break;
+                            }
+                            int numFiles = files.size();
+                            String[] fileIds = new String[numFiles];
+                            String[] fileName = new String[numFiles];
+                            String[] fileOwner = new String[numFiles];
+                            String[] lastModified = new String[numFiles];
+                            int i = 0;
+                            for (File file : files) {
+                                fileIds[i] = file.getId();
+                                fileName[i] = file.getId();
+                                fileOwner[i] = file.getId();
+                                lastModified[i] = file.getId();
+                                // File size in kilobytes
+                                if(file.getFileSize() < 1000000){
+                                    System.out.printf("[%d]\t FileName: %-25s FileOwner(s): %-35s LastModified: (%s)\t FileSize: (%s KB)\n",i,file.getTitle(),file.getOwnerNames(),file.getModifiedDate(),(file.getFileSize()/1000));
+                                }
+                                // File size in megabytes
+                                else{
+                                    System.out.printf("[%d]\t FileName: %-25s FileOwner(s): %-35s LastModified: (%s)\t FileSize: (%s MB)\n",i,file.getTitle(),file.getOwnerNames(),file.getModifiedDate(),(file.getFileSize()/1000000));
+                                }
+                                i++;
+                            }
+
+                            System.out.println();
+                            System.out.println("Which file do you want to delete?");
+                            System.out.println("Type the number of the file. EX. 1");
+
+                            String toDelete;
+                            try {
+                                toDelete = IN.readLine();
+                                System.out.println(actions);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                continue;
+                            }
+                            if(toDelete == ""){
+                                break;
+                            }
+                            int index = -1;
+                            try{
+                                index = Integer.parseInt(toDelete);
+                            } catch (Exception e){
+                                index = -1;
+                            }
+
+                            if(index >= numFiles || index < 0){
+                                System.out.println("Error: Invalid Input. Must be 0 to " + (numFiles-1) + ".");
+                            }
+                            else{
+                                String fileId = fileIds[index];
+                                try {
+                                    service.files().delete(fileId).execute();
+                                  } catch (IOException e) {
+                                    System.out.println("An error occurred: " + e);
+                                  }
+                            }
+
+                        }
+                        // Quits Drive Menu
+                        else if(command == 'q'){
+                            menu();
+                            break;
+                        }
+                    }
+
+                } catch (IOException e){
+                    System.out.println("Error While Accessing Google Drive Files");
+                    System.out.print(e);
+                }
+                System.out.println();
+            }
         }
          db.disconnect();
     }
