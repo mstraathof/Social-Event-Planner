@@ -47,14 +47,12 @@ public class App {
         System.out.println("  [T] Create all tables");
         System.out.println("  [D] Drop all tables");
         System.out.println();
-        System.out.println("  [r] Print unauthorized users");
         System.out.println("  [+] Authorize user");
         System.out.println("  [-] Reject user");
         System.out.println("  [G] List Google Drive Files");
         System.out.println("  [q] Quit Program");
         System.out.println("  [?] Help (this message)");
         System.out.println();
-        System.out.println("  [a] Create unauthorized user table");
         System.out.println("  [U] Create user table");
         System.out.println("  [p] Create profile table");        
         System.out.println("  [m] Create message table");
@@ -62,7 +60,6 @@ public class App {
         System.out.println("  [u] Create upvote table");
         System.out.println("  [d] Create downvote table");
         System.out.println();
-        System.out.println("  [A] Drop unauthorized user table");
         System.out.println("  [X] Drop user table");
         System.out.println("  [P] Drop profile table");
         System.out.println("  [M] Drop message table");
@@ -141,9 +138,7 @@ public class App {
                 db.dropAllTables();
             } 
             // Individual creation of tables
-            else if (action == 'a') {       // tblUnauthorizedUser
-                db.createTable('a');
-            }else if (action == 'U') {       // tblUser
+            else if (action == 'U') {       // tblUser
                 db.createTable('U');
             } else if (action == 'p') {     // tblProfile
                 db.createTable('p');
@@ -157,9 +152,7 @@ public class App {
                 db.createTable('d');
             } 
             // Individual table drops
-            else if (action == 'A') {
-                db.dropTable("tblUnauthUser");
-            } else if (action == 'X') {   
+            else if (action == 'X') {   
                 db.dropTable("tblUser");
             } else if (action == 'P') {       
                 db.dropTable("tblProfile");
@@ -173,9 +166,6 @@ public class App {
                 db.dropTable("tblDownVote");
             } 
             // to see all the unauthorized users
-            else if (action == 'r') {
-                db.selectUnauthUserAll();
-            } 
             // the credentials were sufficient, call '+' and enter username
             else if (action == '+') {
                 String username = getString(in, "Enter username");
