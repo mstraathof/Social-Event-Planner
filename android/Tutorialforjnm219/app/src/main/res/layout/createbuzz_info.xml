@@ -53,21 +53,28 @@
 
         <FrameLayout
             android:id="@+id/textureview"
-            android:layout_width="384dp"
-            android:layout_height="300dp"
-            android:layout_below="@+id/enterMessage"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="18dp" />
+            android:layout_width="325dp"
+            android:layout_height="325dp"
+            android:layout_above="@+id/getpicture"
+            android:layout_centerHorizontal="true" />
 
         <Button
             android:id="@+id/getpicture"
-            android:layout_width="match_parent"
+            android:layout_width="191dp"
             android:layout_height="wrap_content"
+            android:layout_above="@+id/buttonCancel"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:layout_below="@+id/textureview"
-            android:layout_marginTop="6dp"
-            android:text="getPicture" />
+            android:text="Take Picture" />
+
+        <Button
+            android:id="@+id/getFile"
+            android:layout_width="191dp"
+            android:layout_height="50dp"
+            android:layout_above="@+id/buttonOk"
+            android:layout_alignLeft="@+id/buttonOk"
+            android:layout_alignStart="@+id/buttonOk"
+            android:text="Search File" />
 
         <Button
             android:id="@+id/buttonCancel"

@@ -4,9 +4,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.hardware.Camera;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -34,7 +37,7 @@ import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
  * The purpose of this class is to allow the user to create a new buzz/entry.
  */
 public class CreateBuzzActivity extends AppCompatActivity {
-
+    final int ACTIVITY_CHOOSE_FILE = 1;
     private Camera mCamera;
     private CameraPreview mPreview;
     boolean pictureTaken = false;
@@ -119,6 +122,23 @@ public class CreateBuzzActivity extends AppCompatActivity {
                 }
             }
         });
+
+        // a listener to the find file button
+        Button findFile = (Button) findViewById(R.id.getFile);
+        findFile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                    Intent chooseFile;
+                    Intent intent;
+                    chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
+                    chooseFile.addCategory(Intent.CATEGORY_OPENABLE);
+                    chooseFile.setType("*/*");
+                    intent = Intent.createChooser(chooseFile, "Choose a file");
+                    startActivityForResult(intent, ACTIVITY_CHOOSE_FILE);
+                }
+            });
+
+
     }
 
     private Camera.PictureCallback mPicture = new Camera.PictureCallback() {
@@ -251,4 +271,25 @@ public class CreateBuzzActivity extends AppCompatActivity {
             }
         }
     }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode != RESULT_OK) return;
+        String path     = "";
+        if(requestCode == ACTIVITY_CHOOSE_FILE)
+        {
+            Uri uri = data.getData();
+            String FilePath = getRealPathFromURI(uri); // should the path be here in this string
+            System.out.print("Path  = " + FilePath);
+        }
+    }
+
+    public String getRealPathFromURI(Uri contentUri) {
+        String [] proj      = {MediaStore.Images.Media.DATA};
+        Cursor cursor       = getContentResolver().query( contentUri, proj, null, null,null);
+        if (cursor == null) return null;
+        int column_index    = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        cursor.moveToFirst();
+        return cursor.getString(column_index);
+    }
 }
+

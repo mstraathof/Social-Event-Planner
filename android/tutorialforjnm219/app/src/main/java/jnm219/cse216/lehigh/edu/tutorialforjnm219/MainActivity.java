@@ -472,7 +472,6 @@ public class MainActivity extends AppCompatActivity{
 
         }
 
-
         //Json request for the logout functionality
         if(requestCode == 4) {
             if(resultCode == RESULT_OK) {
