@@ -34,6 +34,7 @@ import java.util.Hashtable;
 import java.util.Enumeration;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import javax.activation.MimetypesFileTypeMap;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.SecretKeyFactory;
 import javax.servlet.MultipartConfigElement;
@@ -343,6 +344,33 @@ public class App {
         });
         // This post route allows user to create the messagge to the table
 
+        Spark.get("/messages/images/download/:id", (request,response) -> {
+            SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
+            String id = req.mFileId;
+            Drive service;
+            try {
+                service = GDrive.getDriveService();
+                File file = service.files().get(id).execute();
+
+                String mime = file.getMimeType();
+                OutputStream outputStream = new ByteArrayOutputStream();
+                service.files().export(id, mime)
+                        .executeMediaAndDownloadTo(outputStream);
+                ByteArrayOutputStream bos = (ByteArrayOutputStream)outputStream;
+                response.raw().getOutputStream().write(bos.toByteArray());
+                response.raw().getOutputStream().flush();
+                response.raw().getOutputStream().close();
+            } catch (GoogleJsonResponseException e){
+                System.out.println("Google Drive Connection Failure "+e);
+                GoogleJsonError error = e.getDetails();
+                System.out.print(error);
+            }
+            response.status(200);
+            response.type();
+            return response.raw();
+        });
+
+        //image tag points to spark route and wraps the return value of get statement
         Spark.post("/messages", (request, response) -> {
             //System.out.println("Entering Messages");
             response.status(200);
@@ -357,11 +385,6 @@ public class App {
             String keyString = request.raw().getParameter("mKey");
             int key = Integer.parseInt(keyString);
 
-           // SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
-
-            //System.out.println("PreUpload File");
-            //System.out.println(req.mFile.getTitle());
-            //uploadFile(req.mFile);
             try (InputStream is = request.raw().getPart("mFile").getInputStream()) {
                 // Use the input stream to create a file
                 System.out.println("Success");
@@ -600,9 +623,27 @@ public class App {
         });
 
     }
+    public static File downloadFile(String id) throws IOException {
+        Drive service;
+        File file = null;
+        try {
+            service = GDrive.getDriveService();
+
+            file = service.files().get(id).execute();
+
+            file.getMimeType();
+
+
+        } catch (GoogleJsonResponseException e){
+            System.out.println("Google Drive Connection Failure "+e);
+            GoogleJsonError error = e.getDetails();
+            System.out.print(error);
+        }
+        return file;
+    }
     public static String uploadFile(InputStream in,String filename) throws IOException {
         Drive service;
-        String webUrl;
+        String id = "error";
         try {
             service = GDrive.getDriveService();
 
@@ -623,6 +664,8 @@ public class App {
                             "image/jpeg",
                             new ByteArrayInputStream(
                                     IOUtils.toByteArray(in)))).setFields("webContentLink,id").execute();
+            id = file.getId();
+            /*
             System.out.println("PRE permisisons");
             service.permissions().insert(file.getId(),new com.google.api.services.drive.model.Permission()
             .setRole("owner")
@@ -635,6 +678,7 @@ public class App {
             //System.out.println("Id: "+file.getId());
 
             System.out.println("File Content Link: " + file.getWebContentLink());
+            */
         } catch (GoogleJsonResponseException e){
             System.out.println("Google Drive Connection Failure "+e);
             GoogleJsonError error = e.getDetails();
@@ -652,7 +696,7 @@ public class App {
                 System.out.printf("%s --%s-- (%s)\n",file.getTitle(),file.getCreatedDate(),file.getId());
             }
         }
-        return webUrl;
+        return id;
     }
 }
 

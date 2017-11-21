@@ -64,5 +64,7 @@ public class SimpleRequest {
 
     public String mURL;
 
+    public String mFileId;
+
     public String mWebUrl;
 }
