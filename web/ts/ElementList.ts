@@ -59,6 +59,7 @@ class ElementList {
         $.ajax({
             type: "GET",
             url: "/messages",
+            //url: "https://forums.wholetomato.com/mira/messages.aspx",
             dataType: "json",           // JSON response will contain only all buzzes, not voted buzzes or comments.
             success: ElementList.update
         });
