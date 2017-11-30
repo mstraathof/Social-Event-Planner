@@ -58,15 +58,6 @@ import spark.utils.IOUtils;
 import java.io.InputStreamReader;
 import java.util.List;
 
-/*
-import java.io.IOException;
-import net.spy.memcached.AddrUtil;
-import net.spy.memcached.MemcachedClient;
-import net.spy.memcached.ConnectionFactoryBuilder;
-import net.spy.memcached.auth.PlainCallbackHandler;
-import net.spy.memcached.auth.AuthDescriptor;
-*/
-
 /**
  * For now, our app creates an HTTP server that can only get and add data.
  */
@@ -188,18 +179,6 @@ public class App {
 
         try {
             Drive service = GDrive.getDriveService();
-            /*
-            File fileMetadata = new File();
-            fileMetadata.setTitle("harambe3.jpg");
-            java.io.File filepath = new java.io.File("C:\\Users\\Jack\\Desktop\\harambe.jpg");
-            FileContent mediaContent = new FileContent("image/jpeg", filepath);
-            File file2 = service.files().insert(fileMetadata, mediaContent)
-                    .setFields("id")
-                    .execute();
-            System.out.println("File Title: " + file2.getTitle());
-            */
-            //System.out.println(System.getProperty("user.dir"));
-            // Print the names and IDs for up to 10 files.
             FileList result = service.files().list()
                     .execute();
             List<File> files = result.getItems();
@@ -216,6 +195,7 @@ public class App {
             System.out.println(e);
         }
 
+       // Memcached.cache("jnm219",1);
         // Get a fully-configured connection to the database, or exit 
         // immediately
         Database db = Database.getDatabase(1);
@@ -345,8 +325,11 @@ public class App {
         // This post route allows user to create the messagge to the table
 
         Spark.get("/messages/images/download/:id", (request,response) -> {
-            SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
-            String id = req.mFileId;
+            System.out.println("Entered");
+            //SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
+            String id = request.params("id");
+            System.out.println("Id: "+id);
+
             Drive service;
             try {
                 service = GDrive.getDriveService();
@@ -354,20 +337,26 @@ public class App {
 
                 String mime = file.getMimeType();
                 OutputStream outputStream = new ByteArrayOutputStream();
+                /*
                 service.files().export(id, mime)
                         .executeMediaAndDownloadTo(outputStream);
                 ByteArrayOutputStream bos = (ByteArrayOutputStream)outputStream;
                 response.raw().getOutputStream().write(bos.toByteArray());
                 response.raw().getOutputStream().flush();
                 response.raw().getOutputStream().close();
+                */
+                response.status(200);
+                response.type("image/jpeg");
+                service.files().export(id, mime)
+                        .executeMediaAndDownloadTo(response.raw().getOutputStream());
+
             } catch (GoogleJsonResponseException e){
                 System.out.println("Google Drive Connection Failure "+e);
                 GoogleJsonError error = e.getDetails();
                 System.out.print(error);
             }
-            response.status(200);
-            response.type();
-            return response.raw();
+
+            return response;
         });
 
         //image tag points to spark route and wraps the return value of get statement
@@ -389,6 +378,7 @@ public class App {
                 // Use the input stream to create a file
                 System.out.println("Success");
                 webUrl = uploadFile(is,URL);
+                //System.out.println("webUrl: "+webUrl);
             }catch(Exception e){
                 System.out.println("Failure: "+e);
             }
@@ -641,6 +631,7 @@ public class App {
         }
         return file;
     }
+
     public static String uploadFile(InputStream in,String filename) throws IOException {
         Drive service;
         String id = "error";
@@ -665,20 +656,7 @@ public class App {
                             new ByteArrayInputStream(
                                     IOUtils.toByteArray(in)))).setFields("webContentLink,id").execute();
             id = file.getId();
-            /*
-            System.out.println("PRE permisisons");
-            service.permissions().insert(file.getId(),new com.google.api.services.drive.model.Permission()
-            .setRole("owner")
-            .setType("anyone")
-            .setWithLink(true)).execute();
-            System.out.println("post permissions");
-
-            webUrl = file.getWebContentLink();
-            System.out.println("web: "+webUrl);
-            //System.out.println("Id: "+file.getId());
-
-            System.out.println("File Content Link: " + file.getWebContentLink());
-            */
+            System.out.println("INPUT ID: "+id);
         } catch (GoogleJsonResponseException e){
             System.out.println("Google Drive Connection Failure "+e);
             GoogleJsonError error = e.getDetails();
