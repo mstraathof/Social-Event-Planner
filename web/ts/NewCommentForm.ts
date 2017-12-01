@@ -67,6 +67,7 @@ class NewCommentForm {
             // get the values of the two fields, force them to be strings, and check 
             // that neither is empty
 // !!!!!!!!!!!
+
             let comment = "" + $("#" + NewCommentForm.NAME + "-comment").val();
             let url = "" + $("#" + NewCommentForm.NAME + "-url").val();            
             let file = $("#" + NewCommentForm.NAME + "-file")[0].files[0];
@@ -128,7 +129,7 @@ class NewCommentForm {
                 //NewCommentForm.refresh();
                 $("#ViewComments").remove();
                 //window.alert(mesID);
-                ElementList.viewCommentsGivenID(mesID);
+                ElementList.viewCommentsGivenID(data.mesID);
             }
             // Handle explicit errors with a detailed popup message
             else if (data.mStatus === "error") {

@@ -35,24 +35,9 @@ class ElementList {
     }
 
     /**
-    * refresh() is the public method for updating the ElementList
-    * it updates the list accordingly if you are viewing all messages, 
-    * or the messages you posted, liked, disliked, and commented 
+    * refresh) updates the feed of all messages on The Buzz
     */
-
     public static refresh() {
-        //window.alert("Username: "+ Gusername);
-        if(viewingYours==true){
-            headers = true;
-            ElementList.refreshUser(Gusername, /* otherUser */ Gusername);
-        }else{
-            ElementList.refreshAll();
-        }
-    }
-    /**
-    * refreshAll() updates the list of all messages on TheBuzz
-    */
-    public static refreshAll() {
         // Make sure the singleton is initialized
         ElementList.init();
         // Issue a GET, and then pass the result to update()
@@ -60,37 +45,74 @@ class ElementList {
             type: "GET",
             url: "/messages",
             //url: "https://forums.wholetomato.com/mira/messages.aspx",
-            dataType: "json",           // JSON response will contain only all buzzes, not voted buzzes or comments.
-            success: ElementList.update
-        });
-    }
-    /**
-    * refreshUser() updates the list of all messages you have made,
-    * liked, disliked, and commented
-    */
-    public static refreshUser(username:string, otherUser:string) {
-        // Make sure the singleton is initialized
-        ElementList.init();
-        // Issue a GET, and then pass the result to update()
-        $.ajax({
-            type: "GET",
-            url: "/profile/" + otherUser + "/" + username + "/" + GuserKey,
-            dataType: "json",           // JSON response will contain buzzes, voted buzzes, and comments of one user.
+            dataType: "json",           // JSON response will contain all message buzzes, not comments.
             success: ElementList.update
         });
     }
 
     /**
     * update() is the private method used by refresh() to update the 
-    * list and initialize buttons for liking and viewing profiles
+    * list and initialize buttons for viewing profiles, voting, and commenting.
     */
     private static update(data: any) {
-        
-        // Remove the table of data, if it exists
-        $("#" + ElementList.NAME).remove();
-        // Use a template to re-generate the table, and then insert it
+        // replace main container, whatever it contains, with one for the feed.
+        $("#mainContainer").remove();
+        // Use a template to re-generate the feed.
         $("body").append(Handlebars.templates[ElementList.NAME + ".hb"](data));
-        if(headers == false){
+        //console.log(JSON.stringify(data));        // uncomment to debug data object.
+        //{"mStatus":"ok","mMessageData":[{"mId":"10","mSubject":"Favorite movie", ...
+        
+        // get and display images, and comments, associated with messages
+        var i: number;
+        for (i=0; i<data.mMessageData.length; i++)
+        {
+            let mId = data.mMessageData[i].mId;     // mId is referenced often
+            console.log("mId = " + mId);
+
+            // hook up the view-profile button.
+            $('#buttonViewProfile' + mId).click(ElementList.getProfile);
+
+            // get and show a message image
+            // set src attribute of img in Javascript because Mira cannot figure out how in jQuery.
+            //document.getElementById("img" + data.mMessageData[i].mId).setAttribute("src", "https://forum.wholetomato.com/mira/TomPetty.jpg");
+            //document.getElementById("img" + data.mMessageData[i].mId).setAttribute("src", "https://forum.wholetomato.com/mira/WhatABurgerWoman.jpg");
+            //$('#img' + mId).show();
+
+            // get image associated with message and display
+            $.ajax({
+                type: "GET",
+                url: "/messages/images/download/" + data.mMessageData[i].mWebUrl,
+                dataType: "binary",     // TODO: dataType could be wrong, might be image/png
+                success: function(result) {
+                    document.getElementById("img" + mId).setAttribute("src", "data:image/png;base64," + result);
+                    $('#img' + mId).show(); 
+                },
+                error: function(xmlRequest) {
+                    console.log("GET image for mId " + mId + " failed: " + xmlRequest.status + " " + xmlRequest.statusText);
+                    console.log(xmlRequest.responseText);
+                }
+            });
+
+
+            // submit async request for comments for the message.
+            $.ajax({
+                type: "GET",
+                //url: "/comments/"+messageid+"/"+Gusername+"/"+GuserKey,
+                url: "/comments/"+mId+"/"+data.mMessageData[i].Gusername+"/"+data.mMessageData[i].GuserKey,
+                //url: "https://forum.wholetomato.com/mira/comments/" + data.mMessageData[i].mId + ".aspx",
+                dataType: "json",
+                success: ElementList.addComments,
+                error: function (xmlRequest) {      // remove if no/invalid response implies message has no comments.
+                    console.log("GET comments for mId " + mId + " failed: " + xmlRequest.status + " " + xmlRequest.statusText);
+                    console.log(xmlRequest.responseText);
+                }
+            });
+
+            // hook up the button that lets one add a comment.
+            $('#buttonComment' + mId).click(NewCommentForm.show);
+        }
+
+        if (headers == false) {
             $('#yours').hide();
             $('#liked').hide();
             $('#disliked').hide();
@@ -105,6 +127,46 @@ class ElementList {
         
     }
 
+    // add comments to browser document.
+    // all comments must be for a single message!
+    private static addComments(data: any) {
+        //console.log(JSON.stringify(data));      // uncomment to debug
+        if (data.mStatus === "logout") {
+            window.alert("Session Timed Out");
+            location.reload();
+        }
+
+        var comments: any;   // a string of html that will include all comments for a message
+        comments = "";
+        var i: number;
+        for (i=0; i<data.mMessageData.length; i++)
+        {
+            // todo: make mUsername a link to send mail or view profile.
+            comments += 
+                '<div class="row">'
+                    + '<div class="col-xs-6">'
+                        + '<blockquote class="blockquote-feed">'
+                            + '<p>' + data.mMessageData[i].mComment + '</p>'
+                            + '<footer>' + data.mMessageData[i].mUsername + '</footer>'
+                            //+ '<footer>'
+                            //+ '<p>' + data.mMessageData[i].mUsername
+                            //+ '<a href="mailto:' + data.mMessageData[i].mUsername + '@lehigh.edu"' + data.mMessage[i].mUsername + '/>'
+                            //+ '</p> </footer>'
+                        + '</blockquote>'
+                    + '</div>'
+                    + '<div class="col-xs-6">'
+                    + '</div>'
+                + '</div>';
+        }
+        //console.log("addComments() i=" + i);
+        //console.log("addComments() comments=" + comments);
+        if (i>0)        // there was at least one comment
+        {
+            // add comments to message associated with first comment, i.e. data.mMessageData[0].mId
+            document.getElementById("comments" + data.mMessageData[0].mId).innerHTML = comments;
+            document.getElementById("comments" + data.mMessageData[0].mId).style.display = "inline";
+        }
+    }
 
     /**
     * clickDelete is the code we run in response to a click of a delete button
@@ -136,7 +198,8 @@ class ElementList {
             type: "POST",
             url: "/upVote",
             dataType: "json",
-            data: JSON.stringify({ mUsername: Gusername, mMessageId: id, mKey: GuserKey}),
+            data: JSON.stringify({ mUsername: id.Gusername, mMessageId: id, mKey: id.GuserKey}),    
+            // might need to remove id.Guser
             success: ElementList.onVoteResponse
         });
     }
@@ -153,7 +216,7 @@ class ElementList {
             type: "POST",
             url: "/downVote",
             dataType: "json",
-            data: JSON.stringify({ mUsername: Gusername, mMessageId: id, mKey: GuserKey}),
+            data: JSON.stringify({ mUsername: id.Gusername, mMessageId: id, mKey: id.GuserKey}),
             success: ElementList.onVoteResponse
         });
     }
@@ -176,6 +239,7 @@ class ElementList {
     private static getProfile(){
         $("#editElement").hide();
         let user = $(this).data("value");
+        console.log("getProfile() of " + user);
         ProfilePage.show(user);
     }
 
@@ -218,11 +282,11 @@ class ElementList {
      */
     public static viewComments() {
         var msgToView = $(this).data("value");
-        mesID = msgToView;
+        //mesID = msgToView;
         //window.alert(msgToView);
         $.ajax({
             type: "GET",
-            url: "/comments/"+msgToView+"/"+Gusername+"/"+GuserKey,
+            url: "/comments/"+msgToView+"/"+msgToView.Gusername+"/"+msgToView.GuserKey,
             dataType: "json",
             success: ElementList.showComments
         });        
@@ -255,4 +319,5 @@ class ElementList {
         $("#ElementList").remove();
         ViewComments.update(data);
     }
+
 }

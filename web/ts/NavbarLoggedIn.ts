@@ -32,7 +32,8 @@ class NavbarLoggedIn {
             //$("div.container-fluid well span6").hide();
             //$("div.container-fluid well span6").hide();
             //ProfilePage.show(Gusername);
-            $("div.container-fluid well span6").hide(); 
+            //$("div.container-fluid well span6").hide(); 
+            $("div.container well span6").hide(); 
             ElementList.refresh();
             //NavbarLoggedIn.isInit = true;
         }
@@ -76,8 +77,10 @@ class NavbarLoggedIn {
     public static viewBuzz(){
         viewingYours = false;
         $("nav.xyz").hide();
-        $('body').removeClass('div.container-fluid well span6');
-        $("div.container-fluid well span6").hide();
+        //$('body').removeClass('div.container-fluid well span6');
+        $('body').removeClass('div.container well span6');
+        //$("div.container-fluid well span6").hide();
+        $("div.container well span6").hide();
         $("#ElementList").remove();
         $("#ProfilePage").remove();
         $("#ViewComments").remove();

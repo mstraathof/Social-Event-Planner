@@ -1,124 +1,35 @@
-<div class="panel panel-default" id="ElementList">
-    <h4 id="yours">Your Buzzes</h4>
-    <!--
-    <table class="table">
-        <tbody>
-            <!--
-            <tr> 
-                <th>Author</th>
-                <th>Title</th>
-                <th>Message</th>
-                <th></th>
-                <th>Time Created</th>
-                <th>Vote Count</th>
-                <th> </th>
-                <th> </th>
-            </tr>
-            - ->
-            
-            {{#each mMessageData}}
-            <tr>
-                <!-- This element has info on all the values in mData - ->
-                <td><button class="ElementList-profile" data-value="{{this.mUsername}}">{{this.mUsername}}</button></td>
-
-                <td class ="ElementList-editbtn"> {{this.mSubject}}</td>
-                <td class="col-md-6">{{this.mMessage}}</td>
-                
-                <td><button class="ElementList-comments" data-value="{{this.mId}}">View Comments</button></td>
-
-                <td>{{this.mCreateTime}}</td>
-                <td>{{this.mVotes}}</td>
-
-                <!-- Data For both Edit and Delete Buttons on each Entry
-                <td><button class="ElementList-editbtn" data-value="{{this.mId}}"data-message="{{this.mMessage}}"data-subject="{{this.mSubject}}">Edit</button></td>
-                <td><button class="ElementList-comments" data-value="{{this.mId}}">Comments</button></td>
-                <td><button class="ElementList-profile" data-value="{{this.mUsername}}">{{this.mUsername}}</button></td>
-                - ->
-
-                <td><button class="ElementList-upvote" data-value="{{this.mId}}">Upvote</button></td>
-                <td><button class="ElementList-downvote" data-value="{{this.mId}}">Downvote</button></td>
-            </tr>
-            {{/each}}
-
-        </tbody>
-    </table>
-    -->
-
+<div class="container" id="mainContainer">
     {{#each mMessageData}}
-    <div>       <!-- style="background-color:blue;color:white;padding:20px;" -->
-    <!-- <p><b><button class="ElementList-profile" data-value="{{this.mUsername}}">{{this.mUsername}}</button></b></p> -->
-    <p><b><button class="ElementList-profile" data-value="{{this.mUsername}}">{{this.mUsername}}</button></b></p>
-    <!-- <img src="https://thedomains.com/wp-content/buzz-bee-name-001-150x150.png" alt="Buzzing Bee"/> -->
-    <img src={{"this.mWebUrl"}} alt="image" height=300/>
-    <p class="ElementList-editbtn"><b>{{this.mSubject}}</b></p>
-    <p class="col-md-6">{{this.mMessage}}</p>
-    <p><a href="{{this.mUrl}}">{{this.mUrl}}</a></p>
-    <p>Votes: {{this.mVotes}}   <button class="ElementList-upvote" data-value="{{this.mId}}">Upvote</button>  <button class="ElementList-downvote" data-value="{{this.mId}}">Downvote</button></p>
-    <!-- <p style="text-indent:30px;"><button class="ElementList-comments" data-value="{{this.mId}}">View Comments</button></p> -->
-    <p style="text-indent:30px;"><button class="ViewComments-addComment" data-value="{{this.mMessageId}}">Add a comment</button></p>
-    <div style="text-indent:30px;"> 
-        {{#each mCommentData}}
-        <p>{{this.mComment}}</p>
-    </div>
-    <hr>
-    <hr>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-xs-6">
+                    <p>
+                        <a href="mailto:{{this.mUsername}}@lehigh.edu" data-toggle="tooltip" title="{{this.mUsername}}@lehigh.edu">{{this.mUsername}}</a>
+                        <button id="buttonViewProfile{{this.mId}}" type="button" class="btn btn-default btn-xs" data-value="{{this.mUsername}}">View Profile</button>
+                    </p>
+                    <p class="subject-feed">{{this.mSubject}}</p>
+                    <p>{{this.mMessage}}
+                        {{#if this.mUrl}}
+                            <a href="{{this.mUrl}}" data-toggle="tooltip" title="{{this.mUrl}}" target="_blank"><span class="glyphicon glyphicon-link"></span></a>
+                        {{/if}}
+                    </p>
+                    <p class="date-feed">{{this.mCreateTime}}</p>
+                    <p>
+                        <a href="#" data-toggle="tooltip" title="Vote count"><span class="badge">{{this.mVotes}}</span></a>
+                        <!--onclick="alert('Vote up.'); return false;">-->
+                        <a id="aVoteUp{{this.mId}}" href="#" data-toggle="tooltip" title="Vote Up" data-value="{{this.mId}}" onclick="ElementList-upvote"><span class="glyphicon glyphicon-thumbs-up"></span></a>
+                        <a id="aVoteDown{{this.mId}}" href="#" data-toggle="tooltip" title="Vote Down" data-value="{{this.mId}}" onclick="ElementList-downvote"><span class="glyphicon glyphicon-thumbs-down"></span></a>
+                    </p>
+                </div>
+                <div class="col-xs-6">
+                    <img id="img{{this.mId}}" src="" class="img-responsive thumbnail img-feed pull-right" style="display: none" />
+                </div>
+            </div>
+            <div id="comments{{this.mId}}" style="display: none">
+            </div>
+            <button id="buttonComment{{this.mId}}" type="button" class="btn btn-default btn-xs">Comment</button></p>
+        </div>
     </div>
     {{/each}}
-
-    <h4 id="liked">Your Upvoted Buzzes</h4>
-    <table class="table">
-        <tbody>
-            {{#each mLikedData}}
-            <tr>
-                <!-- This element has info on all the values in mData -->
-                <td class ="ElementList-editbtn"> {{this.mSubject}}</td>
-                <td class="col-md-6">{{this.mMessage}}</td>
-                
-                <td>{{this.mCreateTime}}</td>
-                <td>{{this.mVotes}}</td>
-
-                <td><button class="ElementList-comments" data-value="{{this.mId}}">Comments</button></td>
-                <td><button class="ElementList-profile" data-value="{{this.mUsername}}">{{this.mUsername}}</button></td>
-                <td><button class="ElementList-upvote" data-value="{{this.mId}}">Upvote</button></td>
-                <td><button class="ElementList-downvote" data-value="{{this.mId}}">Downvote</button></td>
-            </tr>
-            {{/each}}
-        </tbody>
-    </table>
-
-    <h4 id="disliked">Your Downvoted Buzzes</h4>
-    <table class="table">
-        <tbody>
-            {{#each mDislikedData}}
-            <tr>
-                <!-- This element has info on all the values in mData -->
-                <td class ="ElementList-editbtn"> {{this.mSubject}}</td>
-                <td class="col-md-6">{{this.mMessage}}</td>
-                
-                <td>{{this.mCreateTime}}</td>
-                <td>{{this.mVotes}}</td>
-
-                <td><button class="ElementList-comments" data-value="{{this.mId}}">Comments</button></td>
-                <td><button class="ElementList-profile" data-value="{{this.mUsername}}">{{this.mUsername}}</button></td>
-                <td><button class="ElementList-upvote" data-value="{{this.mId}}">Upvote</button></td>
-                <td><button class="ElementList-downvote" data-value="{{this.mId}}">Downvote</button></td>
-            </tr>
-            {{/each}}
-        </tbody>
-    </table>
-
-    <h4 id="commented">Your Comments</h4>
-    <table class="table">
-        <tbody>
-            {{#each mCommentData}}
-            <tr>
-                <!-- This element has info on all the values in mData -->
-                <td>{{this.mComment}}</td>
-                <td>{{this.mCreateTime}}</td>
-                <td>{{this.mUsername}}</td>
-            </tr>
-            {{/each}}
-        </tbody>
-    </table>
-
 </div>
