@@ -150,7 +150,9 @@ public class App {
                 db.createTable('u');
             } else if (action == 'd') {     // tblDownVote
                 db.createTable('d');
-            } 
+            } else if (action == 'v') {
+                db.createTable('v');
+            }
             // Individual table drops
             else if (action == 'X') {   
                 db.dropTable("tblUser");

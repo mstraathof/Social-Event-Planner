@@ -63,6 +63,16 @@ public class Database {
      * A prepared statement for creating the up-vote table in the database
      */
     private PreparedStatement mCreateUpVoteTable;
+
+    /**
+     * A prepared statement for creating the poll table in the database
+     */
+    private PreparedStatement mCreatePollTable;
+
+    /**
+     * A prepared statement for creating voting for polls in the database
+     */
+    private PreparedStatement mCreatePollVotesTable;
  
     /**
      * The Database constructor is private: we only create Database objects 
@@ -138,9 +148,10 @@ public class Database {
                 +"subject VARCHAR(50) NOT NULL,"
                 +"message VARCHAR(500),"
                 +"url VARCHAR(500),"
-                +"webUrl VARCHAR(500),"
+                +"file_id VARCHAR(500),"
                 +"createTime VARCHAR(50),"
                 +"vote INTEGER,"
+                +"poll_id INTEGER,"
                 +"FOREIGN KEY (username) REFERENCES tblUser (username))"
             );
             db.mCreateCommentTable = db.mConnection.prepareStatement(
@@ -150,7 +161,7 @@ public class Database {
                 +"message_id INTEGER,"
                 +"comment_text VARCHAR(255),"
                 +"url VARCHAR(500),"
-                +"webUrl VARCHAR(500),"
+                +"file_id VARCHAR(500),"
                 +"createTime VARCHAR(50),"
                 +"FOREIGN KEY (username) REFERENCES tblUser (username),"
                 +"FOREIGN KEY (message_id) REFERENCES tblMessage (message_id))"
@@ -170,6 +181,28 @@ public class Database {
                 +"PRIMARY KEY (username, message_id),"
                 +"FOREIGN KEY (username) REFERENCES tblUser (username),"
                 +"FOREIGN KEY (message_id) REFERENCES tblMessage (message_id))"
+            );
+            db.mCreatePollTable = db.mConnection.prepareStatement(
+                "CREATE TABLE IF NOT EXISTS tblPoll ("
+                +"poll_id INTEGER,"
+                +"message_id INTEGER,"
+                +"option1 varchar(255),"
+                +"option2 varchar(255),"
+                +"option3 varchar(255),"
+                +"option4 varchar(255),"
+                +"option5 varchar(255),"
+                +"option6 varchar(255),"
+                +"PRIMARY KEY (poll_id),"
+                +"FOREIGN KEY (message_id) REFERENCES tblMessage (message_id))"
+            );
+            db.mCreatePollVotesTable = db.mConnection.prepareStatement(
+                "CREATE TABLE IF NOT EXISTS tblPollVotes ("
+                +"pollOptionVoted INTEGER,"
+                +"poll_id INTEGER,"
+                +"user_id INTEGER,"
+                +"PRIMARY KEY (pollOptionVoted, poll_id, user_id),"
+                +"FOREIGN KEY (poll_id) REFERENCES tblPoll (poll_id),"
+                +"FOREIGN KEY (user_id) REFERENCES tblUser (user_id))"
             );
             db.mInsertUser = db.mConnection.prepareStatement("INSERT INTO tblUser VALUES (default, ?, ?, ?)");
             db.mInsertUserUnauth = db.mConnection.prepareStatement("INSERT INTO tblUnauthUser VALUES (?, ?, ?)");
@@ -223,9 +256,12 @@ public class Database {
             mCreateCommentTable.execute();
             mCreateDownVoteTable.execute();
             mCreateUpVoteTable.execute();
+
+            mCreatePollTable.execute();
+            mCreatePollVotesTable.execute();
         } catch (SQLException e) {
             System.err.println("Table is already created");
-            //e.printStackTrace();
+            e.printStackTrace();
             return false;
         }
         return true;
@@ -256,9 +292,12 @@ public class Database {
                 mCreateUpVoteTable.execute();
             } else if (action == 'd') {     // tblDownVote
                 mCreateDownVoteTable.execute();
-            } else {
+            } else if (action == 'v'){
+                mCreatePollTable.execute();
+                mCreatePollVotesTable.execute();
+            }else {
                 System.err.println("Invalid input for creating table.");
-                System.err.println("Options are: [U]ser, [p]rofile, [m]essage, [c]omment, [d]ownvote, [u]pvote");
+                System.err.println("Options are: [U]ser, [p]rofile, [m]essage, [c]omment, [d]ownvote, [u]pvote, [v]poll");
                 return false;
             }    
         } catch (SQLException e) {
@@ -280,7 +319,7 @@ public class Database {
             stmt.executeUpdate(sql);
         } catch (SQLException e) {
             System.err.println("There is no table to drop");
-            //e.printStackTrace();
+            e.printStackTrace();
             return false;
         }
         return true;
@@ -288,7 +327,13 @@ public class Database {
 
     boolean dropAllTables() {
         boolean result;
-        String[] tables = {"tblUpVote", "tblDownVote", "tblComment", "tblProfile", "tblMessage", "tblUser", "tblUnauthUser"};
+        String[] tables = {"tblUpVote", "tblDownVote", "tblComment", "tblProfile", "tblMessage", "tblUser", "tblUnauthUser", "tblPoll", "tblPollVotes"};
+        try{
+            mCreatePollTable.execute();
+            mCreatePollVotesTable.execute();
+        }catch(SQLException e){
+            //
+        }
         for (int i = 0; i < tables.length; i++) {
             result = dropTable(tables[i]);
             if (result == false) {
