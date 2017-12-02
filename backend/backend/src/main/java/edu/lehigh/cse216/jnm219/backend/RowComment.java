@@ -33,6 +33,8 @@ public class RowComment {
      */
     String mUsername;
 
+    String mFileId;
+
     /**
      * Construct a RowComment object by providing values for its fields
      */

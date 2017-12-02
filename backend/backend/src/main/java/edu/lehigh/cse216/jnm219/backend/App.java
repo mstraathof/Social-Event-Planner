@@ -187,7 +187,7 @@ public class App {
             } else {
                 System.out.println("Files:");
                 for (File file : files) {
-                    System.out.printf("%s --%s-- (%s)\n",file.getTitle(),file.getCreatedDate(),file.getId());
+                    System.out.printf("%s (%s)\n",file.getTitle(),file.getId());
                 }
             }
         }catch(IOException e)
@@ -325,38 +325,29 @@ public class App {
         // This post route allows user to create the messagge to the table
 
         Spark.get("/messages/images/download/:id", (request,response) -> {
-            System.out.println("Entered");
             //SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
             String id = request.params("id");
-            System.out.println("Id: "+id);
-
+            response.status(200);
+            response.type("image/png");
             Drive service;
             try {
                 service = GDrive.getDriveService();
-                File file = service.files().get(id).execute();
-
-                String mime = file.getMimeType();
                 OutputStream outputStream = new ByteArrayOutputStream();
-                /*
-                service.files().export(id, mime)
+                String mimeType = service.files().get(id).execute().getMimeType();
+                System.out.println("Mime Type: "+mimeType);
+                service.files().get(id)
                         .executeMediaAndDownloadTo(outputStream);
                 ByteArrayOutputStream bos = (ByteArrayOutputStream)outputStream;
                 response.raw().getOutputStream().write(bos.toByteArray());
                 response.raw().getOutputStream().flush();
                 response.raw().getOutputStream().close();
-                */
-                response.status(200);
-                response.type("image/jpeg");
-                service.files().export(id, mime)
-                        .executeMediaAndDownloadTo(response.raw().getOutputStream());
-
             } catch (GoogleJsonResponseException e){
                 System.out.println("Google Drive Connection Failure "+e);
                 GoogleJsonError error = e.getDetails();
                 System.out.print(error);
             }
 
-            return response;
+            return response.raw();
         });
 
         //image tag points to spark route and wraps the return value of get statement
@@ -369,25 +360,28 @@ public class App {
             String message = request.raw().getParameter("mMessage");
             String  subject = request.raw().getParameter("mSubject");
             String URL = request.raw().getParameter("mUrl");
-            String webUrl = "Error";
+            String fileName = request.raw().getParameter("mFilename");
+            String fileId = "Error";
             String username = request.raw().getParameter("mUsername");
             String keyString = request.raw().getParameter("mKey");
             int key = Integer.parseInt(keyString);
-
-            try (InputStream is = request.raw().getPart("mFile").getInputStream()) {
-                // Use the input stream to create a file
-                System.out.println("Success");
-                webUrl = uploadFile(is,URL);
-                //System.out.println("webUrl: "+webUrl);
-            }catch(Exception e){
-                System.out.println("Failure: "+e);
+            System.out.println("Username: "+username+" Subject: "+subject+" Message: "+message+" Filename: "+fileName+" Key: "+key);
+            if(!fileName.equals("error")) {
+                try (InputStream is = request.raw().getPart("mFile").getInputStream()) {
+                    // Use the input stream to create a file
+                    System.out.println("Input Stream Read");
+                    fileId = uploadFile(is, fileName);
+                    System.out.println("File Uploaded Successfully");
+                } catch (Exception e) {
+                    System.out.println("Failure: " + e);
+                }
             }
             if (!checkKey(username,key))
             {
                 return gson.toJson(new StructuredMessage("logout", null,false));
             }
-            System.out.println("Username: "+username+" Subject: "+subject+" Message: "+message+" WebURL: "+webUrl+" Key: "+key);
-            boolean newId = db.insertOneMessage(subject,message,username,URL,webUrl);
+            System.out.println("Username: "+username+" Subject: "+subject+" Message: "+message+" File ID: "+fileId+" Key: "+key);
+            boolean newId = db.insertOneMessage(subject,message,username,URL,fileId);
             if (!newId) {
                 return gson.toJson(new StructuredMessage("error", "error performing insertion", null));
             } else {
@@ -432,16 +426,51 @@ public class App {
             SimpleRequest req = gson.fromJson(request.body(), SimpleRequest.class);
             response.status(200);
             response.type("application/json");
+            request.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement("/temp"));
+            String fileID = "Error";
+            String fileName = request.raw().getParameter("mFileName");
+            if(fileName.equals("error")) {
+                try (InputStream is = request.raw().getPart("mFile").getInputStream()) {
+                    // Use the input stream to create a file
+                    System.out.println("Success");
+                    fileID = uploadFile(is, fileName);
+                    //System.out.println("webUrl: "+webUrl);
+                } catch (Exception e) {
+                    System.out.println("Failure: " + e);
+                }
+            }
             if (!checkKey(req.mUsername,req.mKey))
             {
                 return gson.toJson(new StructuredComment("logout", null,false));
             }
-            boolean check = db.insertComment(req.mUsername, req.mMessageId,req.mComment,req.mURL,req.mURL); // mSubject vs mTitle?
+            boolean check = db.insertComment(req.mUsername, req.mMessageId,req.mComment,req.mURL,fileID);
             if (check == false) {
                 return gson.toJson(new StructuredComment("error", "error performing insertion", null));
             } else {
                 return gson.toJson(new StructuredComment("ok", "" + check, null));
             }
+        });
+        Spark.get("/comments/images/download/:id", (request,response) -> {
+            String id = request.params("id");
+            response.status(200);
+            response.type("image/png");
+            Drive service;
+            try {
+                service = GDrive.getDriveService();
+                OutputStream outputStream = new ByteArrayOutputStream();
+                service.files().get(id)
+                        .executeMediaAndDownloadTo(outputStream);
+                ByteArrayOutputStream bos = (ByteArrayOutputStream)outputStream;
+                response.raw().getOutputStream().write(bos.toByteArray());
+                response.raw().getOutputStream().flush();
+                response.raw().getOutputStream().close();
+            } catch (GoogleJsonResponseException e){
+                System.out.println("Google Drive Connection Failure "+e);
+                GoogleJsonError error = e.getDetails();
+                System.out.print(error);
+            }
+
+            return response.raw();
         });
        // This is the start of upvote and downvote section
 
@@ -574,14 +603,6 @@ public class App {
             System.out.println("emailVerified = " + emailVerified);
             String name = (String) payload.get("name");
             System.out.println("name = " + name);
-            //String pictureUrl = (String) payload.get("picture");
-            //System.out.println("pictureUrl = " + pictureUrl);
-            //String locale = (String) payload.get("locale");
-            //System.out.println("locale = " + locale);
-            //String familyName = (String) payload.get("family_name");
-            //System.out.println("familyName = " + familyName);
-            //String givenName = (String) payload.get("given_name");
-            //System.out.println("givenName = " + givenName);
             
             String user = null;
             int key = 0;
@@ -635,26 +656,34 @@ public class App {
     public static String uploadFile(InputStream in,String filename) throws IOException {
         Drive service;
         String id = "error";
+        System.out.println("Drive Found. Filename: "+filename);
+        String mimeFull = "image/png";
         try {
             service = GDrive.getDriveService();
 
-            /*
-            File upload = service.files().insert(file)
-                    .setFields("id")
-                    .execute();
-            */
+            String[] parts = filename.split("\\.");
+            String name = parts[0];
+            String mime = parts[1];
+            System.out.println(name+" "+mime);
             File body = new File();
-            body.setTitle(filename);
+            body.setTitle(name);
             body.setDescription("Description");
-            body.setMimeType("image/jpeg");
+            if(mime.equals("png") || mime.equals("jpeg"))
+            {
+                mimeFull = "image/"+mime;
+                body.setMimeType(mime);
+            }
+            else if (mime.equals("pdf"))
+            {
+                mimeFull = "application/pdf";
+                body.setMimeType(mime);
+            }
 
-
-            System.out.println("Upload File Reached");
             File file= service.files().insert(body,
                     new InputStreamContent(
-                            "image/jpeg",
+                            mimeFull,
                             new ByteArrayInputStream(
-                                    IOUtils.toByteArray(in)))).setFields("webContentLink,id").execute();
+                                    IOUtils.toByteArray(in)))).setFields("id").execute();
             id = file.getId();
             System.out.println("INPUT ID: "+id);
         } catch (GoogleJsonResponseException e){
@@ -671,7 +700,7 @@ public class App {
         } else {
             System.out.println("Files:");
             for (File file : files) {
-                System.out.printf("%s --%s-- (%s)\n",file.getTitle(),file.getCreatedDate(),file.getId());
+                System.out.printf("%s (%s)\n",file.getTitle(),file.getId());
             }
         }
         return id;

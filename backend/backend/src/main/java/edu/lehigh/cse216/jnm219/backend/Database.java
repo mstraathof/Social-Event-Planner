@@ -320,7 +320,7 @@ public class Database {
     /**
      * Inserting one message to the table
      */
-    boolean insertOneMessage(String subject, String message, String username,String URL,String webUrl) {
+    boolean insertOneMessage(String subject, String message, String username,String URL,String fileId) {
         int count = 0;
         int votes= 0;
         try {
@@ -330,7 +330,7 @@ public class Database {
             //int userId=getUserId(username);
 
             mInsertOneMessage.setString(4,URL);
-            mInsertOneMessage.setString(5,webUrl);
+            mInsertOneMessage.setString(5,fileId);
             //mInsertOneMessage.setString(4, URL);
             //mInsertOneMessage.setString(5,File);
             DateFormat sdf = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
@@ -357,7 +357,7 @@ public class Database {
             ResultSet rs = mSelectAllMessage.executeQuery();
             while (rs.next()) {
 
-                res.add(new RowMessage(rs.getInt("message_id"), rs.getString("subject"), rs.getString("message"), rs.getString("username"), rs.getString("createTime"),rs.getInt("vote"),rs.getString("webUrl")));
+                res.add(new RowMessage(rs.getInt("message_id"), rs.getString("subject"), rs.getString("message"), rs.getString("username"), rs.getString("createTime"),rs.getInt("vote"),rs.getString("file_id")));
             }
             rs.close();
             return res;
@@ -379,7 +379,7 @@ public class Database {
             mSelectOneMessage.setInt(1, id);
             ResultSet rs = mSelectOneMessage.executeQuery();
             if (rs.next()) {
-                res = new RowMessage(rs.getInt("message_id"), rs.getString("subject"), rs.getString("message"),rs.getString("username"), rs.getString("createTime"),rs.getInt("vote"),rs.getString("webUrl"));
+                res = new RowMessage(rs.getInt("message_id"), rs.getString("subject"), rs.getString("message"),rs.getString("username"), rs.getString("createTime"),rs.getInt("vote"),rs.getString("file_id"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -398,7 +398,7 @@ public class Database {
             ResultSet rs = mSelectUserMessage.executeQuery();
             while (rs.next())
             {
-                res.add(new RowMessage(rs.getInt("message_id"), rs.getString("subject"), rs.getString("message"), rs.getString("username"), rs.getString("createTime"),rs.getInt("vote"),rs.getString("webUrl")));
+                res.add(new RowMessage(rs.getInt("message_id"), rs.getString("subject"), rs.getString("message"), rs.getString("username"), rs.getString("createTime"),rs.getInt("vote"),rs.getString("file_id")));
             }
             rs.close();
             return res;
@@ -544,7 +544,7 @@ public class Database {
                 ResultSet rs2=mSelectOneMessage.executeQuery();
                 if (rs2.next())
                 {
-                    res.add(new RowMessage(rs2.getInt("message_id"), rs2.getString("subject"), rs2.getString("message"), rs2.getString("username"), rs2.getString("createTime"),rs2.getInt("vote"),rs2.getString("webUrl")));
+                    res.add(new RowMessage(rs2.getInt("message_id"), rs2.getString("subject"), rs2.getString("message"), rs2.getString("username"), rs2.getString("createTime"),rs2.getInt("vote"),rs2.getString("file_id")));
                 }
             }
         }catch (SQLException e) {
@@ -620,7 +620,7 @@ public class Database {
                 ResultSet rs2=mSelectOneMessage.executeQuery();
                 if (rs2.next())
                 {
-                    res.add(new RowMessage(rs2.getInt("message_id"), rs2.getString("subject"), rs2.getString("message"), rs2.getString("username"), rs2.getString("createTime"),rs2.getInt("vote"),rs2.getString("webUrl")));
+                    res.add(new RowMessage(rs2.getInt("message_id"), rs2.getString("subject"), rs2.getString("message"), rs2.getString("username"), rs2.getString("createTime"),rs2.getInt("vote"),rs2.getString("file_id")));
                 }
             }
         } catch (SQLException e) {
