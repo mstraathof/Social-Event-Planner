@@ -15,7 +15,7 @@ h3 {
 /* The table should be wider than it absolutely needs to be */
 table {
     width: 500px;
-    font-family: 'Fresca', sans-serif;
+    font-family: 'Open Sans', 'Segoe UI', sans-serif;
 }
 
 /* alternate color of table rows */

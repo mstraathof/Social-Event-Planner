@@ -66,22 +66,47 @@ class NewCommentForm {
         private static submitForm() {
             // get the values of the two fields, force them to be strings, and check 
             // that neither is empty
+// !!!!!!!!!!!
+
             let comment = "" + $("#" + NewCommentForm.NAME + "-comment").val();
-            if(comment == ""){
-                window.alert("Cannot post empty comment");
+            let url = "" + $("#" + NewCommentForm.NAME + "-url").val();            
+            let file = $("#" + NewCommentForm.NAME + "-file")[0].files[0];
+
+            if(comment === ""){
+                window.alert("Comment is required.");
+                return;
             }
             if(comment.length > 255){
-                window.alert("Comment too long");
+                window.alert("Comment cannot exceed 255 characters.");
+                return;
             }
             NewCommentForm.hide();
-            // set up an AJAX post.  When the server replies, the result will go to
-            // onSubmitResponse
+            var formData = new FormData();
+            formData.append('mUsername', Gusername);
+            formData.append('mKey', "" + GuserKey);     // convert number to string.
+            formData.append('mMessageId', "" + mesID);
+            formData.append('mComment', comment);
+            formData.append('mUrl', url);
+            formData.append('mFile', file);
+            // set up an AJAX post.  When the server replies, onSubmitResponse() will be called.
             //window.alert(mesID+" , "+comment+" , "+Gusername);
+            /*
             $.ajax({
                 type: "POST",
                 url: "/comments",
                 dataType: "json",
                 data: JSON.stringify({ mUsername: Gusername, mMessageId: mesID, mComment: comment, mKey: GuserKey }),
+                success: NewCommentForm.onSubmitResponse
+            });
+            */
+            $.ajax({
+                type: "POST",
+                url: "/comments",
+                //url: "https://forums.wholetomato.com/mira/echoComment.aspx",
+                dataType: "json",      // dataType of response to POST
+                data: formData,
+                contentType: false,
+                processData: false,
                 success: NewCommentForm.onSubmitResponse
             });
         }
@@ -93,6 +118,7 @@ class NewCommentForm {
          * @param data The object returned by the server
          */
         private static onSubmitResponse(data: any) {
+            //console.log(data);                       // DEBUG
             if (data.mStatus === "logout") {
                 window.alert("Session Timed Out");
                 location.reload();
@@ -103,7 +129,7 @@ class NewCommentForm {
                 //NewCommentForm.refresh();
                 $("#ViewComments").remove();
                 //window.alert(mesID);
-                ElementList.viewCommentsGivenID(mesID);
+                ElementList.viewCommentsGivenID(data.mesID);
             }
             // Handle explicit errors with a detailed popup message
             else if (data.mStatus === "error") {

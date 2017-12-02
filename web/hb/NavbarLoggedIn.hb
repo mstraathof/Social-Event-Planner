@@ -1,5 +1,5 @@
-<nav class="navbar navbar-default">
-    <div class="container-fluid">
+<div class="container">
+    <nav class="navbar navbar-default">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" 
@@ -24,7 +24,7 @@
                 </li>
                 <li>
                     <a class="btn btn-link" id="NavbarLoggedIn-viewBuzz">
-                        View Buzz's
+                        View All Buzzes
                     </a>
                 </li>
                 <li>
@@ -37,16 +37,15 @@
                         Sign Out
                     </a>
                 </li>
-                
             </ul>
              <script>
                 function signOut() {
-                var auth2 = gapi.auth2.getAuthInstance();
-                auth2.signOut().then(function () {
-                console.log('User signed out.');
-                });
-                 }
-                </script>
+                    var auth2 = gapi.auth2.getAuthInstance();
+                    auth2.signOut().then(function () {
+                        console.log('User signed out.');
+                    });
+                }
+            </script>
         </div>
-    </div>
-</nav>
+    </nav>
+</div>
