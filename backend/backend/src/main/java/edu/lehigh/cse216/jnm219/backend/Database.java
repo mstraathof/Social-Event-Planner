@@ -93,7 +93,7 @@ public class Database {
     /** Prepare statement for getting disliked messages by user */
     private PreparedStatement mGetDisLikedMessage;
     /**
-     * The Database constructor is private: we only create Database objects 
+     * The Database constructor is private: we only create Database objects
      * through the getDatabase() method.
      */
     private Database() {
@@ -122,9 +122,9 @@ public class Database {
 
     /**
      * Get a fully-configured connection to the database
-     * 
+     *
      * @param int connectionType = type of connection. 1 for normal server and 2 for test server connection.
-     * 
+     *
      * @return A Database object, or null if we cannot connect properly
      */
     static Database getDatabase(int connectionType) {
@@ -161,7 +161,7 @@ public class Database {
             return null;
         }
 
-        // Attempt to create all of our prepared statements.  If any of these 
+        // Attempt to create all of our prepared statements.  If any of these
         // fail, the whole getDatabase() call should fail
         try {
             // NB: we can easily get ourselves in trouble here by typing the
@@ -170,14 +170,18 @@ public class Database {
             //     from those constants.
 
             // Standard CRUD operations
-            db.mInsertOneMessage = db.mConnection.prepareStatement("INSERT INTO tblMessage VALUES (default, ?, ?, ?, ?, ?)");
+            db.mInsertOneMessage = db.mConnection.prepareStatement("INSERT INTO tblMessage VALUES (default, ?, ?, ?, ?, ?, ?,?)");
+
             db.mSelectAllMessage = db.mConnection.prepareStatement("SELECT * FROM tblMessage ORDER BY createTime DESC");
+
             db.mSelectOneMessage = db.mConnection.prepareStatement("SELECT * from tblMessage WHERE message_id=?");
             db.mInsertUser = db.mConnection.prepareStatement("Insert into tblUser Values (default, ?, ?, ?)");
             db.mSelectOneUser = db.mConnection.prepareStatement("Select * from tblUser where username=?");
             db.mSelectAllUser = db.mConnection.prepareStatement("Select * from tblUser");
             db.mUpdateUser = db.mConnection.prepareStatement("Update tblUser Set Password=?, salt=? where username=?");
-            db.mInsertComment = db.mConnection.prepareStatement("Insert into tblComment values (default, ?, ?, ?, ?)");
+
+            db.mInsertComment = db.mConnection.prepareStatement("Insert into tblComment values (default, ?, ?, ?, ?, ?, ?)");
+
             db.mSelectAllComment = db.mConnection.prepareStatement("select * from tblComment where message_id=? ");
             db.mInsertLikes = db.mConnection.prepareStatement("Insert into tblUpVote values (?,?)");
             db.mDeleteLikes = db.mConnection.prepareStatement("Delete from tblUpVote where username=? and message_id=?");
@@ -189,7 +193,7 @@ public class Database {
             db.mSearchDislikes = db.mConnection.prepareStatement("select * from tblDownVote where username=? and message_id=?");
             db.mGetSalt=db.mConnection.prepareStatement("select salt from tblUser where username=?");
             db.mGetUserId=db.mConnection.prepareStatement("select user_id from tblUser where username=?");
-            db.mInsertProfile = db.mConnection.prepareStatement("Insert into tblProfile values (?,?)"); 
+            db.mInsertProfile = db.mConnection.prepareStatement("Insert into tblProfile values (?,?)");
             db.mSelectOneProfile = db.mConnection.prepareStatement("select username, realname, email, profile_text from tblUser natural join tblProfile where username=?");
             db.mSelectUserMessage = db.mConnection.prepareStatement("select * from tblMessage where username=?");
             db.mSelectUserComment = db.mConnection.prepareStatement("select * from tblComment where username=?");
@@ -209,13 +213,13 @@ public class Database {
 
     /**
      * Close the current connection to the database, if one exists.
-     * 
-     * NB: The connection will always be null after this call, even if an 
+     *
+     * NB: The connection will always be null after this call, even if an
      *     error occurred during the closing operation.
-     * 
+     *
      * @return True if the connection was cleanly closed, false otherwise
      */
-    boolean disconnect() 
+    boolean disconnect()
     {
         if (mConnection == null) {
             System.err.println("Unable to close connection: Connection was null");
@@ -233,7 +237,7 @@ public class Database {
         return true;
     }
 
-    // start of user checks 
+    // start of user checks
 
     /**inserting user to unauthorized table  */
     boolean insertUser(String username,String realname,String email)
@@ -250,17 +254,17 @@ public class Database {
         }
         return true;
     }
-    /** 
+    /**
      * selecting one user with matching username and password to see
      * a user exist
      */
-    boolean selectOneUser(String username) 
+    boolean selectOneUser(String username)
     {
         boolean check=false;
         try {
             mSelectOneUser.setString(1, username);
             ResultSet rs = mSelectOneUser.executeQuery();
-            if (!rs.next()) 
+            if (!rs.next())
             {
                 check=false;
             }
@@ -290,8 +294,8 @@ public class Database {
         return true;
 
     }
-    
-    /** 
+
+    /**
      * Get user's salt using their username to use to encrypt password for comparison
      */
     byte [] getUserSalt (String username)
@@ -316,20 +320,25 @@ public class Database {
     /**
      * Inserting one message to the table
      */
-    boolean insertOneMessage(String subject, String message, String username) {
+    boolean insertOneMessage(String subject, String message, String username,String URL,String fileId) {
         int count = 0;
         int votes= 0;
         try {
-            mInsertOneMessage.setString(1, subject);
-            mInsertOneMessage.setString(2, message);
+            mInsertOneMessage.setString(1, username);
+            mInsertOneMessage.setString(2, subject);
+            mInsertOneMessage.setString(3, message);
             //int userId=getUserId(username);
-            mInsertOneMessage.setString(3, username);
+
+            mInsertOneMessage.setString(4,URL);
+            mInsertOneMessage.setString(5,fileId);
+            //mInsertOneMessage.setString(4, URL);
+            //mInsertOneMessage.setString(5,File);
             DateFormat sdf = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
             Calendar cal = Calendar.getInstance();
             sdf.setTimeZone(TimeZone.getTimeZone("America/New_York"));
             String strDate=sdf.format(cal.getTime());
-            mInsertOneMessage.setString(4,strDate);
-            mInsertOneMessage.setInt(5, votes);// create count votes method
+            mInsertOneMessage.setString(6,strDate);
+            mInsertOneMessage.setInt(7, votes);// create count votes method
             count += mInsertOneMessage.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -337,7 +346,7 @@ public class Database {
         }
         return true;
     }
-    
+
     /**
      * Returning arraylist of rowmessages which displays all the message created by
      * all the users
@@ -348,7 +357,7 @@ public class Database {
             ResultSet rs = mSelectAllMessage.executeQuery();
             while (rs.next()) {
 
-                res.add(new RowMessage(rs.getInt("message_id"), rs.getString("subject"), rs.getString("message"), rs.getString("username"), rs.getString("createTime"),rs.getInt("vote")));
+                res.add(new RowMessage(rs.getInt("message_id"), rs.getString("subject"), rs.getString("message"), rs.getString("username"), rs.getString("createTime"),rs.getInt("vote"),rs.getString("file_id")));
             }
             rs.close();
             return res;
@@ -357,11 +366,11 @@ public class Database {
             return null;
         }
     }
-     /**
+    /**
      * Get all data for a specific row, by ID
-     * 
+     *
      * @param id The id of the row being requested
-     * 
+     *
      * @return The data for the requested row, or null if the ID was invalid
      */
     RowMessage selectOneMessage(int id) {
@@ -370,7 +379,7 @@ public class Database {
             mSelectOneMessage.setInt(1, id);
             ResultSet rs = mSelectOneMessage.executeQuery();
             if (rs.next()) {
-                res = new RowMessage(rs.getInt("message_id"), rs.getString("subject"), rs.getString("message"),rs.getString("username"), rs.getString("createTime"),rs.getInt("vote"));
+                res = new RowMessage(rs.getInt("message_id"), rs.getString("subject"), rs.getString("message"),rs.getString("username"), rs.getString("createTime"),rs.getInt("vote"),rs.getString("file_id"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -378,7 +387,7 @@ public class Database {
         return res;
     }
     /**
-     * This returns all the message that one specific with that username 
+     * This returns all the message that one specific with that username
      * created
      */
     ArrayList <RowMessage> selectUserMessage(String username)
@@ -387,9 +396,9 @@ public class Database {
         try{
             mSelectUserMessage.setString(1,username);
             ResultSet rs = mSelectUserMessage.executeQuery();
-            while (rs.next()) 
+            while (rs.next())
             {
-                res.add(new RowMessage(rs.getInt("message_id"), rs.getString("subject"), rs.getString("message"), rs.getString("username"), rs.getString("createTime"),rs.getInt("vote")));
+                res.add(new RowMessage(rs.getInt("message_id"), rs.getString("subject"), rs.getString("message"), rs.getString("username"), rs.getString("createTime"),rs.getInt("vote"),rs.getString("file_id")));
             }
             rs.close();
             return res;
@@ -404,18 +413,20 @@ public class Database {
     /**
      * Inserting a comment to a message with mId
      */
-    boolean insertComment (String username, int mId, String comment)
+    boolean insertComment (String username, int mId, String comment,String URL, String file)
     {
         int rs=0;
         try {
             mInsertComment.setString(1,username);
             mInsertComment.setInt(2,mId);
             mInsertComment.setString(3,comment);
+            mInsertComment.setString(4, URL);
+            mInsertComment.setString(5, file);
             DateFormat sdf = new SimpleDateFormat("MM/dd/yyyy hh:mm  a");
             Calendar cal = Calendar.getInstance();
             sdf.setTimeZone(TimeZone.getTimeZone("America/New_York"));
             String strDate=sdf.format(cal.getTime());
-            mInsertComment.setString(4,strDate);
+            mInsertComment.setString(6,strDate);
             rs +=mInsertComment.executeUpdate();
         } catch (SQLException e)
         {
@@ -444,7 +455,7 @@ public class Database {
             return null;
         }
     }
-    
+
     /**
      * Returning all the comments that one user has made
      */
@@ -454,7 +465,7 @@ public class Database {
         try{
             mSelectUserComment.setString(1,username);
             ResultSet rs = mSelectUserComment.executeQuery();
-             while (rs.next()) {
+            while (rs.next()) {
                 res.add(new RowComment(rs.getInt("comment_id"), rs.getString("username"), rs.getInt("message_id"), rs.getString("comment_text"), rs.getString("createTime")));
             }
             rs.close();
@@ -466,22 +477,22 @@ public class Database {
     }
 
     // start of votes
-   
+
 
     /**
      * Increases the number of votes for a given post by one
-     * 
+     *
      * @param id The id of the row being altered
-     * 
+     *
      * @return The data of the newly altered row, or null if the ID was invalid
      */
-    boolean updateUpVote(String username, int messageId) 
+    boolean updateUpVote(String username, int messageId)
     {
-       int rsVote=0;
-       int rsMesage=0;
-       ResultSet count=null;
-       int voteCount=0;
-       ResultSet res=null;
+        int rsVote=0;
+        int rsMesage=0;
+        ResultSet count=null;
+        int voteCount=0;
+        ResultSet res=null;
         try {
             mGetVote.setInt(1,messageId);
             count=mGetVote.executeQuery();
@@ -513,7 +524,7 @@ public class Database {
             e.printStackTrace();
             return false;
         }
-        
+
         return true;
     }
     /**
@@ -533,7 +544,7 @@ public class Database {
                 ResultSet rs2=mSelectOneMessage.executeQuery();
                 if (rs2.next())
                 {
-                    res.add(new RowMessage(rs2.getInt("message_id"), rs2.getString("subject"), rs2.getString("message"), rs2.getString("username"), rs2.getString("createTime"),rs2.getInt("vote")));
+                    res.add(new RowMessage(rs2.getInt("message_id"), rs2.getString("subject"), rs2.getString("message"), rs2.getString("username"), rs2.getString("createTime"),rs2.getInt("vote"),rs2.getString("file_id")));
                 }
             }
         }catch (SQLException e) {
@@ -544,18 +555,18 @@ public class Database {
     }
     /**
      * Decreases the number of votes for a given post by one
-     * 
+     *
      * @param id The id of the row being altered
-     * 
+     *
      * @return The data of the newly altered row, or null if the ID was invalid
      */
     boolean updateDownVote(String username, int messageId) {
-       
-       int rsVote=0;
-       int rsMesage=0;
-       int voteCount=0;
-       ResultSet count=null;
-       ResultSet res=null;
+
+        int rsVote=0;
+        int rsMesage=0;
+        int voteCount=0;
+        ResultSet count=null;
+        ResultSet res=null;
         try {
             mGetVote.setInt(1,messageId);
             count=mGetVote.executeQuery();
@@ -588,7 +599,7 @@ public class Database {
             e.printStackTrace();
             return false;
         }
-        
+
         return true;
 
     }
@@ -609,7 +620,7 @@ public class Database {
                 ResultSet rs2=mSelectOneMessage.executeQuery();
                 if (rs2.next())
                 {
-                    res.add(new RowMessage(rs2.getInt("message_id"), rs2.getString("subject"), rs2.getString("message"), rs2.getString("username"), rs2.getString("createTime"),rs2.getInt("vote")));
+                    res.add(new RowMessage(rs2.getInt("message_id"), rs2.getString("subject"), rs2.getString("message"), rs2.getString("username"), rs2.getString("createTime"),rs2.getInt("vote"),rs2.getString("file_id")));
                 }
             }
         } catch (SQLException e) {
@@ -621,7 +632,7 @@ public class Database {
 
     /**
      * Returning a row of profile information
-     * that includes username,realname,email, profile text 
+     * that includes username,realname,email, profile text
      */
     RowProfile selectProfile(String username)
     {
@@ -673,17 +684,17 @@ public class Database {
 
 }
 
-/** 
-     * array list of row users to return all the users in tblUser with their information
-     * This method doesn't get called, because I made this method so that we can see all the
-     * user information in the earlier phase
-     *//*
-    ArrayList<RowUser> selectAllUser() 
+/**
+ * array list of row users to return all the users in tblUser with their information
+ * This method doesn't get called, because I made this method so that we can see all the
+ * user information in the earlier phase
+ *//*
+    ArrayList<RowUser> selectAllUser()
     {
         ArrayList<RowUser> res = new ArrayList<RowUser>();
         try {
             ResultSet rs = mSelectAllUser.executeQuery();
-            while (rs.next()) 
+            while (rs.next())
             {
                 res.add(new RowUser(rs.getInt("user_id"),rs.getString("username"), rs.getString("realname"), rs.getString("email"), rs.getBytes("salt"),rs.getBytes("password")));
             }
