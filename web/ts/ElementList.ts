@@ -55,6 +55,7 @@ class ElementList {
     * list and initialize buttons for viewing profiles, voting, and commenting.
     */
     private static update(data: any) {
+        if (!data || !data.mMessageData) return;
         // replace main container, whatever it contains, with one for the feed.
         $("#mainContainer").remove();
         // Use a template to re-generate the feed.
@@ -63,13 +64,14 @@ class ElementList {
         //{"mStatus":"ok","mMessageData":[{"mId":"10","mSubject":"Favorite movie", ...
         
         // get and display images, and comments, associated with messages
+        
         var i: number;
         for (i=0; i<data.mMessageData.length; i++)
         {
             let mId = data.mMessageData[i].mId;     // mId is referenced often
             console.log("mId = " + mId);
 
-            // hook up the view-profile button.
+            // look up the view-profile button.
             $('#buttonViewProfile' + mId).click(ElementList.getProfile);
 
             // get and show a message image
@@ -78,10 +80,11 @@ class ElementList {
             //document.getElementById("img" + data.mMessageData[i].mId).setAttribute("src", "https://forum.wholetomato.com/mira/WhatABurgerWoman.jpg");
             //$('#img' + mId).show();
 
+            /*
             // get image associated with message and display
             $.ajax({
                 type: "GET",
-                url: "/messages/images/download/" + data.mMessageData[i].mWebUrl,
+                url: "/messages/images/download/" + data.mMessageData[i].mFileId,
                 dataType: "binary",     // TODO: dataType could be wrong, might be image/png
                 success: function(result) {
                     document.getElementById("img" + mId).setAttribute("src", "data:image/png;base64," + result);
@@ -92,13 +95,14 @@ class ElementList {
                     console.log(xmlRequest.responseText);
                 }
             });
+            */
 
 
             // submit async request for comments for the message.
             $.ajax({
                 type: "GET",
                 //url: "/comments/"+messageid+"/"+Gusername+"/"+GuserKey,
-                url: "/comments/"+mId+"/"+data.mMessageData[i].Gusername+"/"+data.mMessageData[i].GuserKey,
+                url: "/comments/"+mId+"/"+Gusername+"/"+GuserKey,   // data.mMessageData[i].
                 //url: "https://forum.wholetomato.com/mira/comments/" + data.mMessageData[i].mId + ".aspx",
                 dataType: "json",
                 success: ElementList.addComments,
@@ -112,6 +116,7 @@ class ElementList {
             $('#buttonComment' + mId).click(NewCommentForm.show);
         }
 
+        /*
         if (headers == false) {
             $('#yours').hide();
             $('#liked').hide();
@@ -119,6 +124,7 @@ class ElementList {
             $('#commented').hide();  
         }
         headers = false;
+        */
 
         $("."+ElementList.NAME+"-comments").click(ElementList.viewComments);
         $("."+ElementList.NAME+"-profile").click(ElementList.getProfile);
@@ -130,6 +136,8 @@ class ElementList {
     // add comments to browser document.
     // all comments must be for a single message!
     private static addComments(data: any) {
+        if(!data || !data.mMessageData.mComment[0]) return;
+
         //console.log(JSON.stringify(data));      // uncomment to debug
         if (data.mStatus === "logout") {
             window.alert("Session Timed Out");
@@ -147,11 +155,9 @@ class ElementList {
                     + '<div class="col-xs-6">'
                         + '<blockquote class="blockquote-feed">'
                             + '<p>' + data.mMessageData[i].mComment + '</p>'
+                            + '<img src="https://quiet-taiga-79213.herokuapp.com/comments/images/download/"' + data.mMessageData[i].mFileId + '" class="img-responsive thumbnail img-feed pull-left" height=100 />'
+                            //+ '<img src="http://www.aucustomerservice.com/wp-content/uploads/2017/08/Busy-Bee-Logo.jpg" class="img-responsive thumbnail img-feed pull-left" height=75 />'     // DEBUG
                             + '<footer>' + data.mMessageData[i].mUsername + '</footer>'
-                            //+ '<footer>'
-                            //+ '<p>' + data.mMessageData[i].mUsername
-                            //+ '<a href="mailto:' + data.mMessageData[i].mUsername + '@lehigh.edu"' + data.mMessage[i].mUsername + '/>'
-                            //+ '</p> </footer>'
                         + '</blockquote>'
                     + '</div>'
                     + '<div class="col-xs-6">'
@@ -198,8 +204,8 @@ class ElementList {
             type: "POST",
             url: "/upVote",
             dataType: "json",
-            data: JSON.stringify({ mUsername: id.Gusername, mMessageId: id, mKey: id.GuserKey}),    
-            // might need to remove id.Guser
+            data: JSON.stringify({ mUsername: Gusername, mMessageId: id, mKey: GuserKey}),    
+            // might need id.Guser
             success: ElementList.onVoteResponse
         });
     }
@@ -216,7 +222,7 @@ class ElementList {
             type: "POST",
             url: "/downVote",
             dataType: "json",
-            data: JSON.stringify({ mUsername: id.Gusername, mMessageId: id, mKey: id.GuserKey}),
+            data: JSON.stringify({ mUsername: Gusername, mMessageId: id, mKey: GuserKey}),
             success: ElementList.onVoteResponse
         });
     }
