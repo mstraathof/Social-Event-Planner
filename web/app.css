@@ -15,7 +15,8 @@ body {
 /* make the form elements wide, and force a line break after each */
 input, label, textarea {
     display: block;
-    width: 200px;
+    /* width: 200px; */
+    width: 95%;
 }
 
 /* put some space between textareas and the buttons that follow them */
@@ -33,4 +34,28 @@ label, input, textarea, #addButton, #editButton {
     display: block;
     margin-bottom: 5px;
     margin-left: 15px;
+}
+
+/* css for feed version of website */
+.subject-feed {                   /* todo: use h5 but fix its style in handlebar css. */
+    font-weight: bold;
+}
+.date-feed {
+    font-size: 80%;
+}
+.img-feed {
+	max-height: 200px;		/* users can click feed images to see their original versions. */
+}
+.img-feed-comment {
+	max-height: 100px;		/* keep smaller than primary feed images */
+}
+.blockquote-feed {			/* apply only to comments in the feed. comments might be needed elsewhere without a margin-left. */
+	margin-left: 40px;
+	font-size: 14px;		/* override 17.5px in Bootstrap */
+}
+blockquote footer {
+	font-size: 100%;		/* override 85% in Bootstrap so commenter name is same size as comment, i.e. default <p> text  */
+}
+.form-control {
+    width: 95%;             /* override 100% in Bootstrap so input elements in modal dialog don't touch the right edge of the dialog */
 }
