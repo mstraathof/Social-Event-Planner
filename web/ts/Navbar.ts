@@ -6,10 +6,10 @@
  */
 var Handlebars: any;
 var $         : any;
-// var Gusername:string;
-// var Gpassword:string;
-// var GuserKey:number;
-// var GloggedIn:boolean;
+ var Gusername:string;
+ var Gpassword:string;
+ var GuserKey:number;
+ var GloggedIn:boolean;
 
 // var editEntryForm: EditEntryForm;
 // var loginWindow: LoginWindow;

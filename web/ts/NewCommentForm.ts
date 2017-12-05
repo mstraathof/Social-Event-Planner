@@ -66,11 +66,15 @@ class NewCommentForm {
         private static submitForm() {
             // get the values of the two fields, force them to be strings, and check 
             // that neither is empty
-// !!!!!!!!!!!
-
             let comment = "" + $("#" + NewCommentForm.NAME + "-comment").val();
             let url = "" + $("#" + NewCommentForm.NAME + "-url").val();            
             let file = $("#" + NewCommentForm.NAME + "-file")[0].files[0];
+            let filename = "error";
+            if (file) {
+                //console.log("filename not null");           // DEBUG
+                filename = file.name;
+            }
+            //console.log("filename: " + filename);          // DEBUG
 
             if(comment === ""){
                 window.alert("Comment is required.");
@@ -80,6 +84,7 @@ class NewCommentForm {
                 window.alert("Comment cannot exceed 255 characters.");
                 return;
             }
+            
             NewCommentForm.hide();
             var formData = new FormData();
             formData.append('mUsername', Gusername);
@@ -88,6 +93,7 @@ class NewCommentForm {
             formData.append('mComment', comment);
             formData.append('mUrl', url);
             formData.append('mFile', file);
+            formData.append('mFilename', filename);
             // set up an AJAX post.  When the server replies, onSubmitResponse() will be called.
             //window.alert(mesID+" , "+comment+" , "+Gusername);
             /*
@@ -118,7 +124,7 @@ class NewCommentForm {
          * @param data The object returned by the server
          */
         private static onSubmitResponse(data: any) {
-            //console.log(data);                       // DEBUG
+            console.log(data);                       // DEBUG
             if (data.mStatus === "logout") {
                 window.alert("Session Timed Out");
                 location.reload();

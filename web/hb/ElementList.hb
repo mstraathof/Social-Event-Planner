@@ -18,12 +18,12 @@
                     <p>
                         <a href="#" data-toggle="tooltip" title="Vote count"><span class="badge">{{this.mVotes}}</span></a>
                         <!--onclick="alert('Vote up.'); return false;">-->
-                        <a id="aVoteUp{{this.mId}}" href="#" data-toggle="tooltip" title="Vote Up" data-value="{{this.mId}}" onclick="ElementList-upvote"><span class="glyphicon glyphicon-thumbs-up"></span></a>
-                        <a id="aVoteDown{{this.mId}}" href="#" data-toggle="tooltip" title="Vote Down" data-value="{{this.mId}}" onclick="ElementList-downvote"><span class="glyphicon glyphicon-thumbs-down"></span></a>
+                        <a id="aVoteUp{{this.mId}}" href="#" data-toggle="tooltip" title="Vote Up" data-value="{{this.mId}}" onclick="upvote(); return false;"><span class="glyphicon glyphicon-thumbs-up"></span></a>
+                        <a id="aVoteDown{{this.mId}}" href="#" data-toggle="tooltip" title="Vote Down" data-value="{{this.mId}}" onclick="ElementList.downvote(); return false;"><span class="glyphicon glyphicon-thumbs-down"></span></a>
                     </p>
                 </div>
                 <div class="col-xs-6">
-                    <img id="img{{this.mId}}" src="" class="img-responsive thumbnail img-feed pull-right" style="display: none" />
+                    <img src="https://quiet-taiga-79213.herokuapp.com/messages/images/download/{{this.mFileId}}" class="img-responsive thumbnail img-feed pull-right" height=300 />
                 </div>
             </div>
             <div id="comments{{this.mId}}" style="display: none">

@@ -57,7 +57,7 @@ class NewEntryForm {
         public static show() {
             $("#" + NewEntryForm.NAME + "-title").val("foo");
             $("#" + NewEntryForm.NAME + "-message").val("bar");
-            $("#" + NewEntryForm.NAME + "-url").val("");
+            $("#" + NewEntryForm.NAME + "-url").val("https://xkcd.com/");
             $("#" + NewEntryForm.NAME + "-file").val("");
             $("#" + NewEntryForm.NAME).modal("show");
         }
@@ -72,6 +72,12 @@ class NewEntryForm {
             let message = "" + $("#" + NewEntryForm.NAME + "-message").val();
             let url = "" + $("#" + NewEntryForm.NAME + "-url").val();
             let file = $("#" + NewEntryForm.NAME + "-file")[0].files[0];
+            let filename = "error";
+            if (file) {
+                //console.log("file found");        // DEBUG
+                filename = file.name;
+            }
+            console.log("filename:" + filename);
 
             if(message.length >= 500)
             {
@@ -114,6 +120,7 @@ class NewEntryForm {
             formData.append('mMessage', message);
             formData.append('mUrl', url);
             formData.append('mFile', file);
+            formData.append('mFilename', filename);
 
             $.ajax({
                 type: "POST",

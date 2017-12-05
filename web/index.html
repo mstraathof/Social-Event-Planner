@@ -17,9 +17,43 @@
         <script src="app.js"></script>
 
         <link href="https://fonts.googleapis.com/css?family=Fresca" rel="stylesheet">
-        <link rel="stylesheet" href="app.css" />
         <link href="bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="app.css" />
 
+        <script>
+            // todo: move javascript to utilities.js and get utilities.js included in build and deployment process.
+            function getShortDate(d)
+            {
+                var today = new Date();
+                var shortDate = ("" + d).replace("/" + today.getFullYear() + " ", " ");		// remove current year
+                if (shortDate[0] == "0")
+                    shortDate = shortDate.replace("0", "");			// remove leading zero from date, e.g. 01/11. (replace() finds only first occurrence.)
+                shortDate = shortDate.replace(" 0", " ");			// remove leading zero from time, e.g. 06:30
+                return shortDate;
+            }
+
+            function getHostnameFromUrl(url) {			// not used
+                // get www.lehigh.edu from:
+                //	http://www.lehigh.edu/foo/bar.html
+                //	www.lehigh.edu/foo/bar.html
+                //	www.lehigh.edu:6363
+                //	www.lehigh.edu?name=foo
+                var urlString = url + "";
+                var hostname;
+                if (urlString.indexOf("://") > -1)
+                {
+                    hostname = urlString.split('/')[2];		// get hostname between 2nd and 3rd slashes
+                }
+                else
+                {
+                    hostname = urlString.split('/')[0];		// get hostname before 1st slash
+                }
+                hostname = hostname.split(':')[0];		// get hostname before a port number
+                hostname = hostname.split('?')[0];		// get hostname before a query string
+
+                return hostname;
+            }
+        </script>
     </head>
 
     <body role="document">
